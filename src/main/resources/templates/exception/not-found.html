@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Not Found</title>
+    <link rel="stylesheet" href="/css/exception/not-found.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+
+<div class="error-container">
+    <h1>404</h1>
+    <p>Page not found</p>
+
+    <a href="/" class="home-btn">Go Home</a>
+</div>
+
+</body>
+</html>

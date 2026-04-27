@@ -1,0 +1,228 @@
+@import "../main.css";
+
+:root {
+    --dark: #3b3b3b;
+    --light: #fff;
+    --dark-accent: #536edc;
+    --light-accent: #c1ccff;
+    --accent: #1c48b7;
+    --error: #ff4d4d;
+    --navbar-height: 10vh;
+    --navbar-max-width: 1500px;
+    --navbar-padding: clamp(1rem, 2vw, 2rem);
+}
+
+header {
+    background: var(--accent);
+    height: var(--navbar-height);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 5px solid var(--dark);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    max-width: var(--navbar-max-width);
+    width: 90%;
+    padding: 0 var(--navbar-padding);
+    gap: 1rem;
+}
+
+.logo {
+    height: min(6vh, 60px);
+    width: auto;
+}
+
+img {
+    transition: 0.3s ease-in-out;
+}
+
+.links {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+.links i {
+    color: var(--light);
+    font-size: clamp(1rem, 1.3vw, 1.3rem);
+    transition: 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.links i:hover {
+    color: var(--light-accent);
+    transform: scale(1.1);
+}
+
+.links i.fa-heart:hover {
+    color: red;
+}
+
+.links img {
+    width: 5vh;
+    height: 5vh;
+    cursor: pointer;
+}
+
+.search-bar {
+    flex: 1;
+    max-width: clamp(200px, 30%, 500px);
+    margin: 0 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.search-bar input {
+    width: 100%;
+    height: min(5vh, 35px);
+    padding: 0.5rem;
+    padding-right: 3rem;
+    border: 1px solid var(--dark);
+    border-radius: 2.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: var(--dark);
+    font-size: clamp(0.875rem, 1vw, 1rem);
+}
+
+.search-button {
+    background: none;
+    height: min(3.5vh, 35px);
+    width: min(3.5vh, 35px);
+    border: none;
+    border-radius: 50%;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease-in-out;
+}
+
+.search-button i {
+    color: var(--accent);
+    padding: 0.5rem;
+    border-radius: 50%;
+    font-size: clamp(1rem, 1.2vw, 1.2rem);
+    transition: 0.3s ease-in-out;
+}
+
+.search-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.search-button i:hover {
+    background: var(--dark-accent);
+    color: var(--light);
+    transform: scale(1.1);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    transform: none;
+    background-color: var(--light);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.icon-with-text {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.25rem, 0.5vw, 0.5rem);
+    color: var(--light);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.icon-with-text span {
+    font-size: clamp(0.875rem, 1vw, 1rem);
+    font-weight: 500;
+}
+
+.icon-with-text:hover,
+.icon-with-text:hover span {
+    color: var(--light-accent);
+}
+
+/* Responsive */
+
+@media (max-width: 1200px) {
+    .navbar {
+        width: 95%;
+    }
+
+    .search-bar {
+        width: 35%;
+    }
+}
+
+@media (max-width: 992px) {
+    .navbar {
+        width: 98%;
+    }
+
+    .search-bar {
+        width: 30%;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .logo {
+        height: min(4vh, 40px);
+    }
+
+    .links {
+        gap: 1rem;
+    }
+
+    .links img {
+        width: min(4vh, 40px);
+        height: min(4vh, 40px);
+    }
+
+    .icon-with-text span {
+        display: none;
+    }
+
+    .search-bar {
+        max-width: clamp(150px, 30%, 250px);
+        margin: 0 0.5rem;
+    }
+}

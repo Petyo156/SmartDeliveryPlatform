@@ -1,0 +1,47 @@
+<header th:fragment="header">
+    <nav class="navbar">
+        <a href="/">
+            <img class="logo" src="/images/logo.png" alt="logo.png">
+        </a>
+        <div class="search-bar" th:if="${hasHiddenElements == null}">
+            <form th:action="@{/categories}" method="get">
+                <input type="text" name="search" placeholder="Search" required>
+                <button type="submit" class="search-button navbar-search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="links">
+            <div class="dropdown" th:if="${null != user && user.role.name == 'ADMIN'}">
+                <div class="icon-with-text">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Admin</span>
+                </div>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{/admin/stuff1}">Stuff 1</a></li>
+                    <li><a class="dropdown-item" th:href="@{/admin/stuff2}">Stuff 2</a></li>
+                </ul>
+            </div>
+
+            <div class="dropdown" th:if="${null != user}">
+                <div class="icon-with-text">
+                    <i class="fa-solid fa-user"></i>
+                    <span>My Account</span>
+                </div>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                    <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
+                </ul>
+            </div>
+            <a th:if="${null == user}" th:href="@{/login}" class="icon-with-text">
+                <i class="fa-solid fa-user"></i>
+                <span>Login</span>
+            </a>
+            <a th:href="@{/cart}" class="icon-with-text">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Cart</span>
+            </a>
+        </div>
+    </nav>
+</header>

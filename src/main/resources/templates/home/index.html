@@ -1,1 +1,97 @@
-<h1>Hello world!</h1>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home | Smart Delivery</title>
+
+    <link rel="stylesheet" href="/css/home/index.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+
+    <link rel="icon" href="/images/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
+
+<main class="home-container">
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Fast Delivery to Your Door 🚀</h1>
+            <p>Order food, groceries and drinks in minutes</p>
+
+            <a href="/food" class="hero-btn">Browse Restaurants</a>
+        </div>
+    </section>
+
+    <section class="quick-categories">
+        <h2>What are you craving?</h2>
+
+        <div class="category-cards">
+
+            <a href="/food" class="category-card">
+                <i class="fas fa-utensils"></i>
+                <span>Food</span>
+            </a>
+
+            <a href="/groceries" class="category-card">
+                <i class="fas fa-shopping-basket"></i>
+                <span>Groceries</span>
+            </a>
+
+            <a href="/drinks" class="category-card">
+                <i class="fas fa-coffee"></i>
+                <span>Drinks</span>
+            </a>
+
+        </div>
+    </section>
+
+    <section class="featured">
+        <h2>Popular right now 🔥</h2>
+
+        <div class="featured-grid">
+
+            <div class="featured-card">
+                <h3>Burgers</h3>
+                <p>Juicy and delicious</p>
+                <a href="/food?search=burger">Order now</a>
+            </div>
+
+            <div class="featured-card">
+                <h3>Pizza</h3>
+                <p>Hot & fresh</p>
+                <a href="/food?search=pizza">Order now</a>
+            </div>
+
+            <div class="featured-card">
+                <h3>Sushi</h3>
+                <p>Fresh & premium</p>
+                <a href="/food?search=sushi">Order now</a>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="user-section" th:if="${user != null}">
+        <h2>Welcome back, <span th:text="${user.firstName}"></span> 👋</h2>
+        <p>Continue where you left off</p>
+
+        <a href="/cart" class="hero-btn">Go to Cart</a>
+    </section>
+
+    <section class="cta">
+        <h2>Hungry? Let's fix that.</h2>
+        <a href="/food" class="hero-btn">Start Ordering</a>
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
