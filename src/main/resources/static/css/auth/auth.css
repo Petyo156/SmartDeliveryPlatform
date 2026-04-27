@@ -1,0 +1,121 @@
+@import "../main.css";
+
+.auth-page {
+    background: #f5f7fb;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10vh;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #1c48b7;
+}
+
+button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1c48b7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #163a94;
+}
+
+.section-title {
+    margin: 1.5rem 0 1rem;
+    font-size: 14px;
+    color: #666;
+}
+
+.switch-link {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 14px;
+}
+
+.switch-link a {
+    color: #1c48b7;
+    text-decoration: none;
+}
+
+.switch-link a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: #ffebeb;
+    color: #b30000;
+    padding: 0.7rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.success-message {
+    background: #e6ffed;
+    color: #0f7a2f;
+    padding: 0.7rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.register-page .auth-container {
+    max-width: 500px;
+}
+
+.register-page .auth-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.register-page .input-group {
+    margin-bottom: 0.8rem;
+}
+
+.register-page .section-title {
+    font-weight: 600;
+    color: #1c48b7;
+}

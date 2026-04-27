@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -19,7 +20,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         http
                 .authorizeHttpRequests(matchers -> matchers
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/", "/search/**", "/register", "/login", "/categories/**",
+                        .requestMatchers("/", "/search/**", "/register", "/categories/**",
                                       "/about", "/contact", "/faq", "/privacy", "/contact/submit").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -30,9 +31,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .failureUrl("/login?error")
                         .permitAll())
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/")
-                        .permitAll());
+                );
 
         return http.build();
     }
