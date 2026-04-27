@@ -2,203 +2,125 @@ package org.tuvarna.smartdeliveryplatform.user.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tuvarna.smartdeliveryplatform.address.model.Address;
+import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
+import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
-import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
+import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
+import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.auth.UserRegisterRequest;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
 @Slf4j
-public class UserService implements UserDetailsService {
+public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AddressService addressService;
     private final CartService cartService;
 
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CartService cartService) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       AddressService addressService,
+                       CartService cartService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.addressService = addressService;
         this.cartService = cartService;
     }
 
-//    @Transactional
-//    public void register(RegisterRequest registerRequest) {
-//        log.info("Attempting to register user: {}", registerRequest.getEmail());
-//
-//        checkIfEmailAlreadyExists(registerRequest.getEmail());
-//        checkIfPasswordsMatch(registerRequest.getPassword(), registerRequest.getConfirmPassword());
-//
-//        User user = setupUser(registerRequest);
-//        userRepository.save(user);
-//
-//        log.info("Successfully registered user");
-//    }
+    @Transactional
+    public void register(RegisterRequest registerRequest) {
+        UserRegisterRequest userRequest = registerRequest.getUserRegisterRequest();
+        AddressRequest addressRequest = registerRequest.getAddressRequest();
 
-    //method override from UserDetailsService interface
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.info("Loading user by email...");
-        User user = getByEmail(email);
+        log.info("Registering user with email: {}", userRequest.getEmail());
 
-        return new AuthenticationMetadata(user.getId(), email, user.getPassword(), user.getRole(), user.getStatus());
+        validateInput(userRequest.getEmail(), userRequest.getPassword());
+        checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
+        checkIfEmailAlreadyExists(userRequest.getEmail());
+
+        setupUser(userRequest, addressRequest);
+        log.info("User registered successfully: {}", userRequest.getEmail());
     }
 
     public User getByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> {
-            log.error("User with email '{}' does not exist", email);
-            return new UserWithEmailDoesntExistException(ExceptionMessages.USER_WITH_EMAIL_DOESNT_EXIST);
-        });
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
     }
 
     public User getAuthenticatedUser(AuthenticationMetadata auth) {
         if (null == auth) {
             return null;
         }
+
         return getByEmail(auth.getEmail());
     }
-//
-//    public boolean userCountMoreThanZero() {
-//        return userRepository.count() > 0;
-//    }
-//
-//    public void updateUserPersonalInformationPreference(String zipCode, String address, String city, String phoneNumber, User user) {
-//        boolean isNew = user.getAddress() == null || user.getCity() == null || user.getPhoneNumber() == null;
-//
-//        boolean isUnchanged = Objects.equals(address, user.getAddress()) &&
-//                Objects.equals(city, user.getCity()) &&
-//                Objects.equals(phoneNumber, user.getPhoneNumber()) &&
-//                Objects.equals(zipCode, user.getZipCode());
-//
-//
-//        if (!isNew && isUnchanged) {
-//            log.info("User address, city, and phone have not changed since last order");
-//            return;
-//        }
-//
-//        user.setAddress(address);
-//        user.setCity(city);
-//        user.setPhoneNumber(phoneNumber);
-//        user.setZipCode(zipCode);
-//
-//        log.info("Updating user address, city, and phone number preference");
-//        userRepository.save(user);
-//    }
-//
-//    public void updateUserFirstAndLastNamePreference(String fullName, User user) {
-//        String[] nameParts = fullName.split(" ", 2);
-//        String firstName = nameParts[0];
-//        String lastName = nameParts.length > 1 ? nameParts[1] : "";
-//        updateUserFirstAndLastNamePreference(firstName, lastName, user);
-//    }
-//
-//    public void updateUserFirstAndLastNamePreference(String firstName, String lastName, User user) {
-//        boolean isNew = user.getFirstName() == null || user.getLastName() == null;
-//        boolean isUnchanged = Objects.equals(firstName, user.getFirstName()) &&
-//                Objects.equals(lastName, user.getLastName());
-//        if (!isNew && isUnchanged) {
-//            log.info("User first and last name have not changed since last order");
-//            return;
-//        }
-//
-//        user.setFirstName(firstName);
-//        user.setLastName(lastName);
-//        log.info("Updating user first and last name preference");
-//        userRepository.save(user);
-//    }
-//
-//    public void changePassword(ChangePasswordRequest changePasswordRequest, User user) {
-//        String oldPassword = changePasswordRequest.getOldPassword();
-//        if (passwordEncoder.matches(oldPassword, user.getPassword())) {
-//            if (changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())) {
-//                user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-//                userRepository.save(user);
-//                log.info("Successfully changed password");
-//                return;
-//            }
-//        }
-//        throw new InvalidChangePasswordRequestException(ExceptionMessages.INVALID_CHANGE_PASSWORD_REQUEST);
-//    }
-//
-//    public void insertAdmin() {
-//        User admin = initializeAdmin();
-//        log.info("Inserting admin user");
-//
-//        userRepository.save(admin);
-//    }
-//
-//    public PersonalInformationResponse getPersonalInformationResponse(User user) {
-//        return initializePersonalInformationResponse(user);
-//    }
-//
-//    @Transactional
-//    public User setupUser(RegisterRequest registerRequest) {
-//        User user = userRepository.save(initializeUser(registerRequest));
-//
-//        Cart cart = cartService.initializeCartForUser(user);
-//        user.setCart(cart);
-//
-//        return userRepository.save(user);
-//    }
-//
-//    private PersonalInformationResponse initializePersonalInformationResponse(User user) {
-//        return PersonalInformationResponse.builder()
-//                .firstName(user.getFirstName())
-//                .lastName(user.getLastName())
-//                .phoneNumber(user.getPhoneNumber())
-//                .address(user.getAddress())
-//                .city(user.getCity())
-//                .zipCode(user.getZipCode())
-//                .build();
-//    }
-//
-//    private User initializeAdmin() {
-//        RegisterRequest registerRequest = RegisterRequest.builder()
-//                .email("admin")
-//                .password("admin")
-//                .confirmPassword("admin")
-//                .build();
-//
-//        User user = initializeUser(registerRequest);
-//        user.setRole(UserRole.ADMIN);
-//
-//        Cart cart = cartService.initializeCartForUser(user);
-//        user.setCart(cart);
-//
-//        return userRepository.save(user);
-//    }
-//
-//
-//    private void checkIfPasswordsMatch(String password, String confirmPassword) {
-//        if (!password.equals(confirmPassword)) {
-//            throw new PasswordsDoNotMatchException(ExceptionMessages.PASSWORDS_DO_NOT_MATCH);
-//        }
-//        log.info("Passwords match");
-//    }
-//
-//    private void checkIfEmailAlreadyExists(String email) {
-//        if (userRepository.findByEmail(email).isPresent()) {
-//            throw new UserWithEmailAlreadyExistsException(ExceptionMessages.USER_WITH_EMAIL_ALREADY_EXISTS);
-//        }
-//        log.info("Email is valid");
-//    }
-//
-//    private User initializeUser(RegisterRequest registerRequest) {
-//        return User.builder()
-//                .email(registerRequest.getEmail())
-//                .password(passwordEncoder.encode(registerRequest.getPassword()))
-//                .createdAt(LocalDateTime.now())
-//                .role(UserRole.USER)
-//                .build();
-//    }
+
+    private void validateInput(String email, String password) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email must not be empty");
+        }
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Password must not be empty");
+        }
+    }
+
+    private void checkIfPasswordsMatch(String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+        log.info("Passwords match");
+    }
+
+    private void checkIfEmailAlreadyExists(String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("User with email '" + email + "' already exists");
+        }
+        log.info("Email is valid");
+    }
+
+    private void setupUser(UserRegisterRequest userReq, AddressRequest addressRequest) {
+        User user = initializeUser(userReq);
+        user = userRepository.save(user);
+
+        Cart cart = cartService.initializeCartForUser(user);
+        user.setCart(cart);
+
+        if (isValidAddress(addressRequest)) {
+            Address address = addressService.initializeAddressForUser(user, addressRequest);
+            user.getAddresses().add(address);
+        }
+        userRepository.save(user);
+    }
+
+    private boolean isValidAddress(AddressRequest addressRequest) {
+        return addressRequest != null &&
+                addressRequest.getCity() != null && !addressRequest.getCity().isBlank() &&
+                addressRequest.getStreet() != null && !addressRequest.getStreet().isBlank() &&
+                addressRequest.getBuilding() != null && !addressRequest.getBuilding().isBlank();
+    }
+
+    private User initializeUser(UserRegisterRequest userRegisterRequest) {
+
+        return User.builder()
+                .email(userRegisterRequest.getEmail())
+                .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
+                .firstName(userRegisterRequest.getFirstName())
+                .lastName(userRegisterRequest.getLastName())
+                .phoneNumber(userRegisterRequest.getPhoneNumber())
+                .role(UserRole.CLIENT)
+                .status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
