@@ -10,6 +10,7 @@ import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,5 +80,5 @@ public class Order {
     private PaymentStatus paymentStatus;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();
 }

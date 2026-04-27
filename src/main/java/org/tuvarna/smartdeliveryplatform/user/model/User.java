@@ -9,6 +9,7 @@ import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,11 +52,11 @@ public class User {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Address> addresses;
+    private List<Address> addresses = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Cart cart;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 }
