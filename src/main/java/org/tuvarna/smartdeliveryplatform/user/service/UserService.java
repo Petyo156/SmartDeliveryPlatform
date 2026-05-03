@@ -66,6 +66,23 @@ public class UserService {
         return getByEmail(auth.getEmail());
     }
 
+    public boolean userCountMoreThanZero() {
+        return userRepository.count() > 0;
+    }
+
+    public User initializeUser(UserRegisterRequest userRegisterRequest) {
+        return User.builder()
+                .email(userRegisterRequest.getEmail())
+                .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
+                .firstName(userRegisterRequest.getFirstName())
+                .lastName(userRegisterRequest.getLastName())
+                .phoneNumber(userRegisterRequest.getPhoneNumber())
+                .role(UserRole.CLIENT)
+                .status(UserStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
     private void validateInput(String email, String password) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email must not be empty");
@@ -108,19 +125,5 @@ public class UserService {
                 addressRequest.getCity() != null && !addressRequest.getCity().isBlank() &&
                 addressRequest.getStreet() != null && !addressRequest.getStreet().isBlank() &&
                 addressRequest.getBuilding() != null && !addressRequest.getBuilding().isBlank();
-    }
-
-    private User initializeUser(UserRegisterRequest userRegisterRequest) {
-
-        return User.builder()
-                .email(userRegisterRequest.getEmail())
-                .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
-                .firstName(userRegisterRequest.getFirstName())
-                .lastName(userRegisterRequest.getLastName())
-                .phoneNumber(userRegisterRequest.getPhoneNumber())
-                .role(UserRole.CLIENT)
-                .status(UserStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .build();
     }
 }

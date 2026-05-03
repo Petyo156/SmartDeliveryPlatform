@@ -1,0 +1,194 @@
+package org.tuvarna.smartdeliveryplatform.user.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
+import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
+import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
+import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
+import org.tuvarna.smartdeliveryplatform.user.model.User;
+import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
+import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.auth.UserRegisterRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Slf4j
+public class AdminService {
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final CartService cartService;
+    private final MerchantService merchantService;
+    private final CourierService courierService;
+
+    public AdminService(UserService userService, UserRepository userRepository, CartService cartService,
+                        MerchantService merchantService, CourierService courierService) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.cartService = cartService;
+        this.merchantService = merchantService;
+        this.courierService = courierService;
+    }
+
+    public void insertAdmin() {
+        User admin = initializeAdmin();
+        log.info("Inserting admin user");
+
+        userRepository.save(admin);
+    }
+
+    private User initializeAdmin() {
+        UserRegisterRequest userRegisterRequest = UserRegisterRequest.builder()
+                .firstName("Admin")
+                .lastName("Adminov")
+                .phoneNumber("0000000000")
+                .email("admin@smartdelivery.bg")
+                .password("admin")
+                .confirmPassword("admin")
+                .build();
+
+        RegisterRequest registerRequest = RegisterRequest.builder()
+                .userRegisterRequest(userRegisterRequest)
+                .build();
+
+        User user = userService.initializeUser(registerRequest.getUserRegisterRequest());
+        user.setRole(UserRole.ADMIN);
+
+        Cart cart = cartService.initializeCartForUser(user);
+        user.setCart(cart);
+
+        return userRepository.save(user);
+    }
+
+    public List<UserResponse> getAdmins() {
+        List<UserResponse> userResponses = new ArrayList<>();
+        List<User> admins = userRepository.findAllByRole(UserRole.ADMIN);
+        for (User admin : admins) {
+            UserResponse userResponse = initializeUserResponse(admin);
+            userResponses.add(userResponse);
+        }
+        return userResponses;
+    }
+
+    public void updateUserStatus(String email, UserStatus status) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        user.setStatus(status);
+        userRepository.save(user);
+        log.info("Updated status for user {} to {}", email, status);
+    }
+
+    public void makeUserMerchant(MerchantRequest merchantRequest) {
+        User user = userRepository.findByEmail(merchantRequest.getEmail())
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + merchantRequest.getEmail() + "' does not exist"));
+
+        if (user.getRole() == UserRole.COURIER) {
+            throw new IllegalStateException("User is already a courier and cannot become a merchant");
+        }
+
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new IllegalStateException("User is already an admin and cannot become a merchant");
+        }
+
+        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+            throw new IllegalStateException("User is already a merchant");
+        }
+
+        user.setRole(UserRole.MERCHANT);
+        userRepository.save(user);
+        merchantService.createMerchantForUser(user, merchantRequest);
+        log.info("Made user {} a merchant", merchantRequest.getEmail());
+    }
+
+    public void makeUserCourier(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+
+        if (user.getRole() == UserRole.MERCHANT) {
+            throw new IllegalStateException("User is already a merchant and cannot become a courier");
+        }
+
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new IllegalStateException("User is already an admin and cannot become a courier");
+        }
+
+        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
+            throw new IllegalStateException("User is already a courier");
+        }
+
+        user.setRole(UserRole.COURIER);
+        userRepository.save(user);
+        courierService.createCourierForUser(user);
+        log.info("Made user {} a courier", email);
+    }
+
+    public void makeUserAdmin(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+
+        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
+            throw new IllegalStateException("User is a courier and cannot be an admin");
+        }
+
+        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+            throw new IllegalStateException("User is a merchant and cannot be an admin");
+        }
+
+        user.setRole(UserRole.ADMIN);
+        userRepository.save(user);
+        log.info("Made user {} an admin", email);
+    }
+
+    public void demoteAdmin(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new IllegalStateException("User is not an admin and cannot be demoted");
+        }
+
+        user.setRole(UserRole.CLIENT);
+        userRepository.save(user);
+        log.info("Demoted admin {} to regular user", email);
+    }
+
+    public UserResponse getAdminByEmailAndRole(String email) {
+        Optional<User> userOptional = userRepository.findByEmailAndRole(email, UserRole.ADMIN);
+        if(userOptional.isEmpty()) {
+            return UserResponse.builder().build();
+        }
+
+        User user = userOptional.get();
+        return initializeUserResponse(user);
+    }
+
+    public UserResponse getUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if(userOptional.isEmpty()) {
+            return UserResponse.builder().build();
+        }
+
+        User user = userOptional.get();
+        return initializeUserResponse(user);
+    }
+
+    private static UserResponse initializeUserResponse(User user) {
+        return UserResponse.builder()
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .createdAt(user.getCreatedAt())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build();
+    }
+}

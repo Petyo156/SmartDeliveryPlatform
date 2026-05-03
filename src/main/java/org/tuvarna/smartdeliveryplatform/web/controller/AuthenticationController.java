@@ -15,7 +15,6 @@ import org.tuvarna.smartdeliveryplatform.web.dto.auth.LoginRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
 
 @Controller
-@Slf4j
 public class AuthenticationController {
     private final UserService userService;
 

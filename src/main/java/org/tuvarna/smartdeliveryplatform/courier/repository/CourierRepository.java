@@ -4,8 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface CourierRepository extends JpaRepository<Courier, UUID> {
+    Optional<Courier> findCourierByUser_Email(String email);
 }
