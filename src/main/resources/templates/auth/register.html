@@ -12,9 +12,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<div th:replace="~{fragments/navbar :: header}"></div>
-
 <body class="auth-page">
+
+<div th:replace="~{fragments/navbar :: header}"></div>
 
 <div class="auth-wrapper">
     <div class="auth-container">
@@ -22,54 +22,47 @@
 
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/register}" method="post">
+        <form th:action="@{/register}" method="post" th:object="${registerRequest}">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="input-group">
-                <input type="email" name="email" placeholder="Email" required/>
+                <input type="email" th:field="*{userRegisterRequest.email}" placeholder="Email" required/>
             </div>
 
             <div class="input-group">
-                <input type="password" name="password" placeholder="Password" required/>
+                <input type="password" th:field="*{userRegisterRequest.password}" placeholder="Password" required/>
             </div>
 
             <div class="input-group">
-                <input type="password" name="confirmPassword" placeholder="Confirm Password" required/>
+                <input type="password" th:field="*{userRegisterRequest.confirmPassword}" placeholder="Confirm Password" required/>
             </div>
 
             <div class="input-group">
-                <input type="text" name="firstName" placeholder="First Name" required/>
+                <input type="text" th:field="*{userRegisterRequest.firstName}" placeholder="First Name" required/>
             </div>
 
             <div class="input-group">
-                <input type="text" name="lastName" placeholder="Last Name" required/>
+                <input type="text" th:field="*{userRegisterRequest.lastName}" placeholder="Last Name" required/>
             </div>
 
             <div class="input-group">
-                <input type="text" name="phoneNumber" placeholder="Phone Number"/>
+                <input type="text" th:field="*{userRegisterRequest.phoneNumber}" placeholder="Phone Number"/>
             </div>
 
+            <!-- ADDRESS -->
             <h3 class="section-title">Address (optional)</h3>
 
             <div class="input-group">
-                <input type="text" name="city" placeholder="City"/>
+                <input type="text" th:field="*{addressRequest.city}" placeholder="City"/>
             </div>
 
             <div class="input-group">
-                <input type="text" name="street" placeholder="Street"/>
+                <input type="text" th:field="*{addressRequest.street}" placeholder="Street"/>
             </div>
 
             <div class="input-group">
-                <input type="text" name="building" placeholder="Building"/>
-            </div>
-
-            <div class="input-group">
-                <input type="number" step="any" name="lat" placeholder="Latitude"/>
-            </div>
-
-            <div class="input-group">
-                <input type="number" step="any" name="lng" placeholder="Longitude"/>
+                <input type="text" th:field="*{addressRequest.building}" placeholder="Building"/>
             </div>
 
             <button type="submit">Register</button>
@@ -82,8 +75,6 @@
         </form>
     </div>
 </div>
-
-</body>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
