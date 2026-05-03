@@ -3,9 +3,9 @@
 :root {
     --dark: #3b3b3b;
     --light: #fff;
-    --dark-accent: #536edc;
-    --light-accent: #c1ccff;
-    --accent: #1c48b7;
+    --dark-accent: rgba(255, 242, 202, 0.48);
+    --light-accent: #ff9c0d;
+    --accent: #fff5f5;
     --error: #ff4d4d;
 }
 
