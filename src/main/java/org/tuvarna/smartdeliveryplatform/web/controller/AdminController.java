@@ -58,11 +58,7 @@ public class AdminController {
     @GetMapping("/merchants")
     public ModelAndView getMerchants(@RequestParam(required = false) String searchEmail) {
         ModelAndView modelAndView = new ModelAndView("admin/merchants");
-
-        MerchantResponse merchantResponse = MerchantResponse.builder().build();
-        if (searchEmail != null && !searchEmail.isBlank()) {
-            merchantResponse = merchantService.getMerchant(searchEmail);
-        }
+        MerchantResponse merchantResponse = merchantService.getMerchantResponse(searchEmail);
 
         modelAndView.addObject("merchantResponse", merchantResponse);
         modelAndView.addObject("searchEmail", searchEmail);
@@ -92,11 +88,7 @@ public class AdminController {
     @GetMapping("/couriers")
     public ModelAndView getCouriers(@RequestParam(required = false) String searchEmail) {
         ModelAndView modelAndView = new ModelAndView("admin/couriers");
-
-        CourierResponse courierResponse = CourierResponse.builder().build();
-        if (searchEmail != null && !searchEmail.isBlank()) {
-            courierResponse = courierService.getCourier(searchEmail);
-        }
+        CourierResponse courierResponse = courierService.getCourierResponse(searchEmail);
 
         modelAndView.addObject("courierResponse", courierResponse);
         modelAndView.addObject("searchEmail", searchEmail);
@@ -105,7 +97,7 @@ public class AdminController {
 
     @PostMapping("/couriers/assign")
     public ModelAndView makeUserCourier(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (email == null || email.isBlank()) {
+        if (null == email || email.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
             return new ModelAndView("redirect:/admin/couriers");
         }
@@ -118,12 +110,8 @@ public class AdminController {
     @GetMapping("/admins")
     public ModelAndView getAllAdmins(@RequestParam(required = false) String searchEmail) {
         ModelAndView modelAndView = new ModelAndView("admin/admins");
-
         List<UserResponse> admins = adminService.getAdmins();
-        UserResponse userResponse = UserResponse.builder().build();
-        if (searchEmail != null && !searchEmail.isBlank()) {
-            userResponse = adminService.getAdminByEmailAndRole(searchEmail);
-        }
+        UserResponse userResponse = adminService.getAdminByEmailAndRole(searchEmail);
 
         modelAndView.addObject("admins", admins);
         modelAndView.addObject("userResponse", userResponse);
@@ -133,7 +121,7 @@ public class AdminController {
 
     @PostMapping("/admins/assign")
     public ModelAndView makeUserAdmin(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (email == null || email.isBlank()) {
+        if (null == email || email.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
             return new ModelAndView("redirect:/admin/admins");
         }
@@ -145,7 +133,7 @@ public class AdminController {
 
     @PostMapping("/admins/demote")
     public ModelAndView demoteAdmin(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (email == null || email.isBlank()) {
+        if (null == email || email.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
             return new ModelAndView("redirect:/admin/admins");
         }
@@ -157,19 +145,19 @@ public class AdminController {
 
     @PostMapping("/merchants/toggle-status")
     public ModelAndView toggleMerchantStatus(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (email == null || email.isBlank()) {
+        if (null == email || email.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
             return new ModelAndView("redirect:/admin/merchants");
         }
 
-        merchantService.toggleMerchantStatus(email);
+        merchantService.toggleMerchantActiveStatus(email);
         redirectAttributes.addFlashAttribute("successMessage", "Merchant status toggled successfully: " + email);
         return new ModelAndView("redirect:/admin/merchants");
     }
 
     @PostMapping("/couriers/toggle-status")
     public ModelAndView toggleCourierStatus(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (email == null || email.isBlank()) {
+        if (null == email || email.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
             return new ModelAndView("redirect:/admin/couriers");
         }
