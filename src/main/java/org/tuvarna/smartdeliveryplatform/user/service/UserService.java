@@ -8,6 +8,8 @@ import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
+import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -46,8 +48,8 @@ public class UserService {
         log.info("Registering user with email: {}", userRequest.getEmail());
 
         validateInput(userRequest.getEmail(), userRequest.getPassword());
-        checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
         checkIfEmailAlreadyExists(userRequest.getEmail());
+        checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
 
         setupUser(userRequest, addressRequest);
         log.info("User registered successfully: {}", userRequest.getEmail());
@@ -56,6 +58,10 @@ public class UserService {
     public User getByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+    }
+
+    public User getUserByEmail(String email) {
+        return getByEmail(email);
     }
 
     public User getAuthenticatedUser(AuthenticationMetadata auth) {
@@ -94,14 +100,14 @@ public class UserService {
 
     private void checkIfPasswordsMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new PasswordsDoNotMatchException("Passwords do not match");
         }
         log.info("Passwords match");
     }
 
     private void checkIfEmailAlreadyExists(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("User with email '" + email + "' already exists");
+            throw new UserWithEmailAlreadyExistsException("User with this email already exists");
         }
         log.info("Email is valid");
     }

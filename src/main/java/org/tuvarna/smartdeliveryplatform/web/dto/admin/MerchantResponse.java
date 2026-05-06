@@ -26,5 +26,7 @@ public class MerchantResponse {
 
     private Boolean isActive;
 
+    private Boolean isClosed;
+
     private LocalDateTime createdAt;
 }

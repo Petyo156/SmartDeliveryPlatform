@@ -27,7 +27,11 @@ public class CourierService {
         courierRepository.save(courier);
     }
 
-    public CourierResponse getCourier(String searchEmail) {
+    public CourierResponse getCourierResponse(String searchEmail) {
+        if(null == searchEmail || searchEmail.isBlank()) {
+            return CourierResponse.builder().build();
+        }
+
         Optional<Courier> courierOptional = getCourierByUserEmail(searchEmail);
         if(courierOptional.isEmpty()) {
             return CourierResponse.builder().build();

@@ -155,12 +155,20 @@ public class AdminService {
             throw new IllegalStateException("User is not an admin and cannot be demoted");
         }
 
+        if(user.getEmail().equals("admin@smartdelivery.bg")) {
+            throw new IllegalStateException("Main admin cannot be demoted");
+        }
+
         user.setRole(UserRole.CLIENT);
         userRepository.save(user);
         log.info("Demoted admin {} to regular user", email);
     }
 
     public UserResponse getAdminByEmailAndRole(String email) {
+        if (null == email || email.isBlank()) {
+            return UserResponse.builder().build();
+        }
+
         Optional<User> userOptional = userRepository.findByEmailAndRole(email, UserRole.ADMIN);
         if(userOptional.isEmpty()) {
             return UserResponse.builder().build();

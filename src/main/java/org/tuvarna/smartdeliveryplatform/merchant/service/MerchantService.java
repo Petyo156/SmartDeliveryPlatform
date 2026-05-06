@@ -2,11 +2,18 @@ package org.tuvarna.smartdeliveryplatform.merchant.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.tuvarna.smartdeliveryplatform.address.model.Address;
+import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
+import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
+import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -14,31 +21,109 @@ import java.util.Optional;
 @Slf4j
 public class MerchantService {
     private final MerchantRepository merchantRepository;
+    private final AddressService addressService;
+    private final UserService userService;
 
-    public MerchantService(MerchantRepository merchantRepository) {
+    public MerchantService(MerchantRepository merchantRepository, AddressService addressService, UserService userService) {
         this.merchantRepository = merchantRepository;
+        this.addressService = addressService;
+        this.userService = userService;
     }
 
     public void createMerchantForUser(User user, MerchantRequest merchantRequest) {
-        Merchant merchant = Merchant.builder()
-                .user(user)
-                .name(merchantRequest.getName())
-                .description(merchantRequest.getDescription())
-                .type(merchantRequest.getType())
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .build();
-
+        Merchant merchant = initializeMerchant(user, merchantRequest);
         merchantRepository.save(merchant);
+        addressService.addAddress(user, merchantRequest.getAddress());
     }
 
-    public MerchantResponse getMerchant(String searchEmail) {
+    public MerchantProfileRequest getMerchantProfileRequest(String searchEmail) {
+        Merchant merchant = getMerchantEntityByEmail(searchEmail);
+        return initializeMerchantProfileRequest(merchant);
+    }
+
+    public MerchantResponse getMerchantResponse(String searchEmail) {
+        if (null == searchEmail || searchEmail.isBlank()) {
+            return MerchantResponse.builder().build();
+        }
+
         Optional<Merchant> merchantOptional = getMerchantByUserEmail(searchEmail);
         if(merchantOptional.isEmpty()) {
             return MerchantResponse.builder().build();
         }
 
         Merchant merchant = merchantOptional.get();
+        return initializeMerchantResponse(searchEmail, merchant);
+    }
+
+    public void toggleMerchantActiveStatus(String email) {
+        Merchant merchant = getMerchantEntityByEmail(email);
+        merchant.setIsActive(!merchant.getIsActive());
+        if(!merchant.getIsActive()) {
+            merchant.setIsClosed(true);
+        }
+        merchantRepository.save(merchant);
+        log.info("Toggled active status for merchant {} to {}", email, merchant.getIsActive());
+    }
+
+    public void toggleMerchantIsClosedStatus(String email) {
+        Merchant merchant = getMerchantEntityByEmail(email);
+        merchant.setIsClosed(!merchant.getIsClosed());
+        merchantRepository.save(merchant);
+        log.info("Toggled is closed status for merchant {} to {}", email, merchant.getIsClosed());
+    }
+
+    public void updateMerchantProfile(Merchant merchant, MerchantProfileRequest request) {
+        Optional<Address> addressOptional = addressService.findById(request.getAddressId());
+        if(addressOptional.isEmpty()) {
+            throw new IllegalStateException("Address with id " + request.getAddressId() + " does not exist");
+        }
+
+        Address address = addressOptional.get();
+        merchant.setName(request.getName());
+        merchant.setDescription(request.getDescription());
+        merchant.setAddress(address);
+        merchant.setIsClosed(request.getIsClosed());
+
+        merchantRepository.save(merchant);
+        log.info("Updated merchant profile for merchant {}", merchant.getName());
+    }
+
+    public Boolean merchantIsClosedStatus(AuthenticationMetadata authenticationMetadata) {
+        if(null == authenticationMetadata) {
+            return false;
+        }
+
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        if(user.getRole() != UserRole.MERCHANT) {
+            return false;
+        }
+
+        Merchant merchant = getMerchantEntityByEmail(authenticationMetadata.getUsername());
+        return merchant.getIsClosed();
+    }
+
+    public Merchant getMerchantEntityByEmail(String email) {
+        return merchantRepository.getMerchantByUser_Email(email)
+                .orElseThrow(() -> new IllegalStateException("Merchant with email '" + email + "' does not exist"));
+    }
+
+    public Optional<Merchant> getMerchantByUserEmail(String email) {
+        return merchantRepository.getMerchantByUser_Email(email);
+    }
+
+    private Merchant initializeMerchant(User user, MerchantRequest merchantRequest) {
+        return Merchant.builder()
+                .user(user)
+                .name(merchantRequest.getName())
+                .description(merchantRequest.getDescription())
+                .type(merchantRequest.getType())
+                .isActive(true)
+                .isClosed(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private MerchantResponse initializeMerchantResponse(String searchEmail, Merchant merchant) {
         return MerchantResponse.builder()
                 .ownerEmail(searchEmail)
                 .name(merchant.getName())
@@ -46,20 +131,16 @@ public class MerchantService {
                 .description(merchant.getDescription())
                 .address(merchant.getAddress())
                 .isActive(merchant.getIsActive())
+                .isClosed(merchant.getIsClosed())
                 .createdAt(merchant.getCreatedAt())
                 .build();
     }
 
-    public Optional<Merchant> getMerchantByUserEmail(String email) {
-        return merchantRepository.getMerchantByUser_Email(email);
+    private MerchantProfileRequest initializeMerchantProfileRequest(Merchant merchant) {
+        return MerchantProfileRequest.builder()
+                .name(merchant.getName())
+                .description(merchant.getDescription())
+                .addressId(merchant.getAddress().getId())
+                .build();
     }
-
-    public void toggleMerchantStatus(String email) {
-        Merchant merchant = merchantRepository.getMerchantByUser_Email(email)
-                .orElseThrow(() -> new IllegalStateException("Merchant with email '" + email + "' does not exist"));
-        merchant.setIsActive(!merchant.getIsActive());
-        merchantRepository.save(merchant);
-        log.info("Toggled status for merchant {} to {}", email, merchant.getIsActive());
-    }
-
 }
