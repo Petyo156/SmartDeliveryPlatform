@@ -226,3 +226,27 @@ img {
         margin: 0 0.5rem;
     }
 }
+
+.toggle-status-form {
+    margin: 0;
+    padding: 0;
+}
+
+.toggle-status-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-status-btn:hover {
+    background-color: #f0f0f0;
+}

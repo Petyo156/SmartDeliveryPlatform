@@ -118,6 +118,12 @@
                             <button type="submit">Demote</button>
                         </form>
                     </td>
+                    <td>
+                        <form th:action="@{/admin/users}" method="get">
+                            <input type="hidden" name="searchEmail" th:value="${admin.email}">
+                            <button type="submit">View user</button>
+                        </form>
+                    </td>
                 </tr>
                 </tbody>
             </table>
