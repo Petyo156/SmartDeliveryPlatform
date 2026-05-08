@@ -1,5 +1,6 @@
 package org.tuvarna.smartdeliveryplatform.user.service;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
@@ -86,6 +87,7 @@ public class AdminService {
         log.info("Updated status for user {} to {}", email, status);
     }
 
+    @Transactional
     public void makeUserMerchant(MerchantRequest merchantRequest) {
         User user = userRepository.findByEmail(merchantRequest.getEmail())
                 .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + merchantRequest.getEmail() + "' does not exist"));

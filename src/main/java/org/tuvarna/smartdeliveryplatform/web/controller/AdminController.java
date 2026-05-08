@@ -59,9 +59,11 @@ public class AdminController {
     public ModelAndView getMerchants(@RequestParam(required = false) String searchEmail) {
         ModelAndView modelAndView = new ModelAndView("admin/merchants");
         MerchantResponse merchantResponse = merchantService.getMerchantResponse(searchEmail);
+        MerchantRequest merchantRequest = MerchantRequest.builder().build();
 
         modelAndView.addObject("merchantResponse", merchantResponse);
         modelAndView.addObject("searchEmail", searchEmail);
+        modelAndView.addObject("merchantRequest", merchantRequest);
         return modelAndView;
     }
 
