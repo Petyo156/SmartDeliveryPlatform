@@ -30,12 +30,6 @@ public class MerchantService {
         this.userService = userService;
     }
 
-    public void createMerchantForUser(User user, MerchantRequest merchantRequest) {
-        Merchant merchant = initializeMerchant(user, merchantRequest);
-        merchantRepository.save(merchant);
-        addressService.addAddress(user, merchantRequest.getAddress());
-    }
-
     public MerchantProfileRequest getMerchantProfileRequest(String searchEmail) {
         Merchant merchant = getMerchantEntityByEmail(searchEmail);
         return initializeMerchantProfileRequest(merchant);
@@ -47,7 +41,7 @@ public class MerchantService {
         }
 
         Optional<Merchant> merchantOptional = getMerchantByUserEmail(searchEmail);
-        if(merchantOptional.isEmpty()) {
+        if (merchantOptional.isEmpty()) {
             return MerchantResponse.builder().build();
         }
 
@@ -58,7 +52,7 @@ public class MerchantService {
     public void toggleMerchantActiveStatus(String email) {
         Merchant merchant = getMerchantEntityByEmail(email);
         merchant.setIsActive(!merchant.getIsActive());
-        if(!merchant.getIsActive()) {
+        if (!merchant.getIsActive()) {
             merchant.setIsClosed(true);
         }
         merchantRepository.save(merchant);
@@ -74,8 +68,8 @@ public class MerchantService {
 
     public void updateMerchantProfile(Merchant merchant, MerchantProfileRequest request) {
         Optional<Address> addressOptional = addressService.findById(request.getAddressId());
-        if(addressOptional.isEmpty()) {
-            throw new IllegalStateException("Address with id " + request.getAddressId() + " does not exist");
+        if (addressOptional.isEmpty()) {
+            throw new IllegalStateException("Address with this id does not exist");
         }
 
         Address address = addressOptional.get();
@@ -85,21 +79,28 @@ public class MerchantService {
         merchant.setIsClosed(request.getIsClosed());
 
         merchantRepository.save(merchant);
-        log.info("Updated merchant profile for merchant {}", merchant.getName());
+        log.info("Updated profile for merchant {}", merchant.getName());
     }
 
     public Boolean merchantIsClosedStatus(AuthenticationMetadata authenticationMetadata) {
-        if(null == authenticationMetadata) {
+        if (null == authenticationMetadata) {
             return false;
         }
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
-        if(user.getRole() != UserRole.MERCHANT) {
+        if (user.getRole() != UserRole.MERCHANT) {
             return false;
         }
 
         Merchant merchant = getMerchantEntityByEmail(authenticationMetadata.getUsername());
         return merchant.getIsClosed();
+    }
+
+    public void createMerchantForUser(User user, MerchantRequest request) {
+        Address address = addressService.addAddress(user,request.getAddress());
+        Merchant merchant = initializeMerchant(user, request);
+        merchant.setAddress(address);
+        merchantRepository.save(merchant);
     }
 
     public Merchant getMerchantEntityByEmail(String email) {
@@ -141,6 +142,7 @@ public class MerchantService {
                 .name(merchant.getName())
                 .description(merchant.getDescription())
                 .addressId(merchant.getAddress().getId())
+                .isClosed(merchant.getIsClosed())
                 .build();
     }
 }
