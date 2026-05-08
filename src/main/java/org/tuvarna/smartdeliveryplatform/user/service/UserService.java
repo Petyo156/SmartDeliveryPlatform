@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
@@ -64,6 +63,10 @@ public class UserService {
         return getByEmail(email);
     }
 
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
     public User getAuthenticatedUser(AuthenticationMetadata auth) {
         if (null == auth) {
             return null;
@@ -119,17 +122,7 @@ public class UserService {
         Cart cart = cartService.initializeCartForUser(user);
         user.setCart(cart);
 
-        if (isValidAddress(addressRequest)) {
-            Address address = addressService.initializeAddressForUser(user, addressRequest);
-            user.getAddresses().add(address);
-        }
+        addressService.addAddressIfPresent(user, addressRequest);
         userRepository.save(user);
-    }
-
-    private boolean isValidAddress(AddressRequest addressRequest) {
-        return addressRequest != null &&
-                addressRequest.getCity() != null && !addressRequest.getCity().isBlank() &&
-                addressRequest.getStreet() != null && !addressRequest.getStreet().isBlank() &&
-                addressRequest.getBuilding() != null && !addressRequest.getBuilding().isBlank();
     }
 }

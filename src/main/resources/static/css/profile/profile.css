@@ -1,0 +1,159 @@
+@import "../main.css";
+
+.profile-links {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.profile-links a {
+    color: #1c48b7;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.profile-links a:hover {
+    text-decoration: underline;
+}
+
+.form-text {
+    color: #666;
+    font-size: 12px;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.profile-address-container {
+    max-width: 600px;
+}
+
+.address-list {
+    margin-bottom: 1.5rem;
+}
+
+.address-list h3 {
+    margin-bottom: 0.75rem;
+    color: #333;
+    font-size: 16px;
+}
+
+.address-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.address-content p {
+    margin: 0.25rem 0;
+    color: #555;
+}
+
+.address-content p:first-child {
+    font-size: 15px;
+    color: #333;
+}
+
+.address-actions {
+    margin-top: 0.75rem;
+}
+
+.btn-edit {
+    color: #1c48b7;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #1c48b7;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.btn-edit:hover {
+    background: #1c48b7;
+    color: white;
+}
+
+.edit-form {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.edit-form .input-group {
+    margin-bottom: 0.75rem;
+}
+
+.edit-form .input-group input {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.btn-save {
+    padding: 0.5rem 1rem;
+    background: #1c48b7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-save:hover {
+    background: #163a94;
+}
+
+.btn-cancel {
+    padding: 0.5rem 1rem;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+.add-address-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.add-address-section h3 {
+    margin-bottom: 0.75rem;
+    color: #333;
+    font-size: 16px;
+}
+
+.no-addresses {
+    text-align: center;
+    color: #666;
+    padding: 1rem 0;
+}
+
+.address-limit-message {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.address-limit-message i {
+    margin-right: 0.5rem;
+}
