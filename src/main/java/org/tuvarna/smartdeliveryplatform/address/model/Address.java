@@ -37,6 +37,6 @@ public class Address {
     @Column(name = "lng")
     private Double lng;
 
-    @Column(name = "is_default")
+    @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 }
