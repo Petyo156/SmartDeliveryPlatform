@@ -1,7 +1,6 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -32,7 +31,6 @@ public class AuthenticationController {
         modelAndView.addObject("registerRequest", new RegisterRequest());
         modelAndView.addObject("hasHiddenElements", true);
         modelAndView.addObject("user", null);
-
         return modelAndView;
     }
 
@@ -56,9 +54,7 @@ public class AuthenticationController {
             return new ModelAndView("redirect:/");
         }
 
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("auth/login");
-
+        ModelAndView modelAndView = new ModelAndView("auth/login");
         modelAndView.addObject("error", errorParam);
         modelAndView.addObject("loginRequest", loginRequest);
         modelAndView.addObject("user", null);

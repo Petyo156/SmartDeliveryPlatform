@@ -23,6 +23,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .requestMatchers("/", "/search/**", "/register", "/categories/**",
                                       "/about", "/contact", "/faq", "/privacy", "/contact/submit", "/food",
                                         "/goods", "/careers", "/shipping", "/terms", "/cookies").permitAll()
+                        .requestMatchers("/merchant/**").hasRole("MERCHANT")
+                        .requestMatchers("/courier/**").hasRole("COURIER")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
