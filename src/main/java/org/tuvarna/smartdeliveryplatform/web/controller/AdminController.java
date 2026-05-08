@@ -1,6 +1,8 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,23 +70,20 @@ public class AdminController {
     }
 
     @PostMapping("/merchants/assign")
-    public ModelAndView makeUserMerchant(@ModelAttribute MerchantRequest merchantRequest, RedirectAttributes redirectAttributes) {
-        if (merchantRequest.getEmail() == null || merchantRequest.getEmail().isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/merchants");
-        }
-        if (merchantRequest.getName() == null || merchantRequest.getName().isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Name is required.");
-            return new ModelAndView("redirect:/admin/merchants");
-        }
-        if (merchantRequest.getType() == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Merchant type is required.");
-            return new ModelAndView("redirect:/admin/merchants");
+    public ModelAndView makeUserMerchant(
+            @Valid @ModelAttribute("merchantRequest") MerchantRequest merchantRequest,
+            BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView("admin/merchants");
+
+        if (bindingResult.hasErrors()) {
+            modelAndView.addObject("merchantResponse", MerchantResponse.builder().build());
+            return modelAndView;
         }
 
         adminService.makeUserMerchant(merchantRequest);
-        redirectAttributes.addFlashAttribute("successMessage", "Merchant created successfully for: " + merchantRequest.getEmail());
-        return new ModelAndView("redirect:/admin/merchants");
+        modelAndView.addObject("successMessage", "Merchant created successfully for: " + merchantRequest.getEmail());
+
+        return modelAndView;
     }
 
     @GetMapping("/couriers")

@@ -16,8 +16,6 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
-
-import java.net.URI;
 import java.util.List;
 
 @Controller
@@ -93,15 +91,6 @@ public class MerchantController {
     @PostMapping("/toggle-closed-status")
     public String toggleShopStatus(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata, HttpServletRequest request) {
         merchantService.toggleMerchantIsClosedStatus(authenticationMetadata.getUsername());
-        String referer = request.getHeader("Referer");
-
-        if (referer != null) {
-            URI uri = URI.create(referer);
-            if (uri.getPath() != null && uri.getPath().startsWith("/")) {
-                return "redirect:" + uri.getPath();
-            }
-        }
-
-        return "redirect:/";
+        return "redirect:" + request.getHeader("Referer");
     }
 }
