@@ -6,6 +6,8 @@
 
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="stylesheet" href="/css/merchant/products.css">
+
     <link rel="icon" href="/images/favicon.ico">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -15,9 +17,246 @@
 
 <div th:replace="~{fragments/navbar :: header}"></div>
 
-<div class="container">
-    <h1>My Products</h1>
-    <p>Manage your products here.</p>
+<div class="products-container">
+
+    <div class="products-header">
+        <h1>My Products</h1>
+        <p>Manage your products and categories.</p>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <section class="products-section">
+
+        <div class="section-header">
+            <h2>Create Product</h2>
+        </div>
+
+        <form th:action="@{/products/create}"
+              th:object="${productRequest}"
+              method="post"
+              class="product-form">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Product Name</label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           placeholder="Enter product name"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="number"
+                           id="price"
+                           th:field="*{price}"
+                           step="0.01"
+                           min="0"
+                           placeholder="0.00"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number"
+                           id="quantity"
+                           th:field="*{quantity}"
+                           min="0"
+                           placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input type="text"
+                           id="imageUrl"
+                           th:field="*{imageUrl}"
+                           placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group full-width">
+                    <label for="description">Description</label>
+                    <textarea id="description"
+                              th:field="*{description}"
+                              placeholder="Enter product description"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label for="categoryId">Category</label>
+
+                    <select id="categoryId"
+                            th:field="*{categoryId}"
+                            required>
+
+                        <option value="">-- Select Category --</option>
+
+                        <optgroup label="Global Categories">
+
+                            <option th:each="cat : ${availableCategories}"
+                                    th:if="${cat.isGlobal}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}">
+                            </option>
+                        </optgroup>
+                        <optgroup label="My Categories">
+                            <option th:each="cat : ${availableCategories}"
+                                    th:if="${!cat.isGlobal}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}">
+                            </option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Create Product
+            </button>
+        </form>
+    </section>
+
+    <section class="products-section">
+        <div class="section-header">
+            <h2>Create Custom Category</h2>
+        </div>
+        <form th:action="@{/category/create}"
+              method="post"
+              class="category-form">
+            <div class="form-group">
+                <label for="categoryName">Category Name</label>
+
+                <input type="text"
+                       id="categoryName"
+                       name="categoryName"
+                       placeholder="Enter category name"
+                       required>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-folder-plus"></i>
+                Create Category
+            </button>
+        </form>
+    </section>
+
+    <section class="products-section">
+        <div class="section-header">
+            <h2>My Categories</h2>
+        </div>
+
+        <div th:if="${#lists.isEmpty(availableCategories.?[!isGlobal])}"
+             class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>No custom categories created yet.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(availableCategories.?[!isGlobal])}"
+             class="categories-list">
+            <div th:each="cat : ${availableCategories}"
+                 th:if="${!cat.isGlobal}"
+                 class="category-item">
+                <div class="category-info">
+                <span class="category-name"
+                      th:text="${cat.name}">
+                </span>
+                    <span class="category-badge">
+                    Custom
+                </span>
+                </div>
+                <form th:action="@{/category/{id}/delete(id=${cat.id})}"
+                      method="post">
+
+                    <button type="submit"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('Delete this category?')">
+
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="products-section">
+        <div class="section-header">
+            <h2>My Products</h2>
+        </div>
+        <div th:if="${#lists.isEmpty(products)}" class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>No products created yet.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(products)}" class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td>
+                        <img th:if="${product.imageUrl != null && !product.imageUrl.isBlank()}"
+                             th:src="${product.imageUrl}"
+                             alt="Product Image"
+                             class="product-image">
+
+                        <span th:unless="${product.imageUrl != null && !product.imageUrl.isBlank()}">
+                            No Image
+                        </span>
+                    </td>
+
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.categoryName}"></td>
+                    <td th:text="${product.price} + ' euro'"></td>
+                    <td th:text="${product.quantity}"></td>
+
+                    <td>
+                        <span th:if="${product.isAvailable}" class="badge badge-success">
+                            Available
+                        </span>
+                        <span th:unless="${product.isAvailable}" class="badge badge-danger">
+                            Disabled
+                        </span>
+                    </td>
+
+                    <td class="actions">
+                        <form th:action="@{/products/{id}/toggle(id=${product.id})}"
+                              method="post">
+
+                            <button type="submit" class="btn btn-warning btn-sm">
+
+                                <i class="fas fa-toggle-on"></i>
+
+                                <span th:text="${product.isAvailable} ? 'Disable' : 'Enable'">
+                                </span>
+
+                            </button>
+                        </form>
+                        <form th:action="@{/products/{id}/delete(id=${product.id})}"
+                              method="post">
+
+                            <button type="submit"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Delete this product?')">
+
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
