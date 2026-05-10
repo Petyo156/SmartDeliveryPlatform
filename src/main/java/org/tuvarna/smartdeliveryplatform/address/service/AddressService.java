@@ -61,8 +61,12 @@ public class AddressService {
         return userAddressResponses;
     }
 
-    public Optional<Address> findById(UUID uuid) {
-        return addressRepository.findById(uuid);
+    public Address findAddressById(UUID uuid) {
+        Optional<Address> addressOptional = addressRepository.findById(uuid);
+        if (addressOptional.isEmpty()) {
+            throw new IllegalStateException("Address with this id does not exist");
+        }
+        return addressOptional.get();
     }
 
     public void updateAddress(User authenticatedUser, String addressId, AddressRequest addressRequest) {
@@ -117,8 +121,7 @@ public class AddressService {
         addressRepository.save(address);
     }
 
-    public AddressRequest initializeAddressEditRequest(UserAddressResponse addressResponse)
-    {
+    public AddressRequest initializeAddressEditRequest(UserAddressResponse addressResponse) {
         return AddressRequest.builder()
                 .city(addressResponse.getCity())
                 .building(addressResponse.getBuilding())

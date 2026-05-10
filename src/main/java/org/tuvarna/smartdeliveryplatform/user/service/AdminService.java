@@ -80,8 +80,7 @@ public class AdminService {
     }
 
     public void updateUserStatus(String email, UserStatus status) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
         user.setStatus(status);
         userRepository.save(user);
         log.info("Updated status for user {} to {}", email, status);
@@ -89,8 +88,7 @@ public class AdminService {
 
     @Transactional
     public void makeUserMerchant(MerchantRequest merchantRequest) {
-        User user = userRepository.findByEmail(merchantRequest.getEmail())
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + merchantRequest.getEmail() + "' does not exist"));
+        User user = userService.getUserByEmail(merchantRequest.getEmail());
 
         if (user.getRole() == UserRole.COURIER) {
             throw new IllegalStateException("User is already a courier and cannot become a merchant");
@@ -100,7 +98,7 @@ public class AdminService {
             throw new IllegalStateException("User is already an admin and cannot become a merchant");
         }
 
-        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+        if (merchantService.getMerchantOptionalByUserEmail(merchantRequest.getEmail()).isPresent()) {
             throw new IllegalStateException("User is already a merchant");
         }
 
@@ -111,8 +109,7 @@ public class AdminService {
     }
 
     public void makeUserCourier(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (user.getRole() == UserRole.MERCHANT) {
             throw new IllegalStateException("User is already a merchant and cannot become a courier");
@@ -133,14 +130,13 @@ public class AdminService {
     }
 
     public void makeUserAdmin(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
             throw new IllegalStateException("User is a courier and cannot be an admin");
         }
 
-        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+        if (merchantService.getMerchantOptionalByUserEmail(user.getEmail()).isPresent()) {
             throw new IllegalStateException("User is a merchant and cannot be an admin");
         }
 
@@ -150,8 +146,7 @@ public class AdminService {
     }
 
     public void demoteAdmin(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
             throw new IllegalStateException("User is not an admin and cannot be demoted");

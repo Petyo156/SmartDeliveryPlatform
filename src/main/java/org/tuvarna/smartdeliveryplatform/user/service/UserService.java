@@ -54,13 +54,9 @@ public class UserService {
         log.info("User registered successfully: {}", userRequest.getEmail());
     }
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
-    }
-
     public User getUserByEmail(String email) {
-        return getByEmail(email);
+        return userRepository.findByEmail(email).orElseThrow(()
+                -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
     }
 
     public void saveUser(User user) {
@@ -72,7 +68,7 @@ public class UserService {
             return null;
         }
 
-        return getByEmail(auth.getEmail());
+        return getUserByEmail(auth.getEmail());
     }
 
     public boolean userCountMoreThanZero() {
