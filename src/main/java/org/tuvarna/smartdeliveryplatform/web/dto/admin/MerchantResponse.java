@@ -29,4 +29,6 @@ public class MerchantResponse {
     private Boolean isClosed;
 
     private LocalDateTime createdAt;
+
+    private String imageUrl;
 }

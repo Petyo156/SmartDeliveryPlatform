@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
-import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;

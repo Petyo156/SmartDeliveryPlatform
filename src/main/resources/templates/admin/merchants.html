@@ -190,6 +190,13 @@
                     </div>
                 </div>
 
+                <div class="input-group">
+                    <label for="image-url">Image Url</label>
+                    <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url" required/>
+                    <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error-message"></div>
+                </div>
+
+
                 <div>
                     <button type="submit">
                         Create Merchant

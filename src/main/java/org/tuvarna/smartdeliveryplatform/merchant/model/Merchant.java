@@ -47,4 +47,7 @@ public class Merchant {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
 }

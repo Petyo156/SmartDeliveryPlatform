@@ -29,4 +29,7 @@ public class MerchantRequest {
     @Valid
     @NotNull(message = "Address is required.")
     private AddressRequest address;
+
+    @NotBlank(message = "Image url is required")
+    private String imageUrl;
 }

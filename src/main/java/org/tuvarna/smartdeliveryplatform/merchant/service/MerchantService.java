@@ -74,6 +74,7 @@ public class MerchantService {
         merchant.setDescription(merchantProfileRequest.getDescription());
         merchant.setAddress(address);
         merchant.setIsClosed(merchantProfileRequest.getIsClosed());
+        merchant.setImageUrl(merchantProfileRequest.getImageUrl());
 
         merchantRepository.save(merchant);
         log.info("Updated profile for merchant {}", merchant.getName());
@@ -121,6 +122,7 @@ public class MerchantService {
                 .isActive(true)
                 .isClosed(true)
                 .createdAt(LocalDateTime.now())
+                .imageUrl(merchantRequest.getImageUrl())
                 .build();
     }
 
@@ -134,6 +136,7 @@ public class MerchantService {
                 .isActive(merchant.getIsActive())
                 .isClosed(merchant.getIsClosed())
                 .createdAt(merchant.getCreatedAt())
+                .imageUrl(merchant.getImageUrl())
                 .build();
     }
 
@@ -143,6 +146,7 @@ public class MerchantService {
                 .description(merchant.getDescription())
                 .addressId(merchant.getAddress().getId())
                 .isClosed(merchant.getIsClosed())
+                .imageUrl(merchant.getImageUrl())
                 .build();
     }
 }
