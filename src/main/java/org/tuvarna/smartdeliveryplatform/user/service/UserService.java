@@ -43,9 +43,6 @@ public class UserService {
     public void register(RegisterRequest registerRequest) {
         UserRegisterRequest userRequest = registerRequest.getUserRegisterRequest();
         AddressRequest addressRequest = registerRequest.getAddressRequest();
-
-        log.info("Registering user with email: {}", userRequest.getEmail());
-
         validateInput(userRequest.getEmail(), userRequest.getPassword());
         checkIfEmailAlreadyExists(userRequest.getEmail());
         checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
@@ -71,8 +68,8 @@ public class UserService {
         return getUserByEmail(auth.getEmail());
     }
 
-    public boolean userCountMoreThanZero() {
-        return userRepository.count() > 0;
+    public boolean userCountMoreThanOne() {
+        return userRepository.count() > 1;
     }
 
     public User initializeUser(UserRegisterRequest userRegisterRequest) {
@@ -101,14 +98,12 @@ public class UserService {
         if (!password.equals(confirmPassword)) {
             throw new PasswordsDoNotMatchException("Passwords do not match");
         }
-        log.info("Passwords match");
     }
 
     private void checkIfEmailAlreadyExists(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserWithEmailAlreadyExistsException("User with this email already exists");
         }
-        log.info("Email is valid");
     }
 
     private void setupUser(UserRegisterRequest userReq, AddressRequest addressRequest) {

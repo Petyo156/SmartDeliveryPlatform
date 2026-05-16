@@ -5,21 +5,21 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.tuvarna.smartdeliveryplatform.category.model.Category;
-import org.tuvarna.smartdeliveryplatform.category.repository.CategoryRepository;
+import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Order(2)
+@Order(3)
 @Component
 @Slf4j
 public class InitializeCategories implements CommandLineRunner {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public InitializeCategories(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public InitializeCategories(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -28,7 +28,50 @@ public class InitializeCategories implements CommandLineRunner {
     }
 
     private void initializeGlobalCategories() {
-        List<String> restaurantCategories = Arrays.asList(
+        if (categoryService.categoriesCountMoreThanZero()) {
+            return;
+        }
+
+        List<String> restaurantCategories = initializeDemoRestaurantCategories();
+        List<String> shopCategories = initializeDemoShopCategories();
+
+        initializeCategoriesForType(restaurantCategories, MerchantType.RESTAURANT);
+        initializeCategoriesForType(shopCategories, MerchantType.SHOP);
+        log.info("Global categories initialized successfully");
+    }
+
+    private void initializeCategoriesForType(List<String> categoryNames, MerchantType type) {
+        for (String name : categoryNames) {
+            if (!categoryService.existsByNameAndType(name, type)) {
+                Category globalCategory = initializeGlobalCategory(type, name);
+                categoryService.saveGlobalCategory(globalCategory);
+                log.info("Created global category: {} for type: {}", name, type);
+            }
+        }
+    }
+
+    private Category initializeGlobalCategory(MerchantType type, String name) {
+        return Category.builder()
+                .name(name)
+                .type(type)
+                .isGlobal(true)
+                .merchant(null)
+                .isDeleted(false)
+                .build();
+    }
+
+    private List<String> initializeDemoShopCategories() {
+        return Arrays.asList(
+                "Electronics",
+                "Groceries",
+                "Flowers",
+                "Pharmacy",
+                "Pet Supplies"
+        );
+    }
+
+    private List<String> initializeDemoRestaurantCategories() {
+        return Arrays.asList(
                 "Pizza",
                 "Burgers",
                 "Sushi",
@@ -36,34 +79,5 @@ public class InitializeCategories implements CommandLineRunner {
                 "Desserts",
                 "Salads"
         );
-
-        List<String> shopCategories = Arrays.asList(
-                "Electronics",
-                "Groceries",
-                "Flowers",
-                "Pharmacy",
-                "Pet Supplies"
-        );
-
-        initializeCategoriesForType(restaurantCategories, MerchantType.RESTAURANT);
-        initializeCategoriesForType(shopCategories, MerchantType.SHOP);
-
-        log.info("Global categories initialized successfully");
-    }
-
-    private void initializeCategoriesForType(List<String> categoryNames, MerchantType type) {
-        for (String name : categoryNames) {
-            if (!categoryRepository.existsByNameAndType(name, type)) {
-                Category category = Category.builder()
-                        .name(name)
-                        .type(type)
-                        .isGlobal(true)
-                        .merchant(null)
-                        .isDeleted(false)
-                        .build();
-                categoryRepository.save(category);
-                log.info("Created global category: {} for type: {}", name, type);
-            }
-        }
     }
 }

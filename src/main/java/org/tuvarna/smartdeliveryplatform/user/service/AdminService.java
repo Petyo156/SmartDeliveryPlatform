@@ -3,8 +3,7 @@ package org.tuvarna.smartdeliveryplatform.user.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
-import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.config.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -13,8 +12,6 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserResponse;
-import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
-import org.tuvarna.smartdeliveryplatform.web.dto.auth.UserRegisterRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,47 +22,15 @@ import java.util.Optional;
 public class AdminService {
     private final UserService userService;
     private final UserRepository userRepository;
-    private final CartService cartService;
     private final MerchantService merchantService;
     private final CourierService courierService;
 
-    public AdminService(UserService userService, UserRepository userRepository, CartService cartService,
+    public AdminService(UserService userService, UserRepository userRepository,
                         MerchantService merchantService, CourierService courierService) {
         this.userService = userService;
         this.userRepository = userRepository;
-        this.cartService = cartService;
         this.merchantService = merchantService;
         this.courierService = courierService;
-    }
-
-    public void insertAdmin() {
-        User admin = initializeAdmin();
-        log.info("Inserting admin user");
-
-        userRepository.save(admin);
-    }
-
-    private User initializeAdmin() {
-        UserRegisterRequest userRegisterRequest = UserRegisterRequest.builder()
-                .firstName("Admin")
-                .lastName("Adminov")
-                .phoneNumber("0000000000")
-                .email("admin@smartdelivery.bg")
-                .password("admin")
-                .confirmPassword("admin")
-                .build();
-
-        RegisterRequest registerRequest = RegisterRequest.builder()
-                .userRegisterRequest(userRegisterRequest)
-                .build();
-
-        User user = userService.initializeUser(registerRequest.getUserRegisterRequest());
-        user.setRole(UserRole.ADMIN);
-
-        Cart cart = cartService.initializeCartForUser(user);
-        user.setCart(cart);
-
-        return userRepository.save(user);
     }
 
     public List<UserResponse> getAdmins() {
@@ -182,6 +147,10 @@ public class AdminService {
 
         User user = userOptional.get();
         return initializeUserResponse(user);
+    }
+
+    public boolean adminAlreadyExists() {
+        return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
     }
 
     private static UserResponse initializeUserResponse(User user) {
