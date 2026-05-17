@@ -33,7 +33,7 @@ public class ProfileController {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         UserProfileRequest profileRequest = profileService.initializeProfileRequest(user);
         modelAndView.addObject("user", user);
-        modelAndView.addObject("profile", profileRequest);
+        modelAndView.addObject("profileRequest", profileRequest);
 
         return modelAndView;
     }

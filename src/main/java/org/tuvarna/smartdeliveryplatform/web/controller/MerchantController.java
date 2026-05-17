@@ -36,13 +36,11 @@ public class MerchantController {
 
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         List<MerchantAddressResponse> merchantAddressResponses = addressService.getAllAddressesForMerchant(user);
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
         MerchantProfileRequest merchantProfileRequest = merchantService.getMerchantProfileRequest(user.getEmail());
 
         modelAndView.addObject("user", user);
-        modelAndView.addObject("merchantProfile", merchantProfileRequest);
+        modelAndView.addObject("merchantProfileRequest", merchantProfileRequest);
         modelAndView.addObject("merchantAddressResponses", merchantAddressResponses);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
 
         return modelAndView;
     }
@@ -66,8 +64,6 @@ public class MerchantController {
         ModelAndView modelAndView = new ModelAndView("merchant/orders");
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
 
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
         modelAndView.addObject("user", user);
 
         return modelAndView;

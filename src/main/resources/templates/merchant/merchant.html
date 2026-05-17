@@ -24,7 +24,7 @@
 
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/merchant/my-shop}" method="post" th:object="${merchantProfile}">
+        <form th:action="@{/merchant/my-shop}" method="post" th:object="${merchantProfileRequest}">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -44,7 +44,7 @@
                 <label for="addressId">Address</label>
                 <select id="addressId" th:field="*{addressId}" required>
                     <option value="">-- Select Address --</option>
-                    <option th:each="addr : ${addresses}"
+                    <option th:each="addr : ${merchantAddressResponses}"
                             th:value="${addr.id}"
                             th:text="${addr.city + ', ' + addr.street + ', ' + addr.building}">
                     </option>

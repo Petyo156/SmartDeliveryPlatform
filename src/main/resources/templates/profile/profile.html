@@ -25,7 +25,7 @@
 
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/profile}" method="post" th:object="${profile}">
+        <form th:action="@{/profile}" method="post" th:object="${profileRequest}">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
