@@ -96,6 +96,18 @@ public class CategoryService {
         return categoryOptional.get();
     }
 
+    public boolean existsByNameAndType(String name, MerchantType type) {
+        return categoryRepository.existsByNameAndType(name, type);
+    }
+
+    public void saveGlobalCategory(Category globalCategory) {
+        categoryRepository.save(globalCategory);
+    }
+
+    public boolean categoriesCountMoreThanZero() {
+        return categoryRepository.count() > 0;
+    }
+
     private List<Category> getGlobalCategoriesByType(MerchantType type) {
         return categoryRepository.findAllByIsGlobalTrueAndTypeAndIsDeletedFalse(type);
     }

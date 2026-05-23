@@ -7,15 +7,21 @@ import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
+import org.tuvarna.smartdeliveryplatform.shared.utils.SlugUtil;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantCardResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -73,14 +79,13 @@ public class MerchantService {
         merchant.setName(merchantProfileRequest.getName());
         merchant.setDescription(merchantProfileRequest.getDescription());
         merchant.setAddress(address);
-        merchant.setIsClosed(merchantProfileRequest.getIsClosed());
         merchant.setImageUrl(merchantProfileRequest.getImageUrl());
 
         merchantRepository.save(merchant);
         log.info("Updated profile for merchant {}", merchant.getName());
     }
 
-    public Boolean merchantIsClosedStatus(AuthenticationMetadata authenticationMetadata) {
+    public boolean merchantIsClosedStatus(AuthenticationMetadata authenticationMetadata) {
         if (null == authenticationMetadata) {
             return false;
         }
@@ -98,6 +103,11 @@ public class MerchantService {
         Address address = addressService.addAddress(user,request.getAddress());
         Merchant merchant = initializeMerchant(user, request);
         merchant.setAddress(address);
+        String slug = initializeSlugForMerchant(merchant, address.getCity());
+        merchant.setSlug(slug);
+        if(merchantRepository.existsMerchantBySlug(slug)) {
+            throw new IllegalStateException("Merchant with this slug already exists");
+        }
         merchantRepository.save(merchant);
     }
 
@@ -111,6 +121,30 @@ public class MerchantService {
 
     public Optional<Merchant> getMerchantOptionalByUserEmail(String email) {
         return merchantRepository.getMerchantByUser_Email(email);
+    }
+
+    public List<MerchantCardResponse> getAllActiveShops() {
+        List<Merchant> merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<MerchantCardResponse> getAllActiveRestaurants() {
+        List<Merchant> merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
+    public boolean merchantCountMoreThanZero() {
+        return merchantRepository.count() > 0;
+    }
+
+    private String initializeSlugForMerchant(Merchant merchant, String city) {
+        String baseSlug = SlugUtil.normalize(merchant.getName());
+        String citySlug = SlugUtil.normalize(city);
+        return baseSlug + "-" + citySlug + "-" + UUID.randomUUID().toString().substring(0, 6);
     }
 
     private Merchant initializeMerchant(User user, MerchantRequest merchantRequest) {
@@ -147,6 +181,21 @@ public class MerchantService {
                 .addressId(merchant.getAddress().getId())
                 .isClosed(merchant.getIsClosed())
                 .imageUrl(merchant.getImageUrl())
+                .build();
+    }
+
+    private MerchantCardResponse toMerchantCardResponse(Merchant merchant) {
+        return initializeMerchantCard(merchant);
+    }
+
+    private MerchantCardResponse initializeMerchantCard(Merchant merchant) {
+        return MerchantCardResponse.builder()
+                .slug(merchant.getSlug())
+                .name(merchant.getName())
+                .description(merchant.getDescription())
+                .imageUrl(merchant.getImageUrl())
+                .type(merchant.getType())
+                .isClosed(merchant.getIsClosed())
                 .build();
     }
 }

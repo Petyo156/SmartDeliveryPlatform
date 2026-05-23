@@ -50,4 +50,7 @@ public class Merchant {
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
+
+    @Column(name = "slug", nullable = false, unique = true)
+    private String slug;
 }

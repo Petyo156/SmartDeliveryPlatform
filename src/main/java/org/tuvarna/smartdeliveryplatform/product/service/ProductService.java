@@ -10,13 +10,13 @@ import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.product.repository.ProductRepository;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.utils.SlugUtil;
 import org.tuvarna.smartdeliveryplatform.web.dto.products.ProductRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.products.ProductResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -57,26 +57,24 @@ public class ProductService {
                 .toList();
     }
 
-    public void deleteProduct(String productId, AuthenticationMetadata authenticationMetadata) {
-        UUID productUUID = UUID.fromString(productId);
+    public void deleteProduct(String slug, AuthenticationMetadata authenticationMetadata) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
-        Product product = getProductByIdAndMerchant(productUUID, merchant);
+        Product product = getProductBySlugAndMerchant(slug, merchant);
         product.setIsDeleted(true);
         productRepository.save(product);
-        log.info("Soft deleted product: {}", productId);
+        log.info("Soft deleted product: {}", slug);
     }
 
-    public void toggleAvailability(String productId, AuthenticationMetadata authenticationMetadata) {
-        UUID productUUID = UUID.fromString(productId);
+    public void toggleAvailability(String slug, AuthenticationMetadata authenticationMetadata) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
-        Product product = getProductByIdAndMerchant(productUUID, merchant);
+        Product product = getProductBySlugAndMerchant(slug, merchant);
         product.setIsAvailable(!product.getIsAvailable());
         productRepository.save(product);
-        log.info("Toggled availability for product: {} to {}", productId, product.getIsAvailable());
+        log.info("Toggled availability for product: {} to {}", slug, product.getIsAvailable());
     }
 
-    private Product getProductByIdAndMerchant(UUID productId, Merchant merchant) {
-        Optional<Product> product = productRepository.findByIdAndMerchant(productId, merchant);
+    private Product getProductBySlugAndMerchant(String slug, Merchant merchant) {
+        Optional<Product> product = productRepository.findBySlugAndMerchant(slug, merchant);
         if(product.isEmpty()) {
             throw new IllegalArgumentException("Product not found");
         }
@@ -100,7 +98,14 @@ public class ProductService {
                 .build();
     }
 
+    private String initializeProductSlug(Merchant merchant, ProductRequest product) {
+        String merchantSlug = merchant.getSlug();
+        String productSlug = SlugUtil.normalize(product.getName());
+        return merchantSlug + "-" + productSlug + "-" + SlugUtil.randomSuffix();
+    }
+
     private Product initializeProduct(ProductRequest request, Merchant merchant, Category category) {
+        String slug = initializeProductSlug(merchant, request);
         return Product.builder()
                 .merchant(merchant)
                 .category(category)
@@ -112,6 +117,7 @@ public class ProductService {
                 .isAvailable(true)
                 .isDeleted(false)
                 .createdAt(LocalDateTime.now())
+                .slug(slug)
                 .build();
     }
 }

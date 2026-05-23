@@ -52,4 +52,7 @@ public class Product {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "slug", nullable = false, unique = true)
+    private String slug;
 }
