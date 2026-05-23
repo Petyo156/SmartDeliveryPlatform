@@ -42,13 +42,11 @@ public class ProductController {
 
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         MerchantResponse merchantResponse = merchantService.getMerchantResponse(authenticationMetadata.getUsername());
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
         List<ProductResponse> products = productService.getMerchantProductResponses(authenticationMetadata.getUsername());
         List<CategoryResponse> availableCategories = categoryService.getAvailableCategories(authenticationMetadata.getUsername());
 
         modelAndView.addObject("user", user);
         modelAndView.addObject("merchantResponse", merchantResponse);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
         modelAndView.addObject("products", products);
         modelAndView.addObject("availableCategories", availableCategories);
         modelAndView.addObject("productRequest", ProductRequest.builder().build());
@@ -73,20 +71,20 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @PostMapping("/{productId}/delete")
+    @PostMapping("/{slug}/delete")
     public String deleteProduct(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                @PathVariable String productId,
+                                @PathVariable String slug,
                                 RedirectAttributes redirectAttributes) {
-        productService.deleteProduct(productId, authenticationMetadata);
+        productService.deleteProduct(slug, authenticationMetadata);
         redirectAttributes.addFlashAttribute("successMessage", "Product deleted successfully!");
         return "redirect:/products";
     }
 
-    @PostMapping("/{productId}/toggle")
+    @PostMapping("/{productSlug}/toggle")
     public String toggleAvailability(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                     @PathVariable String productId,
+                                     @PathVariable String productSlug,
                                      RedirectAttributes redirectAttributes) {
-        productService.toggleAvailability(productId, authenticationMetadata);
+        productService.toggleAvailability(productSlug, authenticationMetadata);
         redirectAttributes.addFlashAttribute("successMessage", "Product availability updated!");
         return "redirect:/products";
     }
