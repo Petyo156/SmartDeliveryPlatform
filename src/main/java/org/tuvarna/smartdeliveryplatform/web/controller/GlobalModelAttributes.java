@@ -23,7 +23,11 @@ public class GlobalModelAttributes {
             return false;
         }
 
-        AuthenticationMetadata authenticationMetadata = (AuthenticationMetadata) authentication.getPrincipal();
-        return merchantService.merchantIsClosedStatus(authenticationMetadata);
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AuthenticationMetadata authMeta) {
+            return merchantService.merchantIsClosedStatus(authMeta);
+        }
+
+        return false;
     }
 }
