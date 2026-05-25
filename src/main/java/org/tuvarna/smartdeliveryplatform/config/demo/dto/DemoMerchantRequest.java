@@ -1,4 +1,4 @@
-package org.tuvarna.smartdeliveryplatform.web.dto.demo;
+package org.tuvarna.smartdeliveryplatform.config.demo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

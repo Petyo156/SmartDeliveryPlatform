@@ -1,10 +1,10 @@
-package org.tuvarna.smartdeliveryplatform.config;
+package org.tuvarna.smartdeliveryplatform.config.demo.initializers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.user.service.AdminService;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;

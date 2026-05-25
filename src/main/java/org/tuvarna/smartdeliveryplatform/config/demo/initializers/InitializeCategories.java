@@ -1,4 +1,4 @@
-package org.tuvarna.smartdeliveryplatform.config;
+package org.tuvarna.smartdeliveryplatform.config.demo.initializers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.tuvarna.smartdeliveryplatform.category.model.Category;
 import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
+import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 
 import java.util.Arrays;
@@ -62,22 +63,22 @@ public class InitializeCategories implements CommandLineRunner {
 
     private List<String> initializeDemoShopCategories() {
         return Arrays.asList(
-                "Electronics",
-                "Groceries",
-                "Flowers",
-                "Pharmacy",
-                "Pet Supplies"
+                DemoDataConstants.CATEGORY_ELECTRONICS,
+                DemoDataConstants.CATEGORY_GROCERIES,
+                DemoDataConstants.CATEGORY_FLOWERS,
+                DemoDataConstants.CATEGORY_PHARMACY,
+                DemoDataConstants.CATEGORY_PET_SUPPLIES
         );
     }
 
     private List<String> initializeDemoRestaurantCategories() {
         return Arrays.asList(
-                "Pizza",
-                "Burgers",
-                "Sushi",
-                "Drinks",
-                "Desserts",
-                "Salads"
+                DemoDataConstants.CATEGORY_PIZZA,
+                DemoDataConstants.CATEGORY_BURGERS,
+                DemoDataConstants.CATEGORY_SUSHI,
+                DemoDataConstants.CATEGORY_DRINKS,
+                DemoDataConstants.CATEGORY_DESSERTS,
+                DemoDataConstants.CATEGORY_SALADS
         );
     }
 }
