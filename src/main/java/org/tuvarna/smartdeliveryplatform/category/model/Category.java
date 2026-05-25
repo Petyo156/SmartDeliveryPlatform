@@ -3,6 +3,7 @@ package org.tuvarna.smartdeliveryplatform.category.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
+import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 
 import java.util.UUID;
 
@@ -24,4 +25,14 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MerchantType type;
+
+    @Column(nullable = false)
+    private Boolean isGlobal;
+
+    @Column(nullable = false)
+    private Boolean isDeleted;
 }

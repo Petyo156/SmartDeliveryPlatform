@@ -17,8 +17,8 @@
             <form th:action="@{/merchant/toggle-closed-status}" method="post" class="toggle-status-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="submit" class="dropdown-item toggle-status-btn">
-                    <i class="fa-solid" th:classappend="${merchantIsClosed != null && merchantIsClosed} ? 'fa-store-slash' : 'fa-store'"></i>
-                    <span th:text="${merchantIsClosed != null && merchantIsClosed} ? 'Close Shop' : 'Open Shop'"></span>
+                    <i class="fa-solid" th:classappend="${merchantIsClosed != null && merchantIsClosed} ? 'fa-store' : 'fa-store-slash'"></i>
+                    <span th:text="${merchantIsClosed != null && merchantIsClosed} ? 'Open Shop' : 'Close Shop'"></span>
                 </button>
             </form>
             </div>
@@ -42,7 +42,7 @@
                 </div>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" th:href="@{/merchant/my-shop}">My Shop</a></li>
-                    <li><a class="dropdown-item" th:href="@{/merchant/products}">Products</a></li>
+                    <li><a class="dropdown-item" th:href="@{/products}">Products</a></li>
                     <li><a class="dropdown-item" th:href="@{/merchant/orders}">Orders</a></li>
                 </ul>
             </div>

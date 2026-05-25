@@ -72,18 +72,18 @@ public class AdminController {
     @PostMapping("/merchants/assign")
     public ModelAndView makeUserMerchant(
             @Valid @ModelAttribute("merchantRequest") MerchantRequest merchantRequest,
-            BindingResult bindingResult) {
-        ModelAndView modelAndView = new ModelAndView("admin/merchants");
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/merchants");
             modelAndView.addObject("merchantResponse", MerchantResponse.builder().build());
             return modelAndView;
         }
 
         adminService.makeUserMerchant(merchantRequest);
-        modelAndView.addObject("successMessage", "Merchant created successfully for: " + merchantRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage","Merchant created successfully for: " + merchantRequest.getEmail());
 
-        return modelAndView;
+        return new ModelAndView("redirect:/admin/merchants");
     }
 
     @GetMapping("/couriers")

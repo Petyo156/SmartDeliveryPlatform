@@ -3,10 +3,13 @@ package org.tuvarna.smartdeliveryplatform.merchant.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
+import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -47,4 +50,13 @@ public class Merchant {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
+
+    @Column(name = "slug", nullable = false, unique = true)
+    private String slug;
+
+    @OneToMany(mappedBy = "merchant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
 }

@@ -1,0 +1,27 @@
+<div th:fragment="merchant-card(merchant)"
+     class="merchant-card"
+     th:classappend="${merchant.isClosed} ? ' closed' : ''">
+
+    <div class="merchant-image">
+        <img th:src="${merchant.imageUrl}"
+             th:alt="${merchant.name}"
+             onerror="this.src='/images/default-merchant.png'">
+    </div>
+
+    <div class="merchant-info">
+        <h3 th:text="${merchant.name}"></h3>
+
+        <p th:text="${merchant.description}"></p>
+
+<!--        <div class="merchant-meta" th:if="${merchant.city != null}">-->
+<!--            <i class="fas fa-map-marker-alt"></i>-->
+<!--            <span th:text="${merchant.city}"></span>-->
+<!--        </div>-->
+    </div>
+
+    <div class="merchant-badge" th:if="${merchant.isClosed}">
+        <span class="badge badge-closed">Currently unavailable</span>
+    </div>
+
+    <a th:href="@{'/merchant/' + ${merchant.slug}}" class="merchant-link"></a>
+</div>

@@ -3,10 +3,8 @@ package org.tuvarna.smartdeliveryplatform.user.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
-import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
-import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
@@ -14,8 +12,6 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserResponse;
-import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
-import org.tuvarna.smartdeliveryplatform.web.dto.auth.UserRegisterRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,47 +22,15 @@ import java.util.Optional;
 public class AdminService {
     private final UserService userService;
     private final UserRepository userRepository;
-    private final CartService cartService;
     private final MerchantService merchantService;
     private final CourierService courierService;
 
-    public AdminService(UserService userService, UserRepository userRepository, CartService cartService,
+    public AdminService(UserService userService, UserRepository userRepository,
                         MerchantService merchantService, CourierService courierService) {
         this.userService = userService;
         this.userRepository = userRepository;
-        this.cartService = cartService;
         this.merchantService = merchantService;
         this.courierService = courierService;
-    }
-
-    public void insertAdmin() {
-        User admin = initializeAdmin();
-        log.info("Inserting admin user");
-
-        userRepository.save(admin);
-    }
-
-    private User initializeAdmin() {
-        UserRegisterRequest userRegisterRequest = UserRegisterRequest.builder()
-                .firstName("Admin")
-                .lastName("Adminov")
-                .phoneNumber("0000000000")
-                .email("admin@smartdelivery.bg")
-                .password("admin")
-                .confirmPassword("admin")
-                .build();
-
-        RegisterRequest registerRequest = RegisterRequest.builder()
-                .userRegisterRequest(userRegisterRequest)
-                .build();
-
-        User user = userService.initializeUser(registerRequest.getUserRegisterRequest());
-        user.setRole(UserRole.ADMIN);
-
-        Cart cart = cartService.initializeCartForUser(user);
-        user.setCart(cart);
-
-        return userRepository.save(user);
     }
 
     public List<UserResponse> getAdmins() {
@@ -80,8 +44,7 @@ public class AdminService {
     }
 
     public void updateUserStatus(String email, UserStatus status) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
         user.setStatus(status);
         userRepository.save(user);
         log.info("Updated status for user {} to {}", email, status);
@@ -89,8 +52,7 @@ public class AdminService {
 
     @Transactional
     public void makeUserMerchant(MerchantRequest merchantRequest) {
-        User user = userRepository.findByEmail(merchantRequest.getEmail())
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + merchantRequest.getEmail() + "' does not exist"));
+        User user = userService.getUserByEmail(merchantRequest.getEmail());
 
         if (user.getRole() == UserRole.COURIER) {
             throw new IllegalStateException("User is already a courier and cannot become a merchant");
@@ -100,7 +62,7 @@ public class AdminService {
             throw new IllegalStateException("User is already an admin and cannot become a merchant");
         }
 
-        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+        if (merchantService.getMerchantOptionalByUserEmail(merchantRequest.getEmail()).isPresent()) {
             throw new IllegalStateException("User is already a merchant");
         }
 
@@ -111,8 +73,7 @@ public class AdminService {
     }
 
     public void makeUserCourier(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (user.getRole() == UserRole.MERCHANT) {
             throw new IllegalStateException("User is already a merchant and cannot become a courier");
@@ -133,14 +94,13 @@ public class AdminService {
     }
 
     public void makeUserAdmin(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
             throw new IllegalStateException("User is a courier and cannot be an admin");
         }
 
-        if (merchantService.getMerchantByUserEmail(user.getEmail()).isPresent()) {
+        if (merchantService.getMerchantOptionalByUserEmail(user.getEmail()).isPresent()) {
             throw new IllegalStateException("User is a merchant and cannot be an admin");
         }
 
@@ -150,8 +110,7 @@ public class AdminService {
     }
 
     public void demoteAdmin(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+        User user = userService.getUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
             throw new IllegalStateException("User is not an admin and cannot be demoted");
@@ -188,6 +147,10 @@ public class AdminService {
 
         User user = userOptional.get();
         return initializeUserResponse(user);
+    }
+
+    public boolean adminAlreadyExists() {
+        return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
     }
 
     private static UserResponse initializeUserResponse(User user) {

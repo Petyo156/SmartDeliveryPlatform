@@ -47,7 +47,7 @@
                     <p th:text="${address.street + ', ' + address.building}"></p>
                 </div>
 
-                <div th:if="${editAddressUUID != null && editAddressUUID == address.id}">
+                <div th:if="${editAddressId != null && editAddressId == address.id}">
 
                     <form th:action="@{'/addresses/' + ${address.id} + '/edit'}"
                           method="post"
@@ -90,14 +90,14 @@
                 </div>
 
                 <div class="address-actions"
-                     th:if="${editAddressUUID == null || editAddressUUID != address.id}">
+                     th:if="${editAddressId == null || editAddressId != address.id}">
 
                     <a th:href="@{/addresses(editAddressId=${address.id})}">
                         <i class="fas fa-edit"></i>
                         Edit
                     </a>
 
-                    <form th:action="@{'/addresses/delete/' + ${address.id}}"
+                    <form th:action="@{'/addresses/' + ${address.id}}"
                           method="post">
 
                         <input type="hidden"

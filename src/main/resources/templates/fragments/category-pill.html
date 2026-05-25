@@ -1,0 +1,15 @@
+<th:block th:fragment="category-pill(categories, selectedCategory, baseUrl)">
+
+    <a th:href="@{${baseUrl}}"
+       th:text="'All'"
+       th:classappend="${selectedCategory == null} ? 'active' : ''">
+    </a>
+
+    <th:block th:each="category : ${categories}">
+        <a th:href="@{${baseUrl}(category=${category.name})}"
+           th:classappend="${category.name == selectedCategory} ? 'active' : ''"
+           th:text="${category.name}">
+        </a>
+    </th:block>
+
+</th:block>

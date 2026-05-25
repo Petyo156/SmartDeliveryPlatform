@@ -44,7 +44,7 @@
     <section aria-labelledby="results-heading">
         <h2 id="results-heading">Search Results</h2>
 
-        <div th:if="${merchantResponse.ownerEmail != null}" role="region" aria-label="Merchant information">
+        <div th:if="${merchantResponse != null and merchantResponse.ownerEmail != null}" role="region" aria-label="Merchant information">
             <table>
                 <caption>Details for merchant: <span th:text="${merchantResponse.ownerEmail}"></span></caption>
                 <thead>
@@ -83,7 +83,7 @@
             </table>
         </div>
 
-        <div th:if="${merchantResponse.ownerEmail == null and searchEmail != null and !searchEmail.isBlank()}" role="status">
+        <div th:if="${merchantResponse == null and searchEmail != null and !searchEmail.isBlank()}" role="status">
             <p>No merchant found with email: <strong th:text="${searchEmail}"></strong></p>
         </div>
 
@@ -189,6 +189,13 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="input-group">
+                    <label for="image-url">Image Url</label>
+                    <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url" required/>
+                    <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error-message"></div>
+                </div>
+
 
                 <div>
                     <button type="submit">

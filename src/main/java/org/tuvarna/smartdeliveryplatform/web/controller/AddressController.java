@@ -42,7 +42,7 @@ public class AddressController {
         if (editAddressId != null) {
             UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
             addressRequest = addressService.initializeAddressEditRequest(addressResponse);
-            modelAndView.addObject("editAddressUUID", editAddressId);
+            modelAndView.addObject("editAddressId", editAddressId);
         }
 
         modelAndView.addObject("user", user);
@@ -90,7 +90,7 @@ public class AddressController {
             modelAndView.addObject("user", user);
             modelAndView.addObject("addresses", addresses);
             modelAndView.addObject("addressRequest", addressRequest);
-            modelAndView.addObject("editAddressUUID", editingAddressId);
+            modelAndView.addObject("editAddressId", editingAddressId);
             return modelAndView;
         }
 
@@ -100,7 +100,7 @@ public class AddressController {
         return new ModelAndView("redirect:/addresses");
     }
 
-    @PostMapping("/delete/{id}")
+    @PostMapping("/{id}")
     public String deleteAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
                                 @PathVariable String id,
                                 RedirectAttributes redirectAttributes) {

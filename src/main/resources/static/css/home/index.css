@@ -28,6 +28,29 @@
     text-decoration: none;
     border-radius: 30px;
     margin-top: 1rem;
+    margin-right: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hero-btn-secondary {
+    background: white;
+    color: var(--accent);
+}
+
+.hero-btn-secondary:hover {
+    background: var(--light-accent);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .quick-categories {

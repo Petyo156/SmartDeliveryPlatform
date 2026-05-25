@@ -24,4 +24,7 @@ public class MerchantProfileRequest {
     private UUID addressId;
 
     private Boolean isClosed;
+
+    @NotBlank(message = "Image url is required")
+    private String imageUrl;
 }

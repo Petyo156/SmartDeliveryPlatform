@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
-import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
@@ -36,21 +35,18 @@ public class MerchantController {
         ModelAndView modelAndView = new ModelAndView("merchant/merchant");
 
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
+        List<MerchantAddressResponse> merchantAddressResponses = addressService.getAllAddressesForMerchant(user);
+        MerchantProfileRequest merchantProfileRequest = merchantService.getMerchantProfileRequest(user.getEmail());
 
-        List<MerchantAddressResponse> addresses = addressService.getAllAddressesForMerchant(user);
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
-        MerchantProfileRequest request = merchantService.getMerchantProfileRequest(user.getEmail());
-
-        modelAndView.addObject("merchantProfile", request);
-        modelAndView.addObject("addresses", addresses);
         modelAndView.addObject("user", user);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
+        modelAndView.addObject("merchantProfileRequest", merchantProfileRequest);
+        modelAndView.addObject("merchantAddressResponses", merchantAddressResponses);
 
         return modelAndView;
     }
 
     @PostMapping("/my-shop")
-    public ModelAndView updateMyShop(@AuthenticationPrincipal AuthenticationMetadata principal,
+    public ModelAndView updateMyShop(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
                                @Valid @ModelAttribute("merchantProfile") MerchantProfileRequest request,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
@@ -58,22 +54,9 @@ public class MerchantController {
             return new ModelAndView("redirect:/merchant/merchant");
         }
 
-        Merchant merchant = merchantService.getMerchantEntityByEmail(principal.getUsername());
-        merchantService.updateMerchantProfile(merchant, request);
+        merchantService.updateMerchantProfile(authenticationMetadata, request);
         redirectAttributes.addFlashAttribute("successMessage", "Merchant profile updated successfully!");
         return new ModelAndView("redirect:/merchant/my-shop");
-    }
-
-    @GetMapping("/products")
-    public ModelAndView getMerchantProducts(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
-        ModelAndView modelAndView = new ModelAndView("merchant/products");
-        User user = userService.getUserByEmail(authenticationMetadata.getUsername());
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
-
-        modelAndView.addObject("user", user);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
-
-        return modelAndView;
     }
 
     @GetMapping("/orders")
@@ -81,8 +64,6 @@ public class MerchantController {
         ModelAndView modelAndView = new ModelAndView("merchant/orders");
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
 
-        Boolean merchantIsClosed = merchantService.merchantIsClosedStatus(authenticationMetadata);
-        modelAndView.addObject("merchantIsClosed", merchantIsClosed);
         modelAndView.addObject("user", user);
 
         return modelAndView;

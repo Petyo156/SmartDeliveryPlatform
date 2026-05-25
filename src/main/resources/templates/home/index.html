@@ -14,17 +14,19 @@
 </head>
 
 <body>
+
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
 
 <main class="home-container">
 
     <section class="hero">
-        <div class="hero-content">
-            <h1>Fast Delivery to Your Door 🚀</h1>
-            <p>Order food, groceries and drinks in minutes</p>
+        <h1>Order food, groceries and more 🚀</h1>
+        <p>Fast delivery to your door</p>
 
-            <a href="/food" class="hero-btn">Browse Restaurants</a>
+        <div class="hero-buttons">
+            <a href="/restaurants" class="hero-btn">Browse Restaurants</a>
+            <a href="/shops" class="hero-btn hero-btn-secondary">Browse Shops</a>
         </div>
     </section>
 
@@ -32,22 +34,20 @@
         <h2>What are you craving?</h2>
 
         <div class="category-cards">
-
-            <a href="/food" class="category-card">
+            <a href="/restaurants" class="category-card">
                 <i class="fas fa-utensils"></i>
-                <span>Food</span>
+                <span>Restaurants</span>
             </a>
 
-            <a href="/groceries" class="category-card">
-                <i class="fas fa-shopping-basket"></i>
-                <span>Groceries</span>
+            <a href="/shops" class="category-card">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Shops</span>
             </a>
 
             <a href="/drinks" class="category-card">
                 <i class="fas fa-coffee"></i>
                 <span>Drinks</span>
             </a>
-
         </div>
     </section>
 
@@ -55,38 +55,34 @@
         <h2>Popular right now 🔥</h2>
 
         <div class="featured-grid">
-
             <div class="featured-card">
                 <h3>Burgers</h3>
                 <p>Juicy and delicious</p>
-                <a href="/food?search=burger">Order now</a>
+                <a href="/restaurants?category=Burgers">Order now</a>
             </div>
 
             <div class="featured-card">
                 <h3>Pizza</h3>
                 <p>Hot & fresh</p>
-                <a href="/food?search=pizza">Order now</a>
+                <a href="/restaurants?category=Pizza">Order now</a>
             </div>
 
             <div class="featured-card">
                 <h3>Sushi</h3>
                 <p>Fresh & premium</p>
-                <a href="/food?search=sushi">Order now</a>
+                <a href="/restaurants?category=Sushi">Order now</a>
             </div>
-
         </div>
     </section>
 
     <section class="user-section" th:if="${user != null}">
         <h2>Welcome back, <span th:text="${user.firstName}"></span> 👋</h2>
-        <p>Continue where you left off</p>
-
         <a href="/cart" class="hero-btn">Go to Cart</a>
     </section>
 
     <section class="cta">
         <h2>Hungry? Let's fix that.</h2>
-        <a href="/food" class="hero-btn">Start Ordering</a>
+        <a href="/restaurants" class="hero-btn">Start Ordering</a>
     </section>
 
 </main>

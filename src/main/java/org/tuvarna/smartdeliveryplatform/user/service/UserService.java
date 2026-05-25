@@ -43,9 +43,6 @@ public class UserService {
     public void register(RegisterRequest registerRequest) {
         UserRegisterRequest userRequest = registerRequest.getUserRegisterRequest();
         AddressRequest addressRequest = registerRequest.getAddressRequest();
-
-        log.info("Registering user with email: {}", userRequest.getEmail());
-
         validateInput(userRequest.getEmail(), userRequest.getPassword());
         checkIfEmailAlreadyExists(userRequest.getEmail());
         checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
@@ -54,13 +51,9 @@ public class UserService {
         log.info("User registered successfully: {}", userRequest.getEmail());
     }
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
-    }
-
     public User getUserByEmail(String email) {
-        return getByEmail(email);
+        return userRepository.findByEmail(email).orElseThrow(()
+                -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
     }
 
     public void saveUser(User user) {
@@ -72,11 +65,11 @@ public class UserService {
             return null;
         }
 
-        return getByEmail(auth.getEmail());
+        return getUserByEmail(auth.getEmail());
     }
 
-    public boolean userCountMoreThanZero() {
-        return userRepository.count() > 0;
+    public boolean userCountMoreThanOne() {
+        return userRepository.count() > 1;
     }
 
     public User initializeUser(UserRegisterRequest userRegisterRequest) {
@@ -105,14 +98,12 @@ public class UserService {
         if (!password.equals(confirmPassword)) {
             throw new PasswordsDoNotMatchException("Passwords do not match");
         }
-        log.info("Passwords match");
     }
 
     private void checkIfEmailAlreadyExists(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserWithEmailAlreadyExistsException("User with this email already exists");
         }
-        log.info("Email is valid");
     }
 
     private void setupUser(UserRegisterRequest userReq, AddressRequest addressRequest) {

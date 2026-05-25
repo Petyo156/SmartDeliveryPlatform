@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shops | Smart Delivery</title>
+
+    <link rel="stylesheet" href="/css/merchant/merchant-browsing.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+
+    <link rel="icon" href="/images/favicon.ico">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+
+<section class="merchant-page-header">
+    <h1>Browse Shops</h1>
+    <p>Find electronics, groceries, flowers and more</p>
+</section>
+
+<div class="links">
+    <a href="/restaurants">Restaurants</a>
+</div>
+
+<section class="category-pills">
+    <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/shops')}"></div>
+</section>
+
+<main class="merchant-grid">
+
+    <div th:if="${merchantCardResponses != null && !merchantCardResponses.isEmpty()}">
+
+        <div th:each="merchant : ${merchantCardResponses}">
+            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+        </div>
+
+    </div>
+
+    <div th:if="${merchantCardResponses == null || merchantCardResponses.isEmpty()}" class="merchant-empty-state">
+        <i class="fas fa-store-slash"></i>
+        <h3>No shops available</h3>
+        <p>Check back later for new shops</p>
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
