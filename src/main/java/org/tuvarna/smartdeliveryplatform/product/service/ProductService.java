@@ -33,8 +33,8 @@ public class ProductService {
     }
 
     @Transactional
-    public void createProduct(AuthenticationMetadata authenticationMetadata, ProductRequest request) {
-        Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
+    public void createProduct(String merchantEmail, ProductRequest request) {
+        Merchant merchant = merchantService.getMerchantByUserEmail(merchantEmail);
         Category category = categoryService.getCategoryById(request.getCategoryId());
 
         boolean isGlobal = category.getIsGlobal();
@@ -63,6 +63,10 @@ public class ProductService {
         product.setIsDeleted(true);
         productRepository.save(product);
         log.info("Soft deleted product: {}", slug);
+    }
+
+    public boolean productCountMoreThanZero() {
+        return productRepository.count() > 0;
     }
 
     public void toggleAvailability(String slug, AuthenticationMetadata authenticationMetadata) {

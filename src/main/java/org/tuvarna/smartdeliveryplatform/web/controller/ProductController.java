@@ -66,7 +66,7 @@ public class ProductController {
             return "redirect:/products";
         }
 
-        productService.createProduct(authenticationMetadata, request);
+        productService.createProduct(authenticationMetadata.getUsername(), request);
         redirectAttributes.addFlashAttribute("successMessage", "Product created successfully!");
         return "redirect:/products";
     }

@@ -1,13 +1,14 @@
-package org.tuvarna.smartdeliveryplatform.config;
+package org.tuvarna.smartdeliveryplatform.config.demo.initializers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.UserRegisterRequest;
-import org.tuvarna.smartdeliveryplatform.web.dto.demo.DemoUserRequest;
+import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoUserRequest;
 
 import java.util.List;
 
@@ -58,6 +59,26 @@ public class InitializeUsers implements CommandLineRunner {
 
     private List<DemoUserRequest> getDemoUsers() {
         return List.of(
+                new DemoUserRequest(
+                        DemoDataConstants.USER1_EMAIL,
+                        "Petar",
+                        "Petrov"
+                ),
+                new DemoUserRequest(
+                        DemoDataConstants.USER2_EMAIL,
+                        "Koko",
+                        "Kolev"
+                ),
+                new DemoUserRequest(
+                        DemoDataConstants.COURIER1_EMAIL,
+                        "Kurier",
+                        "Kurierov"
+                ),
+                new DemoUserRequest(
+                        DemoDataConstants.COURIER2_EMAIL,
+                        "Courier",
+                        "Courierv"
+                ),
                 new DemoUserRequest(
                         DemoDataConstants.RESTAURANT_PIZZA_HEAVEN_EMAIL,
                         "Pizza",
