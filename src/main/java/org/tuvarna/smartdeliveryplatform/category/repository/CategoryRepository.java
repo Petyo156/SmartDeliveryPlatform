@@ -20,4 +20,6 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findAllByMerchantAndIsDeletedFalse(Merchant merchant);
     
     boolean existsByNameIgnoreCaseAndMerchantAndIsDeletedFalse(String name, Merchant merchant);
+
+    Optional<Category> findCategoryByNameAndTypeAndIsGlobalTrue(String categoryName, MerchantType merchantType);
 }

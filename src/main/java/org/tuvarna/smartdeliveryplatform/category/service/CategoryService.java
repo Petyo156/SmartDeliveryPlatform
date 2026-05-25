@@ -10,11 +10,13 @@ import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryPillResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -94,6 +96,32 @@ public class CategoryService {
             throw new IllegalStateException("Category with this id does not exist");
         }
         return categoryOptional.get();
+    }
+
+    public UUID getGlobalCategoryIdByNameAndType(String categoryName, MerchantType merchantType) {
+        Optional<Category> categoryOptional = categoryRepository.findCategoryByNameAndTypeAndIsGlobalTrue(categoryName, merchantType);
+        if(categoryOptional.isEmpty()) {
+            throw new IllegalStateException("Global category for this merchant type with this name does not exist");
+        }
+        return categoryOptional.get().getId();
+    }
+
+    public List<CategoryPillResponse> getGlobalRestaurantCategories() {
+        List<Category> categories = categoryRepository.findAllByIsGlobalTrueAndTypeAndIsDeletedFalse(MerchantType.RESTAURANT);
+        return categories.stream()
+                .map(category -> CategoryPillResponse.builder()
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<CategoryPillResponse> getGlobalShopCategories() {
+        List<Category> categories = categoryRepository.findAllByIsGlobalTrueAndTypeAndIsDeletedFalse(MerchantType.SHOP);
+        return categories.stream()
+                .map(category -> CategoryPillResponse.builder()
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public boolean existsByNameAndType(String name, MerchantType type) {

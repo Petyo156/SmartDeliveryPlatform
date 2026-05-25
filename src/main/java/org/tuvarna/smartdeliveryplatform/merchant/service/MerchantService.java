@@ -123,15 +123,27 @@ public class MerchantService {
         return merchantRepository.getMerchantByUser_Email(email);
     }
 
-    public List<MerchantCardResponse> getAllActiveShops() {
-        List<Merchant> merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
+    public List<MerchantCardResponse> getAllActiveShops(String category) {
+        List<Merchant> merchants;
+        if (category == null || category.isEmpty()) {
+            merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
+        } else {
+            merchants = merchantRepository.findMerchantsByCategory(MerchantType.SHOP, category);
+        }
+
         return merchants.stream()
                 .map(this::toMerchantCardResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<MerchantCardResponse> getAllActiveRestaurants() {
-        List<Merchant> merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
+    public List<MerchantCardResponse> getAllActiveRestaurants(String category) {
+        List<Merchant> merchants;
+        if (category == null || category.isEmpty()) {
+            merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
+        } else {
+            merchants = merchantRepository.findMerchantsByCategory(MerchantType.RESTAURANT, category);
+        }
+
         return merchants.stream()
                 .map(this::toMerchantCardResponse)
                 .collect(Collectors.toList());

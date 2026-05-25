@@ -25,10 +25,7 @@
 </div>
 
 <section class="category-pills">
-    <a href="/shops?category=Electronics">Electronics</a>
-    <a href="/shops?category=Groceries">Groceries</a>
-    <a href="/shops?category=Flowers">Flowers</a>
-    <a href="/shops?category=Pharmacy">Pharmacy</a>
+    <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/shops')}"></div>
 </section>
 
 <main class="merchant-grid">
