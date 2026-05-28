@@ -123,6 +123,20 @@ public class MerchantService {
         return merchantRepository.getMerchantByUser_Email(email);
     }
 
+    public List<MerchantCardResponse> getTopActiveShops() {
+        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<MerchantCardResponse> getTopActiveRestaurants() {
+        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<MerchantCardResponse> getAllActiveShops(String category) {
         List<Merchant> merchants;
         if (category == null || category.isEmpty()) {

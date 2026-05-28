@@ -14,8 +14,13 @@ import java.util.UUID;
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
     Optional<Merchant> getMerchantByUser_Email(String searchEmail);
+
     List<Merchant> findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
+
+    List<Merchant> findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
+
     boolean existsMerchantBySlug(String slug);
+
     @Query("""
         SELECT DISTINCT m
         FROM Merchant m
@@ -33,4 +38,27 @@ public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
             @Param("type") MerchantType type,
             @Param("category") String category
     );
+
+    @Query("""
+        SELECT m
+        FROM Merchant m
+        WHERE m.isActive = true
+        AND m.type = :type
+        AND LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%'))
+        ORDER BY m.isClosed ASC, m.createdAt DESC
+    """)
+    List<Merchant> findMerchantsByNameLike(
+            @Param("query") String query,
+            @Param("type") MerchantType type
+    );
+
+    @Query("""
+        SELECT m
+        FROM Merchant m
+        WHERE m.isActive = true
+        AND LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%'))
+        ORDER BY m.isClosed ASC, m.createdAt DESC
+    """)
+    List<Merchant> findMerchantsByNameLikeAllTypes(@Param("query") String query);
+
 }
