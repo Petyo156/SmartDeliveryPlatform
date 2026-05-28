@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results | Smart Delivery</title>
+    <link rel="stylesheet" href="/css/merchant/merchant-browsing.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/favicon.ico">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
+
+<section class="merchant-page-header">
+    <h1>Search Results</h1>
+    <p th:if="${searchQuery != null && searchQuery != ''}">
+        Results for: <strong th:text="${searchQuery}"></strong>
+    </p>
+    <p th:if="${searchQuery == null || searchQuery == ''}">
+        Enter a search query to find merchants or products
+    </p>
+</section>
+
+<div class="links">
+    <a href="/">Home</a>
+    <a href="/restaurants">Restaurants</a>
+    <a href="/shops">Shops</a>
+</div>
+
+<section class="page-search">
+    <form th:action="@{/search/}" method="get" class="global-search-form">
+        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for shops, restaurants or products..."/>
+        <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+</section>
+
+<main class="merchant-grid">
+    <!-- Merchant Name Matches Section -->
+    <div th:if="${searchResponse != null && searchResponse.merchantMatches != null && !searchResponse.merchantMatches.isEmpty()}">
+        <h2 style="grid-column: 1 / -1; margin-top: 30px; margin-bottom: 20px;">
+            <i class="fas fa-store"></i> Filtered merchants by search:
+        </h2>
+        <div th:each="merchant : ${searchResponse.merchantMatches}">
+            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+        </div>
+    </div>
+
+    <!-- Product Matches Section -->
+    <div th:if="${searchResponse != null && searchResponse.productMatches != null && !searchResponse.productMatches.isEmpty()}">
+        <h2 style="grid-column: 1 / -1; margin-top: 30px; margin-bottom: 20px;">
+            <i class="fas fa-box"></i> Merchants that sell this product:
+        </h2>
+        <div th:each="merchant : ${searchResponse.productMatches}">
+            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${searchResponse == null || (searchResponse.merchantMatches == null || searchResponse.merchantMatches.isEmpty()) && (searchResponse.productMatches == null || searchResponse.productMatches.isEmpty())}"
+         class="merchant-empty-state" style="grid-column: 1 / -1;">
+        <i class="fas fa-search"></i>
+        <h3 th:if="${searchQuery != null && searchQuery != ''}">No results found for "<span th:text="${searchQuery}"></span>"</h3>
+        <h3 th:if="${searchQuery == null || searchQuery == ''}">Please enter a search query</h3>
+        <p>Try searching for a merchant name or product</p>
+    </div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
+
