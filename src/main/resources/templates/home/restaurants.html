@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Restaurants | Smart Delivery</title>
-
     <link rel="stylesheet" href="/css/merchant/merchant-browsing.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="icon" href="/images/favicon.ico">
 </head>
 
 <body>
 
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
 <section class="merchant-page-header">
     <h1>Browse Restaurants</h1>
@@ -23,6 +24,15 @@
 <div class="links">
     <a href="/shops">Shops</a>
 </div>
+
+<section class="page-search">
+    <form th:action="@{/search/restaurants}" method="get" class="search-form">
+        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search restaurants and products..."/>
+        <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</section>
 
 <section class="category-pills">
     <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>

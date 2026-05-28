@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Home | Smart Delivery</title>
-
     <link rel="stylesheet" href="/css/home/index.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
-
-    <link rel="icon" href="/images/favicon.ico">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/favicon.ico">
 </head>
 
 <body>
@@ -21,70 +19,46 @@
 <main class="home-container">
 
     <section class="hero">
-        <h1>Order food, groceries and more 🚀</h1>
-        <p>Fast delivery to your door</p>
+        <form th:action="@{/search}" method="get" class="global-search-form">
+            <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for restaurants, shops, or products..."/>
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
 
         <div class="hero-buttons">
-            <a href="/restaurants" class="hero-btn">Browse Restaurants</a>
-            <a href="/shops" class="hero-btn hero-btn-secondary">Browse Shops</a>
-        </div>
-    </section>
-
-    <section class="quick-categories">
-        <h2>What are you craving?</h2>
-
-        <div class="category-cards">
-            <a href="/restaurants" class="category-card">
-                <i class="fas fa-utensils"></i>
-                <span>Restaurants</span>
-            </a>
-
-            <a href="/shops" class="category-card">
-                <i class="fas fa-shopping-bag"></i>
-                <span>Shops</span>
-            </a>
-
-            <a href="/drinks" class="category-card">
-                <i class="fas fa-coffee"></i>
-                <span>Drinks</span>
-            </a>
+            <a th:href="@{/restaurants}" class="hero-btn">Browse Restaurants</a>
+            <a th:href="@{/shops}" class="hero-btn hero-btn-secondary">Browse Shops</a>
         </div>
     </section>
 
     <section class="featured">
-        <h2>Popular right now 🔥</h2>
-
-        <div class="featured-grid">
-            <div class="featured-card">
-                <h3>Burgers</h3>
-                <p>Juicy and delicious</p>
-                <a href="/restaurants?category=Burgers">Order now</a>
-            </div>
-
-            <div class="featured-card">
-                <h3>Pizza</h3>
-                <p>Hot & fresh</p>
-                <a href="/restaurants?category=Pizza">Order now</a>
-            </div>
-
-            <div class="featured-card">
-                <h3>Sushi</h3>
-                <p>Fresh & premium</p>
-                <a href="/restaurants?category=Sushi">Order now</a>
+        <h2>Popular Restaurants 🔥</h2>
+        <div class="merchant-grid"
+             th:if="${restaurantMerchants != null && !restaurantMerchants.isEmpty()}">
+            <div th:each="merchant : ${restaurantMerchants}">
+                <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
             </div>
         </div>
-    </section>
+        <div class="merchant-empty-state"
+             th:if="${restaurantMerchants == null || restaurantMerchants.isEmpty()}">
+            <i class="fas fa-utensils"></i>
+            <h3>No restaurants available</h3>
+        </div>
 
-    <section class="user-section" th:if="${user != null}">
-        <h2>Welcome back, <span th:text="${user.firstName}"></span> 👋</h2>
-        <a href="/cart" class="hero-btn">Go to Cart</a>
+        <h2 class="section-spacing">Popular Shops 🛍️</h2>
+        <div class="merchant-grid"
+             th:if="${shopsMerchants != null && !shopsMerchants.isEmpty()}">
+            <div th:each="merchant : ${shopsMerchants}">
+                <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+            </div>
+        </div>
+        <div class="merchant-empty-state"
+             th:if="${shopsMerchants == null || shopsMerchants.isEmpty()}">
+            <i class="fas fa-store-slash"></i>
+            <h3>No shops available</h3>
+        </div>
     </section>
-
-    <section class="cta">
-        <h2>Hungry? Let's fix that.</h2>
-        <a href="/restaurants" class="hero-btn">Start Ordering</a>
-    </section>
-
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

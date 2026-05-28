@@ -12,11 +12,6 @@
         <h3 th:text="${merchant.name}"></h3>
 
         <p th:text="${merchant.description}"></p>
-
-<!--        <div class="merchant-meta" th:if="${merchant.city != null}">-->
-<!--            <i class="fas fa-map-marker-alt"></i>-->
-<!--            <span th:text="${merchant.city}"></span>-->
-<!--        </div>-->
     </div>
 
     <div class="merchant-badge" th:if="${merchant.isClosed}">
