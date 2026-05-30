@@ -24,7 +24,7 @@
 
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/merchant/my-shop}" method="post" th:object="${merchantProfileRequest}">
+        <form th:action="@{/dashboard/merchant/my-shop}" method="post" th:object="${merchantProfileRequest}">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 

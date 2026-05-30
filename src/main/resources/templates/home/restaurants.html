@@ -22,6 +22,7 @@
 </section>
 
 <div class="links">
+    <a href="/">Home</a>
     <a href="/shops">Shops</a>
 </div>
 
@@ -36,6 +37,12 @@
 
 <section class="category-pills">
     <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>
+</section>
+
+<section class="category-info" th:if="${selectedCategory != null}">
+    <p>
+        Showing restaurants offering <strong th:text="${selectedCategory}"></strong>.
+    </p>
 </section>
 
 <main class="merchant-grid">

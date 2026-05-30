@@ -33,8 +33,8 @@
 </div>
 
 <section class="page-search">
-    <form th:action="@{/search/}" method="get" class="global-search-form">
-        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for shops, restaurants or products..."/>
+    <form th:action="@{/search}" method="get" class="global-search-form">
+        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for restaurants, shops, or products..."/>
         <button type="submit" class="search-btn">
             <i class="fas fa-search"></i> Search
         </button>
