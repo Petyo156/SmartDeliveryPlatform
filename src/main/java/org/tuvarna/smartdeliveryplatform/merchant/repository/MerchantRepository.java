@@ -15,6 +15,8 @@ import java.util.UUID;
 public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
     Optional<Merchant> getMerchantByUser_Email(String searchEmail);
 
+    Optional<Merchant> findBySlugAndIsActiveTrue(String slug);
+
     List<Merchant> findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
 
     List<Merchant> findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);

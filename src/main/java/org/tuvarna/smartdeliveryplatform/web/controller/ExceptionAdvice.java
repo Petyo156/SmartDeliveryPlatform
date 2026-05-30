@@ -1,8 +1,11 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
 
@@ -26,5 +29,13 @@ public class ExceptionAdvice {
         redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
 
         return "redirect:/register";
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler({
+            MerchantNotFoundException.class
+    })
+    public String merchantNotFound() {
+        return "exception/not-found";
     }
 }

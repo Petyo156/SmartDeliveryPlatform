@@ -17,6 +17,8 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     
     List<Product> findAllByMerchantAndIsDeletedFalse(Merchant merchant);
+
+    List<Product> findAllByMerchant_SlugAndIsAvailableTrueAndIsDeletedFalseOrderByCategory_NameAscCreatedAtDesc(String merchantSlug);
     
     Optional<Product> findBySlugAndMerchant(String slug, Merchant merchant);
 
