@@ -1,7 +1,8 @@
 @import "../main.css";
 
 .categories-section {
-    height: 5vh;
+    min-height: 50px;
+    height: auto;
     background: var(--dark-accent);
     display: flex;
     align-items: center;

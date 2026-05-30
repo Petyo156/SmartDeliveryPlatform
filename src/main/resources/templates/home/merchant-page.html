@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${merchant.name + ' | Smart Delivery'}">Merchant | Smart Delivery</title>
+
+    <link rel="stylesheet" href="/css/home/merchant-browsing.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/favicon.ico">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
+
+<div class="links">
+    <a href="/">Home</a>
+    <a href="/restaurants">Restaurants</a>
+    <a href="/shops">Shops</a>
+</div>
+
+<section class="merchant-profile-hero">
+    <div class="merchant-profile-image">
+        <img th:src="${merchant.imageUrl}"
+             th:alt="${merchant.name}"
+             onerror="this.style.display='none'">
+    </div>
+
+    <div class="merchant-profile-info">
+        <span class="merchant-type" th:text="${merchant.type}">Merchant type</span>
+        <h1 th:text="${merchant.name}">Merchant name</h1>
+        <p th:text="${merchant.description}">Merchant description</p>
+
+        <div class="merchant-status" th:classappend="${merchant.isClosed} ? ' closed' : ' open'">
+            <i class="fas" th:classappend="${merchant.isClosed} ? ' fa-store-slash' : ' fa-store'"></i>
+            <span th:text="${merchant.isClosed} ? 'Currently unavailable' : 'Open for browsing'"></span>
+        </div>
+    </div>
+</section>
+
+<section th:if="${merchant.isClosed}" class="closed-notice">
+    <i class="fas fa-circle-info"></i>
+    <p>This merchant is currently closed. You can still preview products, but ordering is unavailable right now.</p>
+</section>
+
+<main class="merchant-products-page">
+    <div class="products-page-header">
+        <h2>Products</h2>
+        <p>Preview what this merchant is selling.</p>
+    </div>
+
+    <div class="merchant-products-layout">
+        <aside th:if="${categoryNavigation != null && !categoryNavigation.isEmpty()}" class="merchant-category-sidebar">
+            <h3>Categories</h3>
+
+            <nav class="merchant-category-nav">
+                <a th:href="@{/merchant/{slug}(slug=${merchant.slug})}"
+                   th:classappend="${selectedCategory == null || selectedCategory.isBlank()} ? ' active' : ''"
+                   class="merchant-category-link">
+                    All products
+                </a>
+
+                <a th:each="categoryName : ${categoryNavigation}"
+                   th:href="@{/merchant/{slug}(slug=${merchant.slug}, category=${categoryName})}"
+                   th:classappend="${categoryName == selectedCategory} ? ' active' : ''"
+                   th:text="${categoryName}"
+                   class="merchant-category-link">
+                    Category
+                </a>
+            </nav>
+        </aside>
+
+        <div class="merchant-products-content">
+            <div th:if="${productSections != null && !productSections.isEmpty()}" class="product-category-sections">
+                <section th:each="productSection : ${productSections}" class="product-category-section">
+                    <div class="product-category-header">
+                        <h3 th:text="${productSection.categoryName}">Category</h3>
+                    </div>
+
+                    <div class="product-preview-grid">
+                        <article th:each="product : ${productSection.products}" class="product-preview-card">
+                            <div class="product-preview-image">
+                                <img th:if="${product.imageUrl != null && !product.imageUrl.isBlank()}"
+                                     th:src="${product.imageUrl}"
+                                     th:alt="${product.name}"
+                                     onerror="this.style.display='none'">
+
+                                <div th:unless="${product.imageUrl != null && !product.imageUrl.isBlank()}"
+                                     class="product-image-placeholder">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                            </div>
+
+                            <div class="product-preview-info">
+                                <h3 th:text="${product.name}">Product name</h3>
+                                <p th:text="${product.description}">Product description</p>
+
+                                <div class="product-preview-footer">
+                                    <strong th:text="${product.price} + ' euro'">0.00 euro</strong>
+                                    <button type="button" class="add-cart-placeholder" disabled>
+                                        <i class="fas fa-cart-plus"></i>
+                                        Add to cart
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <div th:if="${productSections == null || productSections.isEmpty()}" class="merchant-empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3 th:if="${selectedCategory == null || selectedCategory.isBlank()}">No products available</h3>
+                <h3 th:unless="${selectedCategory == null || selectedCategory.isBlank()}">
+                    No products available in <span th:text="${selectedCategory}"></span>
+                </h3>
+                <p>Check back later for new products from this merchant.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
