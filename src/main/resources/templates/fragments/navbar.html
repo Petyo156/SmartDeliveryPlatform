@@ -3,18 +3,10 @@
         <a href="/">
             <img class="logo" src="/images/logo.png" alt="logo.png">
         </a>
-        <div class="search-bar" th:if="${hasHiddenElements == null}">
-            <form th:action="@{/categories}" method="get">
-                <input type="text" name="search" placeholder="Search" required>
-                <button type="submit" class="search-button navbar-search-button">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
 
         <div class="links">
             <div class="dropdown" th:if="${null != user && user.role.name == 'MERCHANT'}">
-            <form th:action="@{/merchant/toggle-closed-status}" method="post" class="toggle-status-form">
+            <form th:action="@{dashboard/merchant/toggle-closed-status}" method="post" class="toggle-status-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="submit" class="dropdown-item toggle-status-btn">
                     <i class="fa-solid" th:classappend="${merchantIsClosed != null && merchantIsClosed} ? 'fa-store' : 'fa-store-slash'"></i>
@@ -41,9 +33,9 @@
                     <span>Merchant</span>
                 </div>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" th:href="@{/merchant/my-shop}">My Shop</a></li>
+                    <li><a class="dropdown-item" th:href="@{/dashboard/merchant/my-shop}">My Shop</a></li>
                     <li><a class="dropdown-item" th:href="@{/products}">Products</a></li>
-                    <li><a class="dropdown-item" th:href="@{/merchant/orders}">Orders</a></li>
+                    <li><a class="dropdown-item" th:href="@{/dashboard/merchant/orders}">Orders</a></li>
                 </ul>
             </div>
 
@@ -63,7 +55,7 @@
             <div class="dropdown" th:if="${null != user}">
                 <div class="icon-with-text">
                     <i class="fa-solid fa-user"></i>
-                    <span>My Account</span>
+                    <span th:text="${user.firstName + ' ' + user.lastName}">My Account</span>
                 </div>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
@@ -74,7 +66,11 @@
                 <i class="fa-solid fa-user"></i>
                 <span>Login</span>
             </a>
-            <a th:href="@{/cart}" class="icon-with-text">
+            <a th:if="${null == user}" th:href="@{/register}" class="icon-with-text">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Sign Up</span>
+            </a>
+            <a th:if="${null != user}" th:href="@{/cart}" class="icon-with-text">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>Cart</span>
             </a>

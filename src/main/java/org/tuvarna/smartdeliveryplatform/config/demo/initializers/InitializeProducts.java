@@ -61,7 +61,6 @@ public class InitializeProducts implements CommandLineRunner {
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
-                .quantity(request.getQuantity())
                 .imageUrl(request.getImageUrl())
                 .categoryId(categoryIdByName)
                 .build();
@@ -76,8 +75,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Margherita Pizza",
                         "Classic pizza with tomato and mozzarella",
                         BigDecimal.valueOf(12.99),
-                        20,
-                        "https://via.placeholder.com/300",
+                        "https://content.jwplatform.com/v2/media/Bt9tKjiM/poster.jpg?width=720",
                         DemoDataConstants.CATEGORY_PIZZA
                 ),
                 new DemoProductRequest(
@@ -85,8 +83,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Pepperoni Pizza",
                         "Spicy pepperoni pizza",
                         BigDecimal.valueOf(14.99),
-                        18,
-                        "https://via.placeholder.com/300",
+                        "https://www.hunts.com/sites/g/files/qyyrlu211/files/uploadedImages/img_6934_48664.jpg",
                         DemoDataConstants.CATEGORY_PIZZA
                 ),
                 new DemoProductRequest(
@@ -94,8 +91,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Coca Cola",
                         "Cold drink",
                         BigDecimal.valueOf(2.99),
-                        50,
-                        "https://via.placeholder.com/300",
+                        "https://miamikosherfood.com/cdn/shop/files/049000050103.jpg?v=1765824810",
                         DemoDataConstants.CATEGORY_DRINKS
                 ),
                 new DemoProductRequest(
@@ -103,8 +99,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Chocolate Cake",
                         "Sweet dessert",
                         BigDecimal.valueOf(5.99),
-                        15,
-                        "https://via.placeholder.com/300",
+                        "https://sallysbakingaddiction.com/wp-content/uploads/2013/04/triple-chocolate-cake-4-600x900.jpg",
                         DemoDataConstants.CATEGORY_DESSERTS
                 ),
 
@@ -114,8 +109,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Classic Burger",
                         "Beef burger with vegetables",
                         BigDecimal.valueOf(10.99),
-                        25,
-                        "https://via.placeholder.com/300",
+                        "https://homefoodie.com.ph/uploads/2024/CLASSIC%20BURGER.jpg",
                         DemoDataConstants.CATEGORY_BURGERS
                 ),
                 new DemoProductRequest(
@@ -123,8 +117,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Double Cheese Burger",
                         "Double meat and cheese",
                         BigDecimal.valueOf(15.49),
-                        20,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPl9lncUDCC6xQ0BJoi7pJDa_tDZLtxivy4w&s",
                         DemoDataConstants.CATEGORY_BURGERS
                 ),
                 new DemoProductRequest(
@@ -132,8 +125,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Fanta",
                         "Orange soda",
                         BigDecimal.valueOf(2.49),
-                        60,
-                        "https://via.placeholder.com/300",
+                        "https://m.ebag.bg/en/products/4156/images/2/400",
                         DemoDataConstants.CATEGORY_DRINKS
                 ),
 
@@ -143,8 +135,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Salmon Sushi Set",
                         "Fresh salmon sushi",
                         BigDecimal.valueOf(18.99),
-                        15,
-                        "https://via.placeholder.com/300",
+                        "https://kayo.bg/sites/default/files/siomga_set.jpg",
                         DemoDataConstants.CATEGORY_SUSHI
                 ),
                 new DemoProductRequest(
@@ -152,8 +143,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Tuna Roll",
                         "Tuna sushi roll",
                         BigDecimal.valueOf(16.49),
-                        12,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbfV7iV6CZBb5VR_92P5pFHdcbtsNv8ABAKg&s",
                         DemoDataConstants.CATEGORY_SUSHI
                 ),
                 new DemoProductRequest(
@@ -161,8 +151,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Green Salad",
                         "Fresh healthy salad",
                         BigDecimal.valueOf(7.99),
-                        30,
-                        "https://via.placeholder.com/300",
+                        "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chopped-green-salad-with-herby-chilli-dressing-429ab82.jpg?quality=90&resize=500,454",
                         DemoDataConstants.CATEGORY_SALADS
                 ),
 
@@ -172,8 +161,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Smartphone",
                         "Latest Android phone",
                         BigDecimal.valueOf(699.99),
-                        10,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9M4ydwp26-7mEzPMlRvh_j-p3gWwNV7vx9Q&s",
                         DemoDataConstants.CATEGORY_ELECTRONICS
                 ),
                 new DemoProductRequest(
@@ -181,8 +169,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Laptop",
                         "Gaming laptop",
                         BigDecimal.valueOf(1299.99),
-                        5,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZWcgGtAEhOZRRofkCAdeOK3LPF7UCz_ZKxA&s",
                         DemoDataConstants.CATEGORY_ELECTRONICS
                 ),
 
@@ -192,8 +179,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Milk",
                         "Fresh milk",
                         BigDecimal.valueOf(1.99),
-                        100,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdt7a0w7WPbJ25VQXpcAEO-Z5drxudGaRXpg&s",
                         DemoDataConstants.CATEGORY_GROCERIES
                 ),
                 new DemoProductRequest(
@@ -201,8 +187,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Bread",
                         "Fresh bread",
                         BigDecimal.valueOf(1.49),
-                        80,
-                        "https://via.placeholder.com/300",
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfvc5-n0439EwjQWopFuSfqK8y3Xv_BHSZYA&s",
                         DemoDataConstants.CATEGORY_GROCERIES
                 ),
 
@@ -212,8 +197,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Rose Bouquet",
                         "Beautiful red roses",
                         BigDecimal.valueOf(25.00),
-                        20,
-                        "https://via.placeholder.com/300",
+                        "https://www.flowersforeveryone.com.au/cdn/shop/files/104376_FFE_Sh06_182.jpg?v=1769029217&width=1445",
                         DemoDataConstants.CATEGORY_FLOWERS
                 ),
                 new DemoProductRequest(
@@ -221,8 +205,7 @@ public class InitializeProducts implements CommandLineRunner {
                         "Tulips",
                         "Fresh tulips",
                         BigDecimal.valueOf(18.00),
-                        25,
-                        "https://via.placeholder.com/300",
+                        "https://onlineflowerexpress.com/cdn/shop/files/PinkTulipsLove.webp?v=1691571050",
                         DemoDataConstants.CATEGORY_FLOWERS
                 )
         );

@@ -25,8 +25,6 @@ public class ProductRequest {
     @DecimalMin("0.01")
     private BigDecimal price;
 
-    private Integer quantity;
-
     @NotNull
     private UUID categoryId;
 

@@ -1,28 +1,25 @@
-package org.tuvarna.smartdeliveryplatform.web.dto.products;
+package org.tuvarna.smartdeliveryplatform.web.dto.merchant;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
+import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponse {
+public class MerchantPageResponse {
     private String slug;
 
     private String name;
 
     private String description;
 
-    private BigDecimal price;
-
-    private Boolean isAvailable;
-
     private String imageUrl;
 
-    private String categoryName;
+    private MerchantType type;
+
+    private Boolean isClosed;
 }

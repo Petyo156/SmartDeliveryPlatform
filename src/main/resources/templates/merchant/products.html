@@ -63,14 +63,6 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input type="number"
-                           id="quantity"
-                           th:field="*{quantity}"
-                           min="0"
-                           placeholder="0">
-                </div>
-                <div class="form-group">
                     <label for="imageUrl">Image URL</label>
                     <input type="text"
                            id="imageUrl"
@@ -195,7 +187,6 @@
                     <th>Name</th>
                     <th>Category</th>
                     <th>Price</th>
-                    <th>Quantity</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -216,8 +207,6 @@
                     <td th:text="${product.name}"></td>
                     <td th:text="${product.categoryName}"></td>
                     <td th:text="${product.price} + ' euro'"></td>
-                    <td th:text="${product.quantity}"></td>
-
                     <td>
                         <span th:if="${product.isAvailable}" class="badge badge-success">
                             Available
@@ -228,7 +217,7 @@
                     </td>
 
                     <td class="actions">
-                        <form th:action="@{/products/{id}/toggle(id=${product.id})}"
+                        <form th:action="@{/products/{productSlug}/toggle(productSlug=${product.slug})}"
                               method="post">
 
                             <button type="submit" class="btn btn-warning btn-sm">
@@ -240,7 +229,7 @@
 
                             </button>
                         </form>
-                        <form th:action="@{/products/{id}/delete(id=${product.id})}"
+                        <form th:action="@{/products/{slug}/delete(slug=${product.slug})}"
                               method="post">
 
                             <button type="submit"

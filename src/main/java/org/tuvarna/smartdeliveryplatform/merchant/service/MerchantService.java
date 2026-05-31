@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
+import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
@@ -15,6 +16,7 @@ import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantCardResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantPageResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
 
 import java.time.LocalDateTime;
@@ -123,6 +125,27 @@ public class MerchantService {
         return merchantRepository.getMerchantByUser_Email(email);
     }
 
+    public MerchantPageResponse getMerchantPageBySlug(String slug) {
+        Merchant merchant = merchantRepository.findBySlugAndIsActiveTrue(slug)
+                .orElseThrow(() -> new MerchantNotFoundException("Merchant with slug '" + slug + "' does not exist"));
+
+        return toMerchantPageResponse(merchant);
+    }
+
+    public List<MerchantCardResponse> getTopActiveShops() {
+        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<MerchantCardResponse> getTopActiveRestaurants() {
+        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<MerchantCardResponse> getAllActiveShops(String category) {
         List<Merchant> merchants;
         if (category == null || category.isEmpty()) {
@@ -202,6 +225,17 @@ public class MerchantService {
 
     private MerchantCardResponse initializeMerchantCard(Merchant merchant) {
         return MerchantCardResponse.builder()
+                .slug(merchant.getSlug())
+                .name(merchant.getName())
+                .description(merchant.getDescription())
+                .imageUrl(merchant.getImageUrl())
+                .type(merchant.getType())
+                .isClosed(merchant.getIsClosed())
+                .build();
+    }
+
+    private MerchantPageResponse toMerchantPageResponse(Merchant merchant) {
+        return MerchantPageResponse.builder()
                 .slug(merchant.getSlug())
                 .name(merchant.getName())
                 .description(merchant.getDescription())

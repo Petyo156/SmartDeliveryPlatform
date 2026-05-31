@@ -20,7 +20,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         http
                 .authorizeHttpRequests(matchers -> matchers
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/", "/register", "/restaurants/**", "/shops/**", "/search/**",
+                        .requestMatchers("/", "/register", "/restaurants/**", "/shops/**", "/search/**", "/merchant/**",
                                       "/about", "/contact", "/faq", "/privacy", "/contact/submit",
                                       "/careers", "/shipping", "/terms", "/cookies").permitAll()
                         .requestMatchers("/merchant/**").hasRole("MERCHANT")

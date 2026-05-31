@@ -32,8 +32,12 @@ public class IndexController {
     public ModelAndView getHomePage(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
         ModelAndView modelAndView = new ModelAndView("home/index");
         User user = userService.getAuthenticatedUser(authenticationMetadata);
+        List<MerchantCardResponse> shopsMerchants = merchantService.getTopActiveShops();
+        List<MerchantCardResponse> restaurantMerchants = merchantService.getTopActiveRestaurants();
 
         modelAndView.addObject("user", user);
+        modelAndView.addObject("shopsMerchants", shopsMerchants);
+        modelAndView.addObject("restaurantMerchants", restaurantMerchants);
         return modelAndView;
     }
 
