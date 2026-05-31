@@ -20,8 +20,6 @@ public class ProductResponse {
 
     private BigDecimal price;
 
-    private Integer quantity;
-
     private Boolean isAvailable;
 
     private String imageUrl;

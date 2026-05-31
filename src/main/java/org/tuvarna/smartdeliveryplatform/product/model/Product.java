@@ -41,9 +41,6 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(nullable = true)
-    private Integer quantity;
-
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 
