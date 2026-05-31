@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart | Smart Delivery</title>
+
+    <link rel="stylesheet" href="/css/cart/cart.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="icon" href="/images/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+
+<main class="cart-page">
+    <section class="cart-header">
+        <h1>My Cart</h1>
+        <p th:if="${cart.merchantName != null}">
+            Products from <strong th:text="${cart.merchantName}">Merchant</strong>
+        </p>
+    </section>
+
+    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <section th:if="${cart.empty}" class="empty-cart">
+        <i class="fas fa-cart-shopping"></i>
+        <h2>Your cart is empty</h2>
+        <p>Add products from an open merchant to see them here.</p>
+        <a th:href="@{/restaurants}">Browse restaurants</a>
+        <a th:href="@{/shops}">Browse shops</a>
+    </section>
+
+    <section th:unless="${cart.empty}" class="cart-content">
+        <div class="cart-items">
+            <article th:each="item : ${cart.items}" class="cart-item">
+                <div class="cart-item-info">
+                    <h2 th:text="${item.productName}">Product name</h2>
+                    <p>
+                        <span th:text="${item.unitPrice}">0.00</span>
+                        euro each
+                    </p>
+                </div>
+
+                <form th:action="@{/cart/items/{itemId}/quantity(itemId=${item.id})}"
+                      method="post"
+                      class="cart-quantity-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <label>
+                        Quantity
+                        <input type="number" name="quantity" min="1" th:value="${item.quantity}"/>
+                    </label>
+                    <button type="submit">Update</button>
+                </form>
+
+                <div class="cart-line-total">
+                    <span>Subtotal</span>
+                    <strong>
+                        <span th:text="${item.lineSubtotal}">0.00</span>
+                        euro
+                    </strong>
+                </div>
+
+                <form th:action="@{/cart/items/{itemId}/remove(itemId=${item.id})}"
+                      method="post"
+                      class="cart-remove-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit">
+                        <i class="fas fa-trash"></i>
+                        Remove
+                    </button>
+                </form>
+            </article>
+        </div>
+
+        <aside class="cart-summary">
+            <h2>Order Summary</h2>
+            <div class="cart-summary-row">
+                <span>Total</span>
+                <strong>
+                    <span th:text="${cart.total}">0.00</span>
+                    euro
+                </strong>
+            </div>
+            <p>Checkout and payment will be available in a later phase.</p>
+        </aside>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
