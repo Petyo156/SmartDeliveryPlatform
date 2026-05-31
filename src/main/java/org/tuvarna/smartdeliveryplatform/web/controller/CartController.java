@@ -1,0 +1,122 @@
+package org.tuvarna.smartdeliveryplatform.web.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.user.model.User;
+import org.tuvarna.smartdeliveryplatform.user.service.UserService;
+import org.tuvarna.smartdeliveryplatform.web.dto.cart.AddCartItemRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.cart.CartResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.cart.UpdateCartItemQuantityRequest;
+
+import java.util.UUID;
+
+@Controller
+@RequestMapping("/cart")
+public class CartController {
+    private final CartService cartService;
+    private final UserService userService;
+
+    public CartController(CartService cartService, UserService userService) {
+        this.cartService = cartService;
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public ModelAndView getCart(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        CartResponse cart = cartService.getCartResponse(user);
+
+        ModelAndView modelAndView = new ModelAndView("cart/cart");
+        modelAndView.addObject("user", user);
+        modelAndView.addObject("cart", cart);
+        modelAndView.addObject("quantityRequest", UpdateCartItemQuantityRequest.builder().build());
+        return modelAndView;
+    }
+
+    @PostMapping("/items")
+    public ModelAndView addItem(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                @Valid @ModelAttribute AddCartItemRequest request,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest httpServletRequest) {
+        String redirectUrl = getRefererOrCart(httpServletRequest);
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
+            return new ModelAndView("redirect:" + redirectUrl);
+        }
+
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        cartService.addProductToCart(user, request);
+        redirectAttributes.addFlashAttribute("successMessage", "Product added to cart.");
+        return new ModelAndView("redirect:" + redirectUrl);
+    }
+
+    @PostMapping("/items/clear-and-add")
+    public ModelAndView clearCartAndAddItem(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                            @Valid @ModelAttribute AddCartItemRequest request,
+                                            BindingResult bindingResult,
+                                            RedirectAttributes redirectAttributes,
+                                            HttpServletRequest httpServletRequest) {
+        String redirectUrl = getRefererOrCart(httpServletRequest);
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
+            return new ModelAndView("redirect:" + redirectUrl);
+        }
+
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        cartService.clearCartAndAddProduct(user, request);
+        redirectAttributes.addFlashAttribute("successMessage", "Cart cleared and product added.");
+        return new ModelAndView("redirect:" + redirectUrl);
+    }
+
+    @PostMapping("/items/{itemId}/quantity")
+    public ModelAndView updateQuantity(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                       @PathVariable UUID itemId,
+                                       @Valid @ModelAttribute UpdateCartItemQuantityRequest request,
+                                       BindingResult bindingResult,
+                                       RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
+            return new ModelAndView("redirect:/cart");
+        }
+
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        cartService.updateItemQuantity(user, itemId, request);
+        redirectAttributes.addFlashAttribute("successMessage", "Cart updated.");
+        return new ModelAndView("redirect:/cart");
+    }
+
+    @PostMapping("/items/{itemId}/remove")
+    public ModelAndView removeItem(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                   @PathVariable UUID itemId,
+                                   RedirectAttributes redirectAttributes) {
+
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        cartService.removeItem(user, itemId);
+        redirectAttributes.addFlashAttribute("successMessage", "Product removed from cart.");
+        return new ModelAndView("redirect:/cart");
+    }
+
+    private String getRefererOrCart(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        if (referer == null || referer.isBlank()) {
+            return "/cart";
+        }
+
+        return referer;
+    }
+}
