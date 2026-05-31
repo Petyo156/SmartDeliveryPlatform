@@ -19,6 +19,8 @@ public class CartItemResponse {
 
     private String productName;
 
+    private String productImageUrl;
+
     private Integer quantity;
 
     private BigDecimal unitPrice;

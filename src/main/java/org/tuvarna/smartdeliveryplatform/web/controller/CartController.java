@@ -96,7 +96,6 @@ public class CartController {
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         cartService.updateItemQuantity(user, itemId, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Cart updated.");
         return new ModelAndView("redirect:/cart");
     }
 
@@ -107,7 +106,6 @@ public class CartController {
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         cartService.removeItem(user, itemId);
-        redirectAttributes.addFlashAttribute("successMessage", "Product removed from cart.");
         return new ModelAndView("redirect:/cart");
     }
 

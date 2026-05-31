@@ -235,6 +235,7 @@ public class CartService {
                 .id(item.getId())
                 .productSlug(item.getProduct().getSlug())
                 .productName(item.getProduct().getName())
+                .productImageUrl(item.getProduct().getImageUrl())
                 .quantity(item.getQuantity())
                 .unitPrice(unitPrice)
                 .lineSubtotal(lineSubtotal)
