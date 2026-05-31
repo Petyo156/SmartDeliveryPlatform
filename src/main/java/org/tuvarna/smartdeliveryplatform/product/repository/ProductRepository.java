@@ -22,6 +22,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     
     Optional<Product> findBySlugAndMerchant(String slug, Merchant merchant);
 
+    Optional<Product> findBySlug(String slug);
+
     boolean existsByCategoryAndIsDeletedFalse(Category category);
 
     @Query("""
