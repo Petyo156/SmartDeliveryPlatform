@@ -365,6 +365,84 @@
     border-radius: 8px;
 }
 
+.cart-flash {
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+}
+
+.success-message {
+    background: #e6ffed;
+    color: #0f7a2f;
+}
+
+.error-message {
+    background: #ffebeb;
+    color: #b30000;
+}
+
+.cart-feedback {
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.cart-feedback.hidden,
+.cart-conflict-actions.hidden {
+    display: none;
+}
+
+.cart-feedback.info {
+    background: #edf4ff;
+    color: #164c96;
+}
+
+.cart-feedback.success {
+    background: #e6ffed;
+    color: #0f7a2f;
+}
+
+.cart-feedback.warning {
+    background: #fff7e0;
+    color: #8a5a00;
+}
+
+.cart-feedback.error {
+    background: #ffebeb;
+    color: #b30000;
+}
+
+.cart-conflict-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+}
+
+.cart-conflict-actions button,
+.cart-conflict-actions a {
+    display: inline-flex;
+    align-items: center;
+    border: none;
+    border-radius: 20px;
+    padding: 0.6rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#clearCartContinueButton {
+    background: var(--accent);
+    color: white;
+}
+
+#cancelCartConflictButton {
+    background: white;
+    color: #555;
+}
+
 .merchant-products-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -535,6 +613,37 @@
     color: white;
     background: #b8b8b8;
     cursor: not-allowed;
+}
+
+.add-cart-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.cart-quantity-input {
+    width: 64px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0.5rem 0.65rem;
+}
+
+.add-cart-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    border-radius: 20px;
+    padding: 0.55rem 0.9rem;
+    color: white;
+    background: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.add-cart-button:hover {
+    background: #d64545;
 }
 
 /* Responsive */
