@@ -228,7 +228,7 @@
                     </td>
 
                     <td class="actions">
-                        <form th:action="@{/products/{id}/toggle(id=${product.id})}"
+                        <form th:action="@{/products/{productSlug}/toggle(productSlug=${product.slug})}"
                               method="post">
 
                             <button type="submit" class="btn btn-warning btn-sm">
@@ -240,7 +240,7 @@
 
                             </button>
                         </form>
-                        <form th:action="@{/products/{id}/delete(id=${product.id})}"
+                        <form th:action="@{/products/{slug}/delete(slug=${product.slug})}"
                               method="post">
 
                             <button type="submit"

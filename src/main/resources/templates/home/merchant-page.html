@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="icon" href="/images/favicon.ico">
+    <script th:src="@{/js/merchant-page.js}" defer></script>
 </head>
 
 <body>
@@ -17,11 +18,11 @@
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
 
-<div class="links">
-    <a href="/">Home</a>
-    <a href="/restaurants">Restaurants</a>
-    <a href="/shops">Shops</a>
-</div>
+<!--<div class="links">-->
+<!--    <a href="/">Home</a>-->
+<!--    <a href="/restaurants">Restaurants</a>-->
+<!--    <a href="/shops">Shops</a>-->
+<!--</div>-->
 
 <section class="merchant-profile-hero">
     <div class="merchant-profile-image">
@@ -45,6 +46,28 @@
 <section th:if="${merchant.isClosed}" class="closed-notice">
     <i class="fas fa-circle-info"></i>
     <p>This merchant is currently closed. You can still preview products, but ordering is unavailable right now.</p>
+</section>
+
+<section th:if="${successMessage}" class="cart-flash success-message" th:text="${successMessage}"></section>
+<section th:if="${errorMessage}" class="cart-flash error-message" th:text="${errorMessage}"></section>
+
+<section id="cartFeedback" class="cart-feedback hidden" role="status" aria-live="polite">
+    <p id="cartFeedbackMessage"></p>
+</section>
+
+<section th:if="${cartConflictMessage}" class="cart-feedback warning" role="alert">
+    <p th:text="${cartConflictMessage}"></p>
+
+    <div class="cart-conflict-actions">
+        <form th:action="@{/cart/items/clear-and-add}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="productSlug" th:value="${pendingProductSlug}"/>
+            <input type="hidden" name="quantity" th:value="${pendingQuantity}"/>
+            <button type="submit" id="clearCartContinueButton">Clear Cart &amp; Continue</button>
+        </form>
+
+        <a th:href="@{/merchant/{slug}(slug=${merchant.slug}, category=${selectedCategory})}" id="cancelCartConflictButton">Cancel</a>
+    </div>
 </section>
 
 <main class="merchant-products-page">
@@ -101,9 +124,30 @@
 
                                 <div class="product-preview-footer">
                                     <strong th:text="${product.price} + ' euro'">0.00 euro</strong>
-                                    <button type="button" class="add-cart-placeholder" disabled>
+
+                                    <form th:if="${user != null && !merchant.isClosed}"
+                                          th:action="@{/cart/items}"
+                                          method="post"
+                                          class="add-cart-form">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <input type="hidden" name="productSlug" th:value="${product.slug}"/>
+                                        <input type="number" name="quantity" min="1" value="1" class="cart-quantity-input"/>
+                                        <button type="submit" class="add-cart-button">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add
+                                        </button>
+                                    </form>
+
+                                    <button th:if="${user == null && !merchant.isClosed}"
+                                            type="button"
+                                            class="add-cart-button login-required-button">
                                         <i class="fas fa-cart-plus"></i>
-                                        Add to cart
+                                        Add
+                                    </button>
+
+                                    <button th:if="${merchant.isClosed}" type="button" class="add-cart-placeholder" disabled>
+                                        <i class="fas fa-cart-plus"></i>
+                                        Closed
                                     </button>
                                 </div>
                             </div>
