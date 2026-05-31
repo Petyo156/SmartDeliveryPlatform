@@ -151,7 +151,7 @@ public class ProductService {
 
     private ProductResponse toProductResponse(Product product) {
         return ProductResponse.builder()
-                .id(product.getId())
+                .slug(product.getSlug())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
