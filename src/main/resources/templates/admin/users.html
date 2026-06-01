@@ -34,9 +34,18 @@
             <p th:text="${errorMessage}"></p>
         </div>
 
-        <form th:action="@{/admin/users}" method="get">
+        <form th:action="@{/admin/users}"
+              th:object="${searchRequest}"
+              method="get">
             <label for="searchEmail">Email:</label>
-            <input type="email" id="searchEmail" name="searchEmail" placeholder="Enter user email" th:value="${searchEmail}" autocomplete="email" required>
+            <input type="text"
+                   id="searchEmail"
+                   th:field="*{searchEmail}"
+                   placeholder="Enter user email"
+                   autocomplete="email">
+            <div th:if="${#fields.hasErrors('searchEmail')}"
+                 th:errors="*{searchEmail}">
+            </div>
             <button type="submit">Search</button>
         </form>
     </section>
@@ -87,11 +96,11 @@
             </table>
         </div>
 
-        <div th:if="${userResponse.email == null and searchEmail != null and !searchEmail.isBlank()}" role="status">
-            <p>No user found with email: <strong th:text="${searchEmail}"></strong></p>
+        <div th:if="${!searchHasErrors and userResponse.email == null and searchRequest.searchEmail != null and !searchRequest.searchEmail.isBlank()}" role="status">
+            <p>No user found with email: <strong th:text="${searchRequest.searchEmail}"></strong></p>
         </div>
 
-        <div th:if="${searchEmail == null or searchEmail.isBlank()}" role="note">
+        <div th:if="${searchRequest.searchEmail == null or searchRequest.searchEmail.isBlank()}" role="note">
             <p>Enter an email address and click Search to find a user.</p>
         </div>
     </section>
