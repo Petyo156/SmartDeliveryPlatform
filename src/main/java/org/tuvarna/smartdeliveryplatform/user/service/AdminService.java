@@ -140,6 +140,10 @@ public class AdminService {
     }
 
     public UserResponse getUserByEmail(String email) {
+        if (null == email || email.isBlank()) {
+            return UserResponse.builder().build();
+        }
+
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()) {
             return UserResponse.builder().build();

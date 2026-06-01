@@ -14,6 +14,8 @@ import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 import org.tuvarna.smartdeliveryplatform.user.service.AdminService;
+import org.tuvarna.smartdeliveryplatform.web.dto.admin.AdminEmailRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.admin.AdminSearchRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.CourierResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
@@ -35,17 +37,19 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ModelAndView getUsers(@RequestParam(required = false) String searchEmail) {
+    public ModelAndView getUsers(
+            @Valid @ModelAttribute("searchRequest") AdminSearchRequest searchRequest,
+            BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/users");
 
         UserResponse userResponse = UserResponse.builder().build();
-        if (searchEmail != null && !searchEmail.isBlank()) {
-            userResponse = adminService.getUserByEmail(searchEmail);
+        if (!bindingResult.hasErrors()) {
+            userResponse = adminService.getUserByEmail(searchRequest.getSearchEmail());
         }
 
         modelAndView.addObject("userResponse", userResponse);
-        modelAndView.addObject("searchEmail", searchEmail);
         modelAndView.addObject("userStatuses", UserStatus.values());
+        modelAndView.addObject("searchHasErrors", bindingResult.hasErrors());
         return modelAndView;
     }
 
@@ -58,14 +62,22 @@ public class AdminController {
     }
 
     @GetMapping("/merchants")
-    public ModelAndView getMerchants(@RequestParam(required = false) String searchEmail) {
+    public ModelAndView getMerchants(
+            @Valid @ModelAttribute("searchRequest") AdminSearchRequest searchRequest,
+            BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/merchants");
-        MerchantResponse merchantResponse = merchantService.getMerchantResponse(searchEmail);
+        MerchantResponse merchantResponse = MerchantResponse.builder().build();
         MerchantRequest merchantRequest = MerchantRequest.builder().build();
+        AdminEmailRequest merchantEmailRequest = AdminEmailRequest.builder().build();
+
+        if (!bindingResult.hasErrors()) {
+            merchantResponse = merchantService.getMerchantResponse(searchRequest.getSearchEmail());
+        }
 
         modelAndView.addObject("merchantResponse", merchantResponse);
-        modelAndView.addObject("searchEmail", searchEmail);
         modelAndView.addObject("merchantRequest", merchantRequest);
+        modelAndView.addObject("merchantEmailRequest", merchantEmailRequest);
+        modelAndView.addObject("searchHasErrors", bindingResult.hasErrors());
         return modelAndView;
     }
 
@@ -76,7 +88,14 @@ public class AdminController {
 
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("admin/merchants");
-            modelAndView.addObject("merchantResponse", MerchantResponse.builder().build());
+            MerchantResponse merchantResponse = MerchantResponse.builder().build();
+            AdminEmailRequest merchantEmailRequest = AdminEmailRequest.builder().build();
+
+            modelAndView.addObject("merchantResponse", merchantResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("merchantRequest", merchantRequest);
+            modelAndView.addObject("merchantEmailRequest", merchantEmailRequest);
+            modelAndView.addObject("searchHasErrors", false);
             return modelAndView;
         }
 
@@ -87,84 +106,162 @@ public class AdminController {
     }
 
     @GetMapping("/couriers")
-    public ModelAndView getCouriers(@RequestParam(required = false) String searchEmail) {
+    public ModelAndView getCouriers(
+            @Valid @ModelAttribute("searchRequest") AdminSearchRequest searchRequest,
+            BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/couriers");
-        CourierResponse courierResponse = courierService.getCourierResponse(searchEmail);
+        CourierResponse courierResponse = CourierResponse.builder().build();
+        AdminEmailRequest courierEmailRequest = AdminEmailRequest.builder().build();
+
+        if (!bindingResult.hasErrors()) {
+            courierResponse = courierService.getCourierResponse(searchRequest.getSearchEmail());
+        }
 
         modelAndView.addObject("courierResponse", courierResponse);
-        modelAndView.addObject("searchEmail", searchEmail);
+        modelAndView.addObject("courierEmailRequest", courierEmailRequest);
+        modelAndView.addObject("searchHasErrors", bindingResult.hasErrors());
         return modelAndView;
     }
 
     @PostMapping("/couriers/assign")
-    public ModelAndView makeUserCourier(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (null == email || email.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/couriers");
+    public ModelAndView makeUserCourier(
+            @Valid @ModelAttribute("courierEmailRequest") AdminEmailRequest courierEmailRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/couriers");
+            CourierResponse courierResponse = CourierResponse.builder().build();
+
+            modelAndView.addObject("courierResponse", courierResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("courierEmailRequest", courierEmailRequest);
+            modelAndView.addObject("searchHasErrors", false);
+            return modelAndView;
         }
 
-        adminService.makeUserCourier(email);
-        redirectAttributes.addFlashAttribute("successMessage", "User assigned as courier successfully: " + email);
+        adminService.makeUserCourier(courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "User assigned as courier successfully: " + courierEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/couriers");
     }
 
     @GetMapping("/admins")
-    public ModelAndView getAllAdmins(@RequestParam(required = false) String searchEmail) {
+    public ModelAndView getAllAdmins(
+            @Valid @ModelAttribute("searchRequest") AdminSearchRequest searchRequest,
+            BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/admins");
         List<UserResponse> admins = adminService.getAdmins();
-        UserResponse userResponse = adminService.getAdminByEmailAndRole(searchEmail);
+        UserResponse userResponse = UserResponse.builder().build();
+        AdminEmailRequest adminEmailRequest = AdminEmailRequest.builder().build();
+        AdminEmailRequest demoteAdminRequest = AdminEmailRequest.builder().build();
+
+        if (!bindingResult.hasErrors()) {
+            userResponse = adminService.getAdminByEmailAndRole(searchRequest.getSearchEmail());
+        }
 
         modelAndView.addObject("admins", admins);
         modelAndView.addObject("userResponse", userResponse);
-        modelAndView.addObject("searchEmail", searchEmail);
+        modelAndView.addObject("adminEmailRequest", adminEmailRequest);
+        modelAndView.addObject("demoteAdminRequest", demoteAdminRequest);
+        modelAndView.addObject("searchHasErrors", bindingResult.hasErrors());
         return modelAndView;
     }
 
     @PostMapping("/admins/assign")
-    public ModelAndView makeUserAdmin(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (null == email || email.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/admins");
+    public ModelAndView makeUserAdmin(
+            @Valid @ModelAttribute("adminEmailRequest") AdminEmailRequest adminEmailRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/admins");
+            List<UserResponse> admins = adminService.getAdmins();
+            UserResponse userResponse = UserResponse.builder().build();
+            AdminEmailRequest demoteAdminRequest = AdminEmailRequest.builder().build();
+
+            modelAndView.addObject("admins", admins);
+            modelAndView.addObject("userResponse", userResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("adminEmailRequest", adminEmailRequest);
+            modelAndView.addObject("demoteAdminRequest", demoteAdminRequest);
+            modelAndView.addObject("searchHasErrors", false);
+            return modelAndView;
         }
 
-        adminService.makeUserAdmin(email);
-        redirectAttributes.addFlashAttribute("successMessage", "User assigned as admin successfully: " + email);
+        adminService.makeUserAdmin(adminEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "User assigned as admin successfully: " + adminEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/admins");
     }
 
     @PostMapping("/admins/demote")
-    public ModelAndView demoteAdmin(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (null == email || email.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/admins");
+    public ModelAndView demoteAdmin(
+            @Valid @ModelAttribute("demoteAdminRequest") AdminEmailRequest demoteAdminRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/admins");
+            List<UserResponse> admins = adminService.getAdmins();
+            UserResponse userResponse = UserResponse.builder().build();
+            AdminEmailRequest adminEmailRequest = AdminEmailRequest.builder().build();
+
+            modelAndView.addObject("admins", admins);
+            modelAndView.addObject("userResponse", userResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("adminEmailRequest", adminEmailRequest);
+            modelAndView.addObject("demoteAdminRequest", demoteAdminRequest);
+            modelAndView.addObject("searchHasErrors", false);
+            return modelAndView;
         }
 
-        adminService.demoteAdmin(email);
-        redirectAttributes.addFlashAttribute("successMessage", "Admin demoted successfully: " + email);
+        adminService.demoteAdmin(demoteAdminRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Admin demoted successfully: " + demoteAdminRequest.getEmail());
         return new ModelAndView("redirect:/admin/admins");
     }
 
     @PostMapping("/merchants/toggle-status")
-    public ModelAndView toggleMerchantStatus(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (null == email || email.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/merchants");
+    public ModelAndView toggleMerchantStatus(
+            @Valid @ModelAttribute("merchantEmailRequest") AdminEmailRequest merchantEmailRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/merchants");
+            MerchantResponse merchantResponse = MerchantResponse.builder().build();
+            MerchantRequest merchantRequest = MerchantRequest.builder().build();
+
+            modelAndView.addObject("merchantResponse", merchantResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("merchantRequest", merchantRequest);
+            modelAndView.addObject("merchantEmailRequest", merchantEmailRequest);
+            modelAndView.addObject("searchHasErrors", false);
+            return modelAndView;
         }
 
-        merchantService.toggleMerchantActiveStatus(email);
-        redirectAttributes.addFlashAttribute("successMessage", "Merchant status toggled successfully: " + email);
+        merchantService.toggleMerchantActiveStatus(merchantEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Merchant status toggled successfully: " + merchantEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/merchants");
     }
 
     @PostMapping("/couriers/toggle-status")
-    public ModelAndView toggleCourierStatus(@RequestParam String email, RedirectAttributes redirectAttributes) {
-        if (null == email || email.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Email is required.");
-            return new ModelAndView("redirect:/admin/couriers");
+    public ModelAndView toggleCourierStatus(
+            @Valid @ModelAttribute("courierEmailRequest") AdminEmailRequest courierEmailRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = new ModelAndView("admin/couriers");
+            CourierResponse courierResponse = CourierResponse.builder().build();
+
+            modelAndView.addObject("courierResponse", courierResponse);
+            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
+            modelAndView.addObject("courierEmailRequest", courierEmailRequest);
+            modelAndView.addObject("searchHasErrors", false);
+            return modelAndView;
         }
 
-        courierService.toggleCourierStatus(email);
-        redirectAttributes.addFlashAttribute("successMessage", "Courier status toggled successfully: " + email);
+        courierService.toggleCourierStatus(courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Courier status toggled successfully: " + courierEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/couriers");
     }
 }
