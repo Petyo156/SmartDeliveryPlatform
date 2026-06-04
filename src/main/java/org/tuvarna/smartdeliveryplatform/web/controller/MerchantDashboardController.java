@@ -15,6 +15,7 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
+import org.tuvarna.smartdeliveryplatform.web.util.RedirectUrlResolver;
 import java.util.List;
 
 @Controller
@@ -23,11 +24,16 @@ public class MerchantDashboardController {
     private final MerchantService merchantService;
     private final AddressService addressService;
     private final UserService userService;
+    private final RedirectUrlResolver redirectUrlResolver;
 
-    public MerchantDashboardController(MerchantService merchantService, AddressService addressService, UserService userService) {
+    public MerchantDashboardController(MerchantService merchantService,
+                                       AddressService addressService,
+                                       UserService userService,
+                                       RedirectUrlResolver redirectUrlResolver) {
         this.merchantService = merchantService;
         this.addressService = addressService;
         this.userService = userService;
+        this.redirectUrlResolver = redirectUrlResolver;
     }
 
     @GetMapping("/my-shop")
@@ -72,6 +78,6 @@ public class MerchantDashboardController {
     @PostMapping("/toggle-closed-status")
     public String toggleShopStatus(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata, HttpServletRequest request) {
         merchantService.toggleMerchantIsClosedStatus(authenticationMetadata.getUsername());
-        return "redirect:" + request.getHeader("Referer");
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/dashboard/merchant/my-shop");
     }
 }

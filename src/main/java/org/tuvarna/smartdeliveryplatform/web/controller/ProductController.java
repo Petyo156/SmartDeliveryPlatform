@@ -43,12 +43,14 @@ public class ProductController {
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         MerchantResponse merchantResponse = merchantService.getMerchantResponse(authenticationMetadata.getUsername());
         List<ProductResponse> products = productService.getMerchantProductResponses(authenticationMetadata.getUsername());
-        List<CategoryResponse> availableCategories = categoryService.getAvailableCategories(authenticationMetadata.getUsername());
+        List<CategoryResponse> globalCategories = categoryService.getGlobalAvailableCategories(authenticationMetadata.getUsername());
+        List<CategoryResponse> merchantCategories = categoryService.getMerchantAvailableCategories(authenticationMetadata.getUsername());
 
         modelAndView.addObject("user", user);
         modelAndView.addObject("merchantResponse", merchantResponse);
         modelAndView.addObject("products", products);
-        modelAndView.addObject("availableCategories", availableCategories);
+        modelAndView.addObject("globalCategories", globalCategories);
+        modelAndView.addObject("merchantCategories", merchantCategories);
         modelAndView.addObject("productRequest", ProductRequest.builder().build());
         modelAndView.addObject("categoryName", "");
 
