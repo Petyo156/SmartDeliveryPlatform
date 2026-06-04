@@ -13,9 +13,7 @@ import org.tuvarna.smartdeliveryplatform.user.repository.UserRepository;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserResponse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,19 +32,18 @@ public class AdminService {
     }
 
     public List<UserResponse> getAdmins() {
-        List<UserResponse> userResponses = new ArrayList<>();
-        List<User> admins = userRepository.findAllByRole(UserRole.ADMIN);
-        for (User admin : admins) {
-            UserResponse userResponse = initializeUserResponse(admin);
-            userResponses.add(userResponse);
-        }
-        return userResponses;
+        return userRepository.findAllByRole(UserRole.ADMIN)
+                .stream()
+                .map(AdminService::initializeUserResponse)
+                .toList();
     }
 
+    @Transactional
     public void updateUserStatus(String email, UserStatus status) {
         User user = userService.getUserByEmail(email);
         user.setStatus(status);
         userRepository.save(user);
+        updateMerchantStatusIfNeeded(user, status);
         log.info("Updated status for user {} to {}", email, status);
     }
 
@@ -130,13 +127,9 @@ public class AdminService {
             return UserResponse.builder().build();
         }
 
-        Optional<User> userOptional = userRepository.findByEmailAndRole(email, UserRole.ADMIN);
-        if(userOptional.isEmpty()) {
-            return UserResponse.builder().build();
-        }
-
-        User user = userOptional.get();
-        return initializeUserResponse(user);
+        return userRepository.findByEmailAndRole(email, UserRole.ADMIN)
+                .map(AdminService::initializeUserResponse)
+                .orElseGet(() -> UserResponse.builder().build());
     }
 
     public UserResponse getUserByEmail(String email) {
@@ -144,17 +137,21 @@ public class AdminService {
             return UserResponse.builder().build();
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if(userOptional.isEmpty()) {
-            return UserResponse.builder().build();
-        }
-
-        User user = userOptional.get();
-        return initializeUserResponse(user);
+        return userRepository.findByEmail(email)
+                .map(AdminService::initializeUserResponse)
+                .orElseGet(() -> UserResponse.builder().build());
     }
 
     public boolean adminAlreadyExists() {
         return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
+    }
+
+    private void updateMerchantStatusIfNeeded(User user, UserStatus status) {
+        if (user.getRole() != UserRole.MERCHANT) {
+            return;
+        }
+
+        merchantService.setMerchantActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
     }
 
     private static UserResponse initializeUserResponse(User user) {
