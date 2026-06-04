@@ -9,7 +9,7 @@ import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantCardResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.search.SearchResponse;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -25,21 +25,21 @@ public class SearchService {
 
     public SearchResponse searchRestaurants(String query) {
         if (isInvalidQuery(query)) {
-            return initializeSearchResponse(new ArrayList<>(), new ArrayList<>());
+            return initializeSearchResponse(query, List.of(), List.of());
         }
         return search(query, MerchantType.RESTAURANT);
     }
 
     public SearchResponse searchShops(String query) {
         if (isInvalidQuery(query)) {
-            return initializeSearchResponse(new ArrayList<>(), new ArrayList<>());
+            return initializeSearchResponse(query, List.of(), List.of());
         }
         return search(query, MerchantType.SHOP);
     }
 
     public SearchResponse searchAll(String query) {
         if (isInvalidQuery(query)) {
-            return initializeSearchResponse(new ArrayList<>(), new ArrayList<>());
+            return initializeSearchResponse(query, List.of(), List.of());
         }
         return searchAllMerchants(query);
     }
@@ -58,7 +58,7 @@ public class SearchService {
                         .toList();
 
         log.info("Search found {} merchant matches and {} product matches", merchantMatches.size(), productMatches.size());
-        return initializeSearchResponse(merchantMatches, productMatches);
+        return initializeSearchResponse(query, merchantMatches, productMatches);
     }
 
     private SearchResponse searchAllMerchants(String query) {
@@ -75,13 +75,22 @@ public class SearchService {
                         .toList();
 
         log.info("Search found {} merchant matches and {} product matches", merchantMatches.size(), productMatches.size());
-        return initializeSearchResponse(merchantMatches, productMatches);
+        return initializeSearchResponse(query, merchantMatches, productMatches);
     }
 
-    private SearchResponse initializeSearchResponse(List<MerchantCardResponse> finalMerchantMatches, List<MerchantCardResponse> finalProductMatches) {
+    private SearchResponse initializeSearchResponse(String query,
+                                                    List<MerchantCardResponse> finalMerchantMatches,
+                                                    List<MerchantCardResponse> finalProductMatches) {
+        boolean hasMerchantMatches = !finalMerchantMatches.isEmpty();
+        boolean hasProductMatches = !finalProductMatches.isEmpty();
+
         return SearchResponse.builder()
                 .merchantMatches(finalMerchantMatches)
                 .productMatches(finalProductMatches)
+                .hasQuery(!isInvalidQuery(query))
+                .hasMerchantMatches(hasMerchantMatches)
+                .hasProductMatches(hasProductMatches)
+                .hasResults(hasMerchantMatches || hasProductMatches)
                 .build();
     }
 
