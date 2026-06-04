@@ -17,5 +17,13 @@ public class SearchResponse {
     private List<MerchantCardResponse> merchantMatches;
 
     private List<MerchantCardResponse> productMatches;
+
+    private Boolean hasQuery;
+
+    private Boolean hasMerchantMatches;
+
+    private Boolean hasProductMatches;
+
+    private Boolean hasResults;
 }
 
