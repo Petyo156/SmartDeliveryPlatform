@@ -9,9 +9,7 @@ import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -40,33 +38,22 @@ public class AddressService {
     }
 
     public List<MerchantAddressResponse> getAllAddressesForMerchant(User user) {
-        List<Address> addresses = getAllAddressesForUser(user);
-        List<MerchantAddressResponse> merchantAddressResponses = new ArrayList<>();
-        for(Address address : addresses)
-        {
-            MerchantAddressResponse merchantAddressResponse = initializeMerchantAddressResponse(address);
-            merchantAddressResponses.add(merchantAddressResponse);
-        }
-        return merchantAddressResponses;
+        return getAllAddressesForUser(user)
+                .stream()
+                .map(this::initializeMerchantAddressResponse)
+                .toList();
     }
 
     public List<UserAddressResponse> getAllAddressResponsesForUser(User user) {
-        List<Address> addresses = getAllAddressesForUser(user);
-        List<UserAddressResponse> userAddressResponses = new ArrayList<>();
-        for(Address address : addresses)
-        {
-            UserAddressResponse userAddressResponse = initializeUserAddressResponse(address);
-            userAddressResponses.add(userAddressResponse);
-        }
-        return userAddressResponses;
+        return getAllAddressesForUser(user)
+                .stream()
+                .map(this::initializeUserAddressResponse)
+                .toList();
     }
 
     public Address findAddressById(UUID uuid) {
-        Optional<Address> addressOptional = addressRepository.findById(uuid);
-        if (addressOptional.isEmpty()) {
-            throw new IllegalStateException("Address with this id does not exist");
-        }
-        return addressOptional.get();
+        return addressRepository.findById(uuid)
+                .orElseThrow(() -> new IllegalStateException("Address with this id does not exist"));
     }
 
     public void updateAddress(User authenticatedUser, String addressId, AddressRequest addressRequest) {
@@ -161,10 +148,7 @@ public class AddressService {
 
     private Address getAddressByIdAndUser(String editAddressId, User user) {
         UUID uuid = UUID.fromString(editAddressId);
-        Optional<Address> addressOptional = addressRepository.findAddressByIdAndUser(uuid, user);
-        if (addressOptional.isEmpty()) {
-            throw new IllegalArgumentException("Address not found with id: " + editAddressId);
-        }
-        return addressOptional.get();
+        return addressRepository.findAddressByIdAndUser(uuid, user)
+                .orElseThrow(() -> new IllegalArgumentException("Address not found with id: " + editAddressId));
     }
 }

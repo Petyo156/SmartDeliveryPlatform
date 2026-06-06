@@ -32,18 +32,9 @@ public class CourierService {
             return CourierResponse.builder().build();
         }
 
-        Optional<Courier> courierOptional = getCourierByUserEmail(searchEmail);
-        if(courierOptional.isEmpty()) {
-            return CourierResponse.builder().build();
-        }
-
-        Courier courier = courierOptional.get();
-        return CourierResponse.builder()
-                .userEmail(searchEmail)
-                .isAvailable(courier.getIsAvailable())
-                .currentLng(courier.getCurrentLng())
-                .currentLat(courier.getCurrentLat())
-                .build();
+        return getCourierByUserEmail(searchEmail)
+                .map(courier -> initializeCourierResponse(searchEmail, courier))
+                .orElseGet(() -> CourierResponse.builder().build());
     }
 
     public Optional<Courier> getCourierByUserEmail(String email) {
@@ -56,5 +47,14 @@ public class CourierService {
         courier.setIsAvailable(!courier.getIsAvailable());
         courierRepository.save(courier);
         log.info("Toggled availability for courier {} to {}", email, courier.getIsAvailable());
+    }
+
+    private CourierResponse initializeCourierResponse(String searchEmail, Courier courier) {
+        return CourierResponse.builder()
+                .userEmail(searchEmail)
+                .isAvailable(courier.getIsAvailable())
+                .currentLng(courier.getCurrentLng())
+                .currentLat(courier.getCurrentLat())
+                .build();
     }
 }

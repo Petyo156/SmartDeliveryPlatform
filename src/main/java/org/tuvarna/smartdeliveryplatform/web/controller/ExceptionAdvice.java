@@ -11,9 +11,16 @@ import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
+import org.tuvarna.smartdeliveryplatform.web.util.RedirectUrlResolver;
 
 @ControllerAdvice
 public class ExceptionAdvice {
+    private final RedirectUrlResolver redirectUrlResolver;
+
+    public ExceptionAdvice(RedirectUrlResolver redirectUrlResolver) {
+        this.redirectUrlResolver = redirectUrlResolver;
+    }
+
     @ExceptionHandler({
             PasswordsDoNotMatchException.class
     })
@@ -42,7 +49,7 @@ public class ExceptionAdvice {
         HttpServletRequest request) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
-        return "redirect:" + getRefererOrCart(request);
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/cart");
     }
 
     @ExceptionHandler({
@@ -55,7 +62,7 @@ public class ExceptionAdvice {
         redirectAttributes.addFlashAttribute("pendingProductSlug", request.getParameter("productSlug"));
         redirectAttributes.addFlashAttribute("pendingQuantity", request.getParameter("quantity"));
 
-        return "redirect:" + getRefererOrCart(request);
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/cart");
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -64,14 +71,5 @@ public class ExceptionAdvice {
     })
     public String merchantNotFound() {
         return "exception/not-found";
-    }
-
-    private String getRefererOrCart(HttpServletRequest request) {
-        String referer = request.getHeader("Referer");
-        if (referer == null || referer.isBlank()) {
-            return "/cart";
-        }
-
-        return referer;
     }
 }

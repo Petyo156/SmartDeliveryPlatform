@@ -86,15 +86,13 @@
 
                         <optgroup label="Global Categories">
 
-                            <option th:each="cat : ${availableCategories}"
-                                    th:if="${cat.isGlobal}"
+                            <option th:each="cat : ${globalCategories}"
                                     th:value="${cat.id}"
                                     th:text="${cat.name}">
                             </option>
                         </optgroup>
                         <optgroup label="My Categories">
-                            <option th:each="cat : ${availableCategories}"
-                                    th:if="${!cat.isGlobal}"
+                            <option th:each="cat : ${merchantCategories}"
                                     th:value="${cat.id}"
                                     th:text="${cat.name}">
                             </option>
@@ -137,16 +135,15 @@
             <h2>My Categories</h2>
         </div>
 
-        <div th:if="${#lists.isEmpty(availableCategories.?[!isGlobal])}"
+        <div th:if="${#lists.isEmpty(merchantCategories)}"
              class="empty-state">
             <i class="fas fa-folder-open"></i>
             <p>No custom categories created yet.</p>
         </div>
 
-        <div th:unless="${#lists.isEmpty(availableCategories.?[!isGlobal])}"
+        <div th:unless="${#lists.isEmpty(merchantCategories)}"
              class="categories-list">
-            <div th:each="cat : ${availableCategories}"
-                 th:if="${!cat.isGlobal}"
+            <div th:each="cat : ${merchantCategories}"
                  class="category-item">
                 <div class="category-info">
                 <span class="category-name"

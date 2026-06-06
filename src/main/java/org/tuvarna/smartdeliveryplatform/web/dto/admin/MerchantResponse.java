@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
+import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +22,7 @@ public class MerchantResponse {
 
     private MerchantType type;
 
-    private Address address;
+    private MerchantAddressResponse address;
 
     private Boolean isActive;
 

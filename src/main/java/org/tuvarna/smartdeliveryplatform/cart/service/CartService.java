@@ -102,27 +102,18 @@ public class CartService {
     }
 
     private Product getProductBySlug(String slug) {
-        Optional<Product> productOptional = productRepository.findBySlug(slug);
-        if (productOptional.isEmpty()) {
-            throw new CartOperationException("Product was not found.");
-        }
-        return productOptional.get();
+        return productRepository.findBySlug(slug)
+                .orElseThrow(() -> new CartOperationException("Product was not found."));
     }
 
     private Cart getCartForUser(User user) {
-        Optional<Cart> cartOptional = cartRepository.findByUser_Email(user.getEmail());
-        if (cartOptional.isEmpty()) {
-            throw new CartOperationException("Cart was not found for user.");
-        }
-        return cartOptional.get();
+        return cartRepository.findByUser_Email(user.getEmail())
+                .orElseThrow(() -> new CartOperationException("Cart was not found for user."));
     }
 
     private CartItem getCartItemForUser(String userEmail, UUID itemId) {
-        Optional<CartItem> cartItemOptional = cartItemRepository.findByIdAndCart_User_Email(itemId, userEmail);
-        if (cartItemOptional.isEmpty()) {
-            throw new CartOperationException("Cart item was not found.");
-        }
-        return cartItemOptional.get();
+        return cartItemRepository.findByIdAndCart_User_Email(itemId, userEmail)
+                .orElseThrow(() -> new CartOperationException("Cart item was not found."));
     }
 
     private int validateQuantity(Integer quantity) {

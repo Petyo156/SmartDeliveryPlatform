@@ -12,11 +12,8 @@ import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryPillResponse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,19 +28,14 @@ public class CategoryService {
         this.productCategoryService = productCategoryService;
     }
 
-    public List<CategoryResponse> getAvailableCategories(String email) {
+    public List<CategoryResponse> getGlobalAvailableCategories(String email) {
         Merchant merchantByUserEmail = merchantService.getMerchantByUserEmail(email);
+        return toCategoryResponses(getGlobalCategoriesByType(merchantByUserEmail.getType()));
+    }
 
-        List<Category> availableCategoriesEntities = new ArrayList<>();
-        availableCategoriesEntities.addAll(getGlobalCategoriesByType(merchantByUserEmail.getType()));
-        availableCategoriesEntities.addAll(getMerchantCategories(merchantByUserEmail));
-
-        List<CategoryResponse> categoryResponses = new ArrayList<>();
-        for (Category category : availableCategoriesEntities) {
-            CategoryResponse categoryResponse = initializeCategoryResponse(category);
-            categoryResponses.add(categoryResponse);
-        }
-        return categoryResponses;
+    public List<CategoryResponse> getMerchantAvailableCategories(String email) {
+        Merchant merchantByUserEmail = merchantService.getMerchantByUserEmail(email);
+        return toCategoryResponses(getMerchantCategories(merchantByUserEmail));
     }
 
     @Transactional
@@ -91,19 +83,14 @@ public class CategoryService {
     }
 
     public Category getCategoryById(UUID categoryId) {
-        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-        if(categoryOptional.isEmpty()) {
-            throw new IllegalStateException("Category with this id does not exist");
-        }
-        return categoryOptional.get();
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalStateException("Category with this id does not exist"));
     }
 
     public UUID getGlobalCategoryIdByNameAndType(String categoryName, MerchantType merchantType) {
-        Optional<Category> categoryOptional = categoryRepository.findCategoryByNameAndTypeAndIsGlobalTrue(categoryName, merchantType);
-        if(categoryOptional.isEmpty()) {
-            throw new IllegalStateException("Global category for this merchant type with this name does not exist");
-        }
-        return categoryOptional.get().getId();
+        return categoryRepository.findCategoryByNameAndTypeAndIsGlobalTrue(categoryName, merchantType)
+                .orElseThrow(() -> new IllegalStateException("Global category for this merchant type with this name does not exist"))
+                .getId();
     }
 
     public List<CategoryPillResponse> getGlobalRestaurantCategories() {
@@ -112,7 +99,7 @@ public class CategoryService {
                 .map(category -> CategoryPillResponse.builder()
                         .name(category.getName())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CategoryPillResponse> getGlobalShopCategories() {
@@ -121,7 +108,7 @@ public class CategoryService {
                 .map(category -> CategoryPillResponse.builder()
                         .name(category.getName())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean existsByNameAndType(String name, MerchantType type) {
@@ -142,6 +129,12 @@ public class CategoryService {
 
     private List<Category> getMerchantCategories(Merchant merchant) {
         return categoryRepository.findAllByMerchantAndIsDeletedFalse(merchant);
+    }
+
+    private List<CategoryResponse> toCategoryResponses(List<Category> categories) {
+        return categories.stream()
+                .map(this::initializeCategoryResponse)
+                .toList();
     }
 
     private Category initializeCategory(Merchant merchant, String name) {

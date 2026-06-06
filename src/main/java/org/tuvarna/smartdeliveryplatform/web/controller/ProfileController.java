@@ -40,18 +40,18 @@ public class ProfileController {
 
     @PostMapping()
     public ModelAndView updateProfile(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                      @Valid @ModelAttribute("profile") UserProfileRequest request,
+                                      @Valid @ModelAttribute("profileRequest") UserProfileRequest profileRequest,
                                       BindingResult bindingResult,
                                       RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/profile");
             User user = userService.getAuthenticatedUser(authenticationMetadata);
             modelAndView.addObject("user", user);
-            modelAndView.addObject("profile", request);
+            modelAndView.addObject("profileRequest", profileRequest);
             return modelAndView;
         }
 
-        profileService.updateUserProfile(authenticationMetadata.getUsername(), request);
+        profileService.updateUserProfile(authenticationMetadata.getUsername(), profileRequest);
         redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully!");
         return new ModelAndView("redirect:/profile");
     }

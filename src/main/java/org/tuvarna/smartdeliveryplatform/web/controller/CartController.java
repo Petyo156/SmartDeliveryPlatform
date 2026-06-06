@@ -19,6 +19,7 @@ import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.AddCartItemRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.CartResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.UpdateCartItemQuantityRequest;
+import org.tuvarna.smartdeliveryplatform.web.util.RedirectUrlResolver;
 
 import java.util.UUID;
 
@@ -27,10 +28,12 @@ import java.util.UUID;
 public class CartController {
     private final CartService cartService;
     private final UserService userService;
+    private final RedirectUrlResolver redirectUrlResolver;
 
-    public CartController(CartService cartService, UserService userService) {
+    public CartController(CartService cartService, UserService userService, RedirectUrlResolver redirectUrlResolver) {
         this.cartService = cartService;
         this.userService = userService;
+        this.redirectUrlResolver = redirectUrlResolver;
     }
 
     @GetMapping
@@ -51,7 +54,7 @@ public class CartController {
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes,
                                 HttpServletRequest httpServletRequest) {
-        String redirectUrl = getRefererOrCart(httpServletRequest);
+        String redirectUrl = redirectUrlResolver.resolveRefererOrDefault(httpServletRequest, "/cart");
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
@@ -70,7 +73,7 @@ public class CartController {
                                             BindingResult bindingResult,
                                             RedirectAttributes redirectAttributes,
                                             HttpServletRequest httpServletRequest) {
-        String redirectUrl = getRefererOrCart(httpServletRequest);
+        String redirectUrl = redirectUrlResolver.resolveRefererOrDefault(httpServletRequest, "/cart");
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
@@ -101,20 +104,10 @@ public class CartController {
 
     @PostMapping("/items/{itemId}/remove")
     public ModelAndView removeItem(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                   @PathVariable UUID itemId,
-                                   RedirectAttributes redirectAttributes) {
+                                   @PathVariable UUID itemId) {
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         cartService.removeItem(user, itemId);
         return new ModelAndView("redirect:/cart");
-    }
-
-    private String getRefererOrCart(HttpServletRequest request) {
-        String referer = request.getHeader("Referer");
-        if (referer == null || referer.isBlank()) {
-            return "/cart";
-        }
-
-        return referer;
     }
 }

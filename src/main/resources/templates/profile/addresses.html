@@ -61,18 +61,27 @@
                             <input type="text"
                                    th:field="*{city}"
                                    placeholder="City"/>
+                            <div th:if="${#fields.hasErrors('city')}"
+                                 th:errors="*{city}">
+                            </div>
                         </div>
 
                         <div class="input-group">
                             <input type="text"
                                    th:field="*{street}"
                                    placeholder="Street"/>
+                            <div th:if="${#fields.hasErrors('street')}"
+                                 th:errors="*{street}">
+                            </div>
                         </div>
 
                         <div class="input-group">
                             <input type="text"
                                    th:field="*{building}"
                                    placeholder="Building"/>
+                            <div th:if="${#fields.hasErrors('building')}"
+                                 th:errors="*{building}">
+                            </div>
                         </div>
 
                         <div class="address-actions">
@@ -92,7 +101,7 @@
                 <div class="address-actions"
                      th:if="${editAddressId == null || editAddressId != address.id}">
 
-                    <a th:href="@{/addresses(editAddressId=${address.id})}">
+                    <a th:href="@{'/addresses/' + ${address.id} + '/edit'}">
                         <i class="fas fa-edit"></i>
                         Edit
                     </a>
@@ -120,7 +129,7 @@
         </div>
 
         <div class="add-address-section"
-             th:if="${canAddMoreAddresses}">
+             th:if="${canAddMoreAddresses && editAddressId == null}">
 
             <h3>Add Address</h3>
 
@@ -136,18 +145,27 @@
                     <input type="text"
                            th:field="*{city}"
                            placeholder="City"/>
+                    <div th:if="${#fields.hasErrors('city')}"
+                         th:errors="*{city}">
+                    </div>
                 </div>
 
                 <div class="input-group">
                     <input type="text"
                            th:field="*{street}"
                            placeholder="Street"/>
+                    <div th:if="${#fields.hasErrors('street')}"
+                         th:errors="*{street}">
+                    </div>
                 </div>
 
                 <div class="input-group">
                     <input type="text"
                            th:field="*{building}"
                            placeholder="Building"/>
+                    <div th:if="${#fields.hasErrors('building')}"
+                         th:errors="*{building}">
+                    </div>
                 </div>
 
                 <button type="submit">

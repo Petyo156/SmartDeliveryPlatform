@@ -14,8 +14,6 @@ import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/addresses")
 public class AddressController {
@@ -30,25 +28,34 @@ public class AddressController {
 
     @GetMapping()
     public ModelAndView getAddressesPage(
-            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-            @RequestParam(required = false) String editAddressId) {
+            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
         ModelAndView modelAndView = new ModelAndView("profile/addresses");
-
         User user = userService.getAuthenticatedUser(authenticationMetadata);
-        List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
         AddressRequest addressRequest = AddressRequest.builder().build();
-        boolean canAddMoreAddresses = addressService.canAddMoreAddresses(user);
-
-        if (editAddressId != null) {
-            UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
-            addressRequest = addressService.initializeAddressEditRequest(addressResponse);
-            modelAndView.addObject("editAddressId", editAddressId);
-        }
 
         modelAndView.addObject("user", user);
-        modelAndView.addObject("addresses", addresses);
+        modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
         modelAndView.addObject("addressRequest", addressRequest);
-        modelAndView.addObject("canAddMoreAddresses", canAddMoreAddresses);
+        modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
+        modelAndView.addObject("editAddressId", null);
+
+        return modelAndView;
+    }
+
+    @GetMapping("/{editAddressId}/edit")
+    public ModelAndView getEditAddressPage(
+            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+            @PathVariable String editAddressId) {
+        ModelAndView modelAndView = new ModelAndView("profile/addresses");
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
+        AddressRequest addressRequest = addressService.initializeAddressEditRequest(addressResponse);
+
+        modelAndView.addObject("user", user);
+        modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
+        modelAndView.addObject("addressRequest", addressRequest);
+        modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
+        modelAndView.addObject("editAddressId", editAddressId);
 
         return modelAndView;
     }
@@ -58,18 +65,20 @@ public class AddressController {
                                       @Valid @ModelAttribute("addressRequest") AddressRequest request,
                                       BindingResult bindingResult,
                                       RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/addresses");
-            User user = userService.getAuthenticatedUser(authenticationMetadata);
-            List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
+
             modelAndView.addObject("user", user);
-            modelAndView.addObject("addresses", addresses);
+            modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
             modelAndView.addObject("addressRequest", request);
             modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
+            modelAndView.addObject("editAddressId", null);
+
             return modelAndView;
         }
 
-        User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         addressService.addAddress(user, request);
         redirectAttributes.addFlashAttribute("successMessage", "Address added successfully!");
 
@@ -83,14 +92,16 @@ public class AddressController {
                                       BindingResult bindingResult,
                                       RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
-        List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
 
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/addresses");
+
             modelAndView.addObject("user", user);
-            modelAndView.addObject("addresses", addresses);
+            modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
             modelAndView.addObject("addressRequest", addressRequest);
+            modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
             modelAndView.addObject("editAddressId", editingAddressId);
+
             return modelAndView;
         }
 

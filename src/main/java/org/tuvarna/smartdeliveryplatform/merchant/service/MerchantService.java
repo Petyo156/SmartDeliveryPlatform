@@ -2,6 +2,7 @@ package org.tuvarna.smartdeliveryplatform.merchant.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
@@ -15,6 +16,7 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantCardResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantPageResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
@@ -23,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -43,18 +44,15 @@ public class MerchantService {
         return initializeMerchantProfileRequest(merchant);
     }
 
+    @Transactional(readOnly = true)
     public MerchantResponse getMerchantResponse(String searchEmail) {
         if (null == searchEmail || searchEmail.isBlank()) {
             return MerchantResponse.builder().build();
         }
 
-        Optional<Merchant> merchantOptional = getMerchantOptionalByUserEmail(searchEmail);
-        if (merchantOptional.isEmpty()) {
-            return MerchantResponse.builder().build();
-        }
-
-        Merchant merchant = merchantOptional.get();
-        return initializeMerchantResponse(searchEmail, merchant);
+        return getMerchantOptionalByUserEmail(searchEmail)
+                .map(merchant -> initializeMerchantResponse(searchEmail, merchant))
+                .orElseGet(() -> MerchantResponse.builder().build());
     }
 
     public void toggleMerchantActiveStatus(String email) {
@@ -65,6 +63,16 @@ public class MerchantService {
         }
         merchantRepository.save(merchant);
         log.info("Toggled active status for merchant {} to {}", email, merchant.getIsActive());
+    }
+
+    public void setMerchantActiveStatus(String email, boolean isActive) {
+        Merchant merchant = getMerchantByUserEmail(email);
+        merchant.setIsActive(isActive);
+        if (!isActive) {
+            merchant.setIsClosed(true);
+        }
+        merchantRepository.save(merchant);
+        log.info("Set active status for merchant {} to {}", email, isActive);
     }
 
     public void toggleMerchantIsClosedStatus(String email) {
@@ -114,11 +122,8 @@ public class MerchantService {
     }
 
     public Merchant getMerchantByUserEmail(String email) {
-        Optional<Merchant> merchantByUserEmail = merchantRepository.getMerchantByUser_Email(email);
-        if (merchantByUserEmail.isEmpty()) {
-            throw new IllegalStateException("Merchant with this email doesnt exist");
-        }
-        return merchantByUserEmail.get();
+        return merchantRepository.getMerchantByUser_Email(email)
+                .orElseThrow(() -> new IllegalStateException("Merchant with this email doesnt exist"));
     }
 
     public Optional<Merchant> getMerchantOptionalByUserEmail(String email) {
@@ -133,43 +138,19 @@ public class MerchantService {
     }
 
     public List<MerchantCardResponse> getTopActiveShops() {
-        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
-        return merchants.stream()
-                .map(this::toMerchantCardResponse)
-                .collect(Collectors.toList());
+        return getTopActiveMerchants(MerchantType.SHOP);
     }
 
     public List<MerchantCardResponse> getTopActiveRestaurants() {
-        List<Merchant> merchants = merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
-        return merchants.stream()
-                .map(this::toMerchantCardResponse)
-                .collect(Collectors.toList());
+        return getTopActiveMerchants(MerchantType.RESTAURANT);
     }
 
     public List<MerchantCardResponse> getAllActiveShops(String category) {
-        List<Merchant> merchants;
-        if (category == null || category.isEmpty()) {
-            merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.SHOP);
-        } else {
-            merchants = merchantRepository.findMerchantsByCategory(MerchantType.SHOP, category);
-        }
-
-        return merchants.stream()
-                .map(this::toMerchantCardResponse)
-                .collect(Collectors.toList());
+        return getAllActiveMerchants(MerchantType.SHOP, category);
     }
 
     public List<MerchantCardResponse> getAllActiveRestaurants(String category) {
-        List<Merchant> merchants;
-        if (category == null || category.isEmpty()) {
-            merchants = merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType.RESTAURANT);
-        } else {
-            merchants = merchantRepository.findMerchantsByCategory(MerchantType.RESTAURANT, category);
-        }
-
-        return merchants.stream()
-                .map(this::toMerchantCardResponse)
-                .collect(Collectors.toList());
+        return getAllActiveMerchants(MerchantType.RESTAURANT, category);
     }
 
     public boolean merchantCountMoreThanZero() {
@@ -201,7 +182,7 @@ public class MerchantService {
                 .name(merchant.getName())
                 .type(merchant.getType())
                 .description(merchant.getDescription())
-                .address(merchant.getAddress())
+                .address(toMerchantAddressResponse(merchant.getAddress()))
                 .isActive(merchant.getIsActive())
                 .isClosed(merchant.getIsClosed())
                 .createdAt(merchant.getCreatedAt())
@@ -223,6 +204,23 @@ public class MerchantService {
         return initializeMerchantCard(merchant);
     }
 
+    private List<MerchantCardResponse> getTopActiveMerchants(MerchantType type) {
+        return merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(type)
+                .stream()
+                .map(this::toMerchantCardResponse)
+                .toList();
+    }
+
+    private List<MerchantCardResponse> getAllActiveMerchants(MerchantType type, String category) {
+        List<Merchant> merchants = category == null || category.isBlank()
+                ? merchantRepository.findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(type)
+                : merchantRepository.findMerchantsByCategory(type, category);
+
+        return merchants.stream()
+                .map(this::toMerchantCardResponse)
+                .toList();
+    }
+
     private MerchantCardResponse initializeMerchantCard(Merchant merchant) {
         return MerchantCardResponse.builder()
                 .slug(merchant.getSlug())
@@ -242,6 +240,15 @@ public class MerchantService {
                 .imageUrl(merchant.getImageUrl())
                 .type(merchant.getType())
                 .isClosed(merchant.getIsClosed())
+                .build();
+    }
+
+    private MerchantAddressResponse toMerchantAddressResponse(Address address) {
+        return MerchantAddressResponse.builder()
+                .id(address.getId())
+                .city(address.getCity())
+                .street(address.getStreet())
+                .building(address.getBuilding())
                 .build();
     }
 }
