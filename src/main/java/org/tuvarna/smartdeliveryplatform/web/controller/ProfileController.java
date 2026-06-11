@@ -32,7 +32,6 @@ public class ProfileController {
         ModelAndView modelAndView = new ModelAndView("profile/profile");
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         UserProfileRequest profileRequest = profileService.initializeProfileRequest(user);
-        modelAndView.addObject("user", user);
         modelAndView.addObject("profileRequest", profileRequest);
 
         return modelAndView;
@@ -46,7 +45,6 @@ public class ProfileController {
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/profile");
             User user = userService.getAuthenticatedUser(authenticationMetadata);
-            modelAndView.addObject("user", user);
             modelAndView.addObject("profileRequest", profileRequest);
             return modelAndView;
         }

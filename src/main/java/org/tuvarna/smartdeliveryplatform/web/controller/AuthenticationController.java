@@ -30,7 +30,6 @@ public class AuthenticationController {
         ModelAndView modelAndView = new ModelAndView("auth/register");
         modelAndView.addObject("registerRequest", new RegisterRequest());
         modelAndView.addObject("hasHiddenElements", true);
-        modelAndView.addObject("user", null);
         return modelAndView;
     }
 
@@ -57,7 +56,6 @@ public class AuthenticationController {
         ModelAndView modelAndView = new ModelAndView("auth/login");
         modelAndView.addObject("error", errorParam);
         modelAndView.addObject("loginRequest", loginRequest);
-        modelAndView.addObject("user", null);
         modelAndView.addObject("hasHiddenElements", true);
 
         if (errorParam != null || bindingResult.hasErrors()) {

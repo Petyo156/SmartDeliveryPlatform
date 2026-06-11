@@ -1,8 +1,8 @@
 package org.tuvarna.smartdeliveryplatform.user.service;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
@@ -69,6 +69,7 @@ public class AdminService {
         log.info("Made user {} a merchant", merchantRequest.getEmail());
     }
 
+    @Transactional
     public void makeUserCourier(String email) {
         User user = userService.getUserByEmail(email);
 
@@ -90,6 +91,7 @@ public class AdminService {
         log.info("Made user {} a courier", email);
     }
 
+    @Transactional
     public void makeUserAdmin(String email) {
         User user = userService.getUserByEmail(email);
 
@@ -106,6 +108,7 @@ public class AdminService {
         log.info("Made user {} an admin", email);
     }
 
+    @Transactional
     public void demoteAdmin(String email) {
         User user = userService.getUserByEmail(email);
 
