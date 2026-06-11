@@ -11,8 +11,6 @@ import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.product.service.ProductService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
-import org.tuvarna.smartdeliveryplatform.user.model.User;
-import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.products.ProductRequest;
@@ -26,51 +24,74 @@ public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final MerchantService merchantService;
-    private final UserService userService;
 
     public ProductController(ProductService productService, CategoryService categoryService, 
-                             MerchantService merchantService, UserService userService) {
+                             MerchantService merchantService) {
         this.productService = productService;
         this.categoryService = categoryService;
         this.merchantService = merchantService;
-        this.userService = userService;
     }
 
     @GetMapping
     public ModelAndView getProductsPage(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+        return initializeProductsPage(authenticationMetadata, ProductRequest.builder().build(), null);
+    }
+
+    @GetMapping("/{slug}/edit")
+    public ModelAndView getEditProductPage(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                           @PathVariable String slug) {
+        ProductRequest productRequest = productService.getProductRequestForEdit(authenticationMetadata.getUsername(), slug);
+        return initializeProductsPage(authenticationMetadata, productRequest, slug);
+    }
+
+    private ModelAndView initializeProductsPage(AuthenticationMetadata authenticationMetadata,
+                                                ProductRequest productRequest,
+                                                String editProductSlug) {
         ModelAndView modelAndView = new ModelAndView("merchant/products");
 
-        User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         MerchantResponse merchantResponse = merchantService.getMerchantResponse(authenticationMetadata.getUsername());
         List<ProductResponse> products = productService.getMerchantProductResponses(authenticationMetadata.getUsername());
         List<CategoryResponse> globalCategories = categoryService.getGlobalAvailableCategories(authenticationMetadata.getUsername());
         List<CategoryResponse> merchantCategories = categoryService.getMerchantAvailableCategories(authenticationMetadata.getUsername());
 
-        modelAndView.addObject("user", user);
         modelAndView.addObject("merchantResponse", merchantResponse);
         modelAndView.addObject("products", products);
         modelAndView.addObject("globalCategories", globalCategories);
         modelAndView.addObject("merchantCategories", merchantCategories);
-        modelAndView.addObject("productRequest", ProductRequest.builder().build());
+        modelAndView.addObject("productRequest", productRequest);
+        modelAndView.addObject("editProductSlug", editProductSlug);
         modelAndView.addObject("categoryName", "");
 
         return modelAndView;
     }
 
-    @PostMapping("/create")
-    public String createProduct(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                @Valid @ModelAttribute ProductRequest request,
-                                BindingResult bindingResult,
-                                RedirectAttributes redirectAttributes) {
+    @PostMapping("/{slug}/edit")
+    public ModelAndView updateProduct(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                      @PathVariable String slug,
+                                      @Valid @ModelAttribute("productRequest") ProductRequest request,
+                                      BindingResult bindingResult,
+                                      RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.productRequest", bindingResult);
-            redirectAttributes.addFlashAttribute("productRequest", request);
-            return "redirect:/products";
+            return initializeProductsPage(authenticationMetadata, request, slug);
+        }
+
+        productService.updateProduct(authenticationMetadata.getUsername(), slug, request);
+        redirectAttributes.addFlashAttribute("successMessage", "Product updated successfully!");
+        return new ModelAndView("redirect:/products");
+    }
+
+    @PostMapping("/create")
+    public ModelAndView createProduct(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                      @Valid @ModelAttribute("productRequest") ProductRequest request,
+                                      BindingResult bindingResult,
+                                      RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return initializeProductsPage(authenticationMetadata, request, null);
         }
 
         productService.createProduct(authenticationMetadata.getUsername(), request);
         redirectAttributes.addFlashAttribute("successMessage", "Product created successfully!");
-        return "redirect:/products";
+        return new ModelAndView("redirect:/products");
     }
 
     @PostMapping("/{slug}/delete")
