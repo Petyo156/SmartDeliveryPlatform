@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.text.DecimalFormat;
-
 @Configuration
 public class ApplicationBeanConfiguration {
     @Bean
@@ -14,8 +12,4 @@ public class ApplicationBeanConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public DecimalFormat decimalFormat() {
-        return new DecimalFormat("#0.00");
-    }
 }
