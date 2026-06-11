@@ -108,6 +108,19 @@
     background: #218838;
 }
 
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
 .btn-warning {
     background: #ffc107;
     color: #212529;

@@ -42,6 +42,9 @@
                 <div class="address-content">
                     <p>
                         <strong th:text="${address.city}"></strong>
+                        <span th:if="${address.default}" class="default-address-badge">
+                            Default
+                        </span>
                     </p>
 
                     <p th:text="${address.street + ', ' + address.building}"></p>
@@ -115,6 +118,19 @@
 
                         <button type="submit">
                             Delete
+                        </button>
+                    </form>
+
+                    <form th:if="${!address.default}"
+                          th:action="@{'/addresses/' + ${address.id} + '/default'}"
+                          method="post">
+
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}"/>
+
+                        <button type="submit">
+                            Set default
                         </button>
                     </form>
 

@@ -1,4 +1,4 @@
-package org.tuvarna.smartdeliveryplatform.web.dto.cart;
+package org.tuvarna.smartdeliveryplatform.web.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,17 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemResponse {
-    private UUID id;
-
-    private String productSlug;
-
+@Builder
+public class OrderItemResponse {
     private String productName;
 
     private String productImageUrl;
@@ -26,8 +21,4 @@ public class CartItemResponse {
     private BigDecimal unitPrice;
 
     private BigDecimal lineSubtotal;
-
-    private Boolean availableForCheckout;
-
-    private String availabilityMessage;
 }

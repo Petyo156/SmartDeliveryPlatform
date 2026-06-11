@@ -106,8 +106,8 @@ public class UserService {
         }
     }
 
-    private void setupUser(UserRegisterRequest userReq, AddressRequest addressRequest) {
-        User user = initializeUser(userReq);
+    private void setupUser(UserRegisterRequest userRegisterRequest, AddressRequest addressRequest) {
+        User user = initializeUser(userRegisterRequest);
         user = userRepository.save(user);
 
         Cart cart = cartService.initializeCartForUser(user);

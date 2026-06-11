@@ -37,21 +37,37 @@ public class ProductService {
     @Transactional
     public void createProduct(String merchantEmail, ProductRequest request) {
         Merchant merchant = merchantService.getMerchantByUserEmail(merchantEmail);
-        Category category = categoryService.getCategoryById(request.getCategoryId());
-
-        boolean isGlobal = category.getIsGlobal();
-        boolean isMerchantOwnCategory = category.getMerchant() != null && category.getMerchant().getId().equals(merchant.getId());
-
-        if (!isGlobal && !isMerchantOwnCategory) {
-            throw new IllegalStateException("Merchant can only create products in global categories or their own categories");
-        }
+        Category category = getAllowedCategoryForMerchant(request, merchant);
 
         Product product = initializeProduct(request, merchant, category);
         productRepository.save(product);
         log.info("Created product: {} for merchant: {}", request.getName(), merchant.getName());
     }
 
+    @Transactional(readOnly = true)
+    public ProductRequest getProductRequestForEdit(String merchantEmail, String slug) {
+        Merchant merchant = merchantService.getMerchantByUserEmail(merchantEmail);
+        Product product = getProductBySlugAndMerchant(slug, merchant);
+        return initializeProductRequest(product);
+    }
+
     @Transactional
+    public void updateProduct(String merchantEmail, String slug, ProductRequest request) {
+        Merchant merchant = merchantService.getMerchantByUserEmail(merchantEmail);
+        Product product = getProductBySlugAndMerchant(slug, merchant);
+        Category category = getAllowedCategoryForMerchant(request, merchant);
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setImageUrl(request.getImageUrl());
+        product.setCategory(category);
+
+        productRepository.save(product);
+        log.info("Updated product: {} for merchant: {}", slug, merchant.getName());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductResponse> getMerchantProductResponses(String email) {
         Merchant merchant = merchantService.getMerchantByUserEmail(email);
         return getMerchantProducts(merchant).stream()
@@ -59,7 +75,7 @@ public class ProductService {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductResponse> getAvailableProductsForMerchantSlug(String merchantSlug) {
         return productRepository.findAllByMerchant_SlugAndIsAvailableTrueAndIsDeletedFalseOrderByCategory_NameAscCreatedAtDesc(merchantSlug)
                 .stream()
@@ -67,13 +83,13 @@ public class ProductService {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductCategorySectionResponse> getAvailableProductSectionsForMerchantSlug(String merchantSlug) {
         List<ProductResponse> products = getAvailableProductsForMerchantSlug(merchantSlug);
         return groupProductsByCategory(products);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductCategorySectionResponse> getAvailableProductSectionsForMerchantSlug(String merchantSlug, String category) {
         List<ProductResponse> products = getAvailableProductsForMerchantSlug(merchantSlug);
         if (category == null || category.isBlank()) {
@@ -87,7 +103,7 @@ public class ProductService {
         return groupProductsByCategory(filteredProducts);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<String> getAvailableCategoryNamesForMerchantSlug(String merchantSlug) {
         return getAvailableProductSectionsForMerchantSlug(merchantSlug)
                 .stream()
@@ -95,6 +111,7 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional
     public void deleteProduct(String slug, AuthenticationMetadata authenticationMetadata) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
         Product product = getProductBySlugAndMerchant(slug, merchant);
@@ -107,6 +124,7 @@ public class ProductService {
         return productRepository.count() > 0;
     }
 
+    @Transactional
     public void toggleAvailability(String slug, AuthenticationMetadata authenticationMetadata) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
         Product product = getProductBySlugAndMerchant(slug, merchant);
@@ -138,6 +156,19 @@ public class ProductService {
             throw new IllegalArgumentException("Product not found");
         }
         return product.get();
+    }
+
+    private Category getAllowedCategoryForMerchant(ProductRequest request, Merchant merchant) {
+        Category category = categoryService.getCategoryById(request.getCategoryId());
+
+        boolean isGlobal = category.getIsGlobal();
+        boolean isMerchantOwnCategory = category.getMerchant() != null && category.getMerchant().getId().equals(merchant.getId());
+
+        if (!isGlobal && !isMerchantOwnCategory) {
+            throw new IllegalStateException("Merchant can only use global categories or their own categories");
+        }
+
+        return category;
     }
 
     private List<Product> getMerchantProducts(Merchant merchant) {
@@ -180,6 +211,16 @@ public class ProductService {
                 .isDeleted(false)
                 .createdAt(LocalDateTime.now())
                 .slug(slug)
+                .build();
+    }
+
+    private ProductRequest initializeProductRequest(Product product) {
+        return ProductRequest.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .categoryId(product.getCategory().getId())
+                .imageUrl(product.getImageUrl())
                 .build();
     }
 }

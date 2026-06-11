@@ -2,11 +2,15 @@ package org.tuvarna.smartdeliveryplatform.address.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.repository.AddressRepository;
+import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
+import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderPlacementRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
 
 import java.util.List;
@@ -26,17 +30,23 @@ public class AddressService {
         this.addressRepository = addressRepository;
     }
 
+    @Transactional
     public Address addAddress(User user, AddressRequest addressRequest) {
-        if (addressRepository.countByUser(user) >= MAX_ADDRESSES_PER_USER) {
-            throw new IllegalStateException("Maximum address limit of addresses exceeded");
-        }
-
-        Address address = initializeAddressForUser(user, addressRequest);
-        Address addressEntity = addressRepository.save(address);
+        Address addressEntity = createAddress(user, addressRequest);
         log.info("Successfully added address for user: {}", user.getEmail());
         return addressEntity;
     }
 
+    @Transactional
+    public void addAddressIfPresent(User user, AddressRequest addressRequest) {
+        if (isAddressRequestEmpty(addressRequest)) {
+            return;
+        }
+
+        addAddress(user, addressRequest);
+    }
+
+    @Transactional(readOnly = true)
     public List<MerchantAddressResponse> getAllAddressesForMerchant(User user) {
         return getAllAddressesForUser(user)
                 .stream()
@@ -44,6 +54,7 @@ public class AddressService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserAddressResponse> getAllAddressResponsesForUser(User user) {
         return getAllAddressesForUser(user)
                 .stream()
@@ -56,6 +67,20 @@ public class AddressService {
                 .orElseThrow(() -> new IllegalStateException("Address with this id does not exist"));
     }
 
+    @Transactional
+    public Address resolveCheckoutAddress(User user, OrderPlacementRequest request) {
+        if (request.getAddressMode() == CheckoutAddressMode.NEW) {
+            return createCheckoutAddress(user, request);
+        }
+
+        if (request.getAddressId() == null) {
+            throw new OrderOperationException("Choose one of your saved delivery addresses.");
+        }
+
+        return findAddressByIdAndUser(request.getAddressId(), user);
+    }
+
+    @Transactional
     public void updateAddress(User authenticatedUser, String addressId, AddressRequest addressRequest) {
         UUID uuid = UUID.fromString(addressId);
 
@@ -71,41 +96,55 @@ public class AddressService {
         log.info("Successfully updated address {} for user: {}", addressId, authenticatedUser.getEmail());
     }
 
-    public List<Address> getAllAddressesForUser(User user) {
-        return addressRepository.findAllByUser(user);
+    public UserAddressResponse getAddressResponse(String editAddressId, User user) {
+        Address address = getAddressByIdAndUser(UUID.fromString(editAddressId), user);
+        return initializeUserAddressResponse(address);
+    }
+
+    @Transactional
+    public void deleteAddress(User user, String id) {
+        UUID addressId = UUID.fromString(id);
+        Address address = findAddressByIdAndUser(addressId, user);
+
+        boolean deletedDefaultAddress = Boolean.TRUE.equals(address.getIsDefault());
+        addressRepository.delete(address);
+
+        if (deletedDefaultAddress) {
+            promoteDefaultAddressIfNeeded(user);
+        }
+
+        log.info("Successfully deleted address {} for user: {}", id, user.getEmail());
+    }
+
+    @Transactional
+    public void setDefaultAddress(User user, String id) {
+        UUID addressId = UUID.fromString(id);
+        Address defaultAddress = getAddressByIdAndUser(addressId, user);
+
+        clearDefaultAddresses(user);
+        defaultAddress.setIsDefault(true);
+        addressRepository.save(defaultAddress);
+        log.info("Successfully set default address {} for user: {}", id, user.getEmail());
+    }
+
+    @Transactional
+    public Address createCheckoutAddress(User user, OrderPlacementRequest request) {
+        if (!canAddMoreAddresses(user)) {
+            throw new OrderOperationException("You reached the maximum address limit. Delete an address before adding a new one.");
+        }
+
+        if (!hasText(request.getCity())
+                || !hasText(request.getStreet())
+                || !hasText(request.getBuilding())) {
+            throw new OrderOperationException("City, street and building are required for delivery address.");
+        }
+
+        AddressRequest addressRequest = initializeAddressRequest(request);
+        return addAddress(user, addressRequest);
     }
 
     public boolean canAddMoreAddresses(User user) {
         return addressRepository.countByUser(user) < MAX_ADDRESSES_PER_USER;
-    }
-
-    public UserAddressResponse getAddressResponse(String editAddressId, User user) {
-        Address address = getAddressByIdAndUser(editAddressId, user);
-        return initializeUserAddressResponse(address);
-    }
-
-    public void deleteAddress(User user, String id) {
-        UUID addressId = UUID.fromString(id);
-        Address address = addressRepository.findAddressByIdAndUser(addressId, user)
-                .orElseThrow(() -> new IllegalArgumentException("Address not found with id: " + id));
-
-        addressRepository.delete(address);
-        log.info("Successfully deleted address {} for user: {}", id, user.getEmail());
-    }
-
-    public void addAddressIfPresent(User user, AddressRequest request) {
-        if (request == null) {
-            return;
-        }
-        boolean hasCity = hasText(request.getCity());
-        boolean hasStreet = hasText(request.getStreet());
-
-        if (!hasCity || !hasStreet) {
-            throw new IllegalArgumentException("City and street are required when adding address.");
-        }
-
-        Address address = initializeAddressForUser(user, request);
-        addressRepository.save(address);
     }
 
     public AddressRequest initializeAddressEditRequest(UserAddressResponse addressResponse) {
@@ -115,6 +154,29 @@ public class AddressService {
                 .street(addressResponse.getStreet())
                 .isDefault(addressResponse.isDefault())
                 .build();
+    }
+
+    private List<Address> getAllAddressesForUser(User user) {
+        return addressRepository.findAllByUserOrderByIsDefaultDesc(user);
+    }
+
+    private Address createAddress(User user, AddressRequest addressRequest) {
+        validateAddressRequest(addressRequest);
+
+        if (!canAddMoreAddresses(user)) {
+            throw new IllegalStateException("Maximum address limit of addresses exceeded");
+        }
+
+        boolean isFirstAddress = getAllAddressesForUser(user).isEmpty();
+        boolean shouldBeDefault = isFirstAddress || addressRequest.isDefault();
+
+        if (shouldBeDefault) {
+            clearDefaultAddresses(user);
+        }
+
+        Address address = initializeAddressForUser(user, addressRequest, shouldBeDefault);
+
+        return addressRepository.save(address);
     }
 
     private MerchantAddressResponse initializeMerchantAddressResponse(Address address) {
@@ -136,19 +198,62 @@ public class AddressService {
                 .build();
     }
 
-    private Address initializeAddressForUser(User user, AddressRequest addressRequest) {
+    private void promoteDefaultAddressIfNeeded(User user) {
+        if (addressRepository.findByUserAndIsDefaultTrue(user).isPresent()) {
+            return;
+        }
+
+        addressRepository.findFirstByUserOrderByIdAsc(user)
+                .ifPresent(address -> {
+                    address.setIsDefault(true);
+                    addressRepository.save(address);
+                });
+    }
+
+    private void clearDefaultAddresses(User user) {
+        List<Address> defaultAddresses = addressRepository.findAllByUserAndIsDefaultTrue(user);
+        defaultAddresses.forEach(address -> address.setIsDefault(false));
+        addressRepository.saveAllAndFlush(defaultAddresses);
+    }
+
+    private Address findAddressByIdAndUser(UUID addressId, User user) {
+        return addressRepository.findAddressByIdAndUser(addressId, user)
+                .orElseThrow(() -> new OrderOperationException("Choose one of your saved delivery addresses."));
+    }
+
+    private AddressRequest initializeAddressRequest(OrderPlacementRequest request) {
+        return AddressRequest.builder()
+                .city(request.getCity())
+                .street(request.getStreet())
+                .building(request.getBuilding())
+                .build();
+    }
+
+    private void validateAddressRequest(AddressRequest request) {
+        if (request == null || !hasText(request.getCity()) || !hasText(request.getStreet()) || !hasText(request.getBuilding())) {
+            throw new IllegalArgumentException("City, street and building are required when adding address.");
+        }
+    }
+
+    private boolean isAddressRequestEmpty(AddressRequest request) {
+        return request == null
+                || (!hasText(request.getCity())
+                && !hasText(request.getStreet())
+                && !hasText(request.getBuilding()));
+    }
+
+    private Address initializeAddressForUser(User user, AddressRequest addressRequest, boolean isDefault) {
         return Address.builder()
                 .user(user)
                 .city(addressRequest.getCity())
                 .street(addressRequest.getStreet())
                 .building(addressRequest.getBuilding())
-                .isDefault(false)
+                .isDefault(isDefault)
                 .build();
     }
 
-    private Address getAddressByIdAndUser(String editAddressId, User user) {
-        UUID uuid = UUID.fromString(editAddressId);
-        return addressRepository.findAddressByIdAndUser(uuid, user)
-                .orElseThrow(() -> new IllegalArgumentException("Address not found with id: " + editAddressId));
+    private Address getAddressByIdAndUser(UUID addressId, User user) {
+        return addressRepository.findAddressByIdAndUser(addressId, user)
+                .orElseThrow(() -> new IllegalArgumentException("Address not found with id: " + addressId.toString()));
     }
 }

@@ -11,7 +11,10 @@ import java.util.UUID;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, UUID> {
-    List<Address> findAllByUser(User user);
+    List<Address> findAllByUserOrderByIsDefaultDesc(User user);
+    List<Address> findAllByUserAndIsDefaultTrue(User user);
     Optional<Address> findAddressByIdAndUser(UUID uuid, User user);
+    Optional<Address> findFirstByUserOrderByIdAsc(User user);
+    Optional<Address> findByUserAndIsDefaultTrue(User user);
     int countByUser(User user);
 }
