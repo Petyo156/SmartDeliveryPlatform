@@ -39,6 +39,7 @@ public class MerchantService {
         this.userService = userService;
     }
 
+    @Transactional(readOnly = true)
     public MerchantProfileRequest getMerchantProfileRequest(String searchEmail) {
         Merchant merchant = getMerchantByUserEmail(searchEmail);
         return initializeMerchantProfileRequest(merchant);
@@ -55,6 +56,7 @@ public class MerchantService {
                 .orElseGet(() -> MerchantResponse.builder().build());
     }
 
+    @Transactional
     public void toggleMerchantActiveStatus(String email) {
         Merchant merchant = getMerchantByUserEmail(email);
         merchant.setIsActive(!merchant.getIsActive());
@@ -65,6 +67,7 @@ public class MerchantService {
         log.info("Toggled active status for merchant {} to {}", email, merchant.getIsActive());
     }
 
+    @Transactional
     public void setMerchantActiveStatus(String email, boolean isActive) {
         Merchant merchant = getMerchantByUserEmail(email);
         merchant.setIsActive(isActive);
@@ -75,6 +78,7 @@ public class MerchantService {
         log.info("Set active status for merchant {} to {}", email, isActive);
     }
 
+    @Transactional
     public void toggleMerchantIsClosedStatus(String email) {
         Merchant merchant = getMerchantByUserEmail(email);
         merchant.setIsClosed(!merchant.getIsClosed());
@@ -82,6 +86,7 @@ public class MerchantService {
         log.info("Toggled is closed status for merchant {} to {}", email, merchant.getIsClosed());
     }
 
+    @Transactional
     public void updateMerchantProfile(AuthenticationMetadata authenticationMetadata, MerchantProfileRequest merchantProfileRequest) {
         Merchant merchant = getMerchantByUserEmail(authenticationMetadata.getUsername());
         Address address = addressService.findAddressById(merchantProfileRequest.getAddressId());
@@ -101,7 +106,7 @@ public class MerchantService {
         }
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
-        if (user.getRole() != UserRole.MERCHANT) {
+        if (user == null || user.getRole() != UserRole.MERCHANT) {
             return false;
         }
 
@@ -109,6 +114,13 @@ public class MerchantService {
         return merchant.getIsClosed();
     }
 
+    public boolean merchantIsActive(String email) {
+        return getMerchantOptionalByUserEmail(email)
+                .map(Merchant::getIsActive)
+                .orElse(false);
+    }
+
+    @Transactional
     public void createMerchantForUser(User user, MerchantRequest request) {
         Address address = addressService.addAddress(user,request.getAddress());
         Merchant merchant = initializeMerchant(user, request);
@@ -130,6 +142,7 @@ public class MerchantService {
         return merchantRepository.getMerchantByUser_Email(email);
     }
 
+    @Transactional(readOnly = true)
     public MerchantPageResponse getMerchantPageBySlug(String slug) {
         Merchant merchant = merchantRepository.findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(() -> new MerchantNotFoundException("Merchant with slug '" + slug + "' does not exist"));
@@ -137,18 +150,22 @@ public class MerchantService {
         return toMerchantPageResponse(merchant);
     }
 
+    @Transactional(readOnly = true)
     public List<MerchantCardResponse> getTopActiveShops() {
         return getTopActiveMerchants(MerchantType.SHOP);
     }
 
+    @Transactional(readOnly = true)
     public List<MerchantCardResponse> getTopActiveRestaurants() {
         return getTopActiveMerchants(MerchantType.RESTAURANT);
     }
 
+    @Transactional(readOnly = true)
     public List<MerchantCardResponse> getAllActiveShops(String category) {
         return getAllActiveMerchants(MerchantType.SHOP, category);
     }
 
+    @Transactional(readOnly = true)
     public List<MerchantCardResponse> getAllActiveRestaurants(String category) {
         return getAllActiveMerchants(MerchantType.RESTAURANT, category);
     }

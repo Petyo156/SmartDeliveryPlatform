@@ -10,11 +10,14 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantProfileRequest;
+import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderDetailsResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderSummaryResponse;
 import org.tuvarna.smartdeliveryplatform.web.util.RedirectUrlResolver;
 import java.util.List;
 
@@ -22,15 +25,18 @@ import java.util.List;
 @RequestMapping("/dashboard/merchant")
 public class MerchantDashboardController {
     private final MerchantService merchantService;
+    private final OrderService orderService;
     private final AddressService addressService;
     private final UserService userService;
     private final RedirectUrlResolver redirectUrlResolver;
 
     public MerchantDashboardController(MerchantService merchantService,
+                                       OrderService orderService,
                                        AddressService addressService,
                                        UserService userService,
                                        RedirectUrlResolver redirectUrlResolver) {
         this.merchantService = merchantService;
+        this.orderService = orderService;
         this.addressService = addressService;
         this.userService = userService;
         this.redirectUrlResolver = redirectUrlResolver;
@@ -44,7 +50,6 @@ public class MerchantDashboardController {
         List<MerchantAddressResponse> merchantAddressResponses = addressService.getAllAddressesForMerchant(user);
         MerchantProfileRequest merchantProfileRequest = merchantService.getMerchantProfileRequest(user.getEmail());
 
-        modelAndView.addObject("user", user);
         modelAndView.addObject("merchantProfileRequest", merchantProfileRequest);
         modelAndView.addObject("merchantAddressResponses", merchantAddressResponses);
 
@@ -68,9 +73,20 @@ public class MerchantDashboardController {
     @GetMapping("/orders")
     public ModelAndView getMerchantOrders(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
         ModelAndView modelAndView = new ModelAndView("merchant/orders");
-        User user = userService.getUserByEmail(authenticationMetadata.getUsername());
+        List<OrderSummaryResponse> orders = orderService.getOrdersForMerchant(authenticationMetadata.getUsername());
 
-        modelAndView.addObject("user", user);
+        modelAndView.addObject("orders", orders);
+
+        return modelAndView;
+    }
+
+    @GetMapping("/orders/{orderNumber}")
+    public ModelAndView getMerchantOrderDetails(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                                @PathVariable String orderNumber) {
+        ModelAndView modelAndView = new ModelAndView("order/details");
+        OrderDetailsResponse order = orderService.getOrderDetailsForMerchant(orderNumber, authenticationMetadata.getUsername());
+
+        modelAndView.addObject("order", order);
 
         return modelAndView;
     }

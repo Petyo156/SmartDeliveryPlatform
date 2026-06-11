@@ -2,6 +2,7 @@ package org.tuvarna.smartdeliveryplatform.user.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserProfileRequest;
 
@@ -15,6 +16,7 @@ public class ProfileService {
         this.userService = userService;
     }
 
+    @Transactional
     public void updateUserProfile(String email, UserProfileRequest request) {
         User user = userService.getUserByEmail(email);
         user.setFirstName(request.getFirstName());

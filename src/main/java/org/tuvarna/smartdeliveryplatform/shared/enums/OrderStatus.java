@@ -1,7 +1,7 @@
 package org.tuvarna.smartdeliveryplatform.shared.enums;
 
 public enum OrderStatus {
-    CREATED,
+    PENDING,
     ACCEPTED,
     PREPARING,
     ON_THE_WAY,

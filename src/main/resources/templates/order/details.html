@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details | Smart Delivery</title>
+
+    <link rel="stylesheet" href="/css/order/orders.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="icon" href="/images/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: header}"></div>
+
+<main class="orders-page">
+    <section class="orders-header">
+        <h1 th:text="${order.orderNumber}">ORD-000</h1>
+        <p>Order details and status history.</p>
+    </section>
+
+    <article class="order-card order-details-card">
+        <div class="order-card-header">
+            <div>
+                <span class="order-number">Current status</span>
+                <h2 th:text="${order.status}">PENDING</h2>
+            </div>
+
+            <span class="order-status" th:text="${order.paymentStatus}">PENDING</span>
+        </div>
+
+        <div class="order-details-grid">
+            <div>
+                <span>Merchant</span>
+                <strong th:text="${order.merchantName}">Merchant</strong>
+                <p th:text="${order.merchantAddress}">Merchant address</p>
+            </div>
+            <div>
+                <span>Customer</span>
+                <strong th:text="${order.clientName}">Customer</strong>
+                <p th:text="${order.deliveryAddress}">Delivery address</p>
+            </div>
+            <div>
+                <span>Created at</span>
+                <strong th:text="${order.createdAt}">Created at</strong>
+            </div>
+            <div>
+                <span>Total</span>
+                <strong>
+                    <span th:text="${order.totalPrice}">0.00</span>
+                    euro
+                </strong>
+            </div>
+        </div>
+
+        <div class="order-price-breakdown">
+            <div>
+                <span>Subtotal</span>
+                <strong>
+                    <span th:text="${order.subtotal}">0.00</span>
+                    euro
+                </strong>
+            </div>
+            <div>
+                <span>Delivery fee</span>
+                <strong>
+                    <span th:text="${order.deliveryFee}">0.00</span>
+                    euro
+                </strong>
+            </div>
+            <div>
+                <span>Total price</span>
+                <strong>
+                    <span th:text="${order.totalPrice}">0.00</span>
+                    euro
+                </strong>
+            </div>
+        </div>
+    </article>
+
+    <section class="order-card order-details-card">
+        <div class="section-heading">
+            <h2>Items</h2>
+        </div>
+
+        <div class="order-items">
+            <div th:each="item : ${order.items}" class="order-item">
+                <div class="order-item-image">
+                    <img th:if="${item.productImageUrl != null && !item.productImageUrl.isBlank()}"
+                         th:src="${item.productImageUrl}"
+                         th:alt="${item.productName}"
+                         onerror="this.style.display='none'">
+                    <div th:unless="${item.productImageUrl != null && !item.productImageUrl.isBlank()}"
+                         class="order-item-placeholder">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                </div>
+
+                <div class="order-item-info">
+                    <strong th:text="${item.productName}">Product</strong>
+                    <span>
+                        <span th:text="${item.quantity}">1</span>
+                        x
+                        <span th:text="${item.unitPrice}">0.00</span>
+                        euro
+                    </span>
+                </div>
+
+                <strong class="order-item-total">
+                    <span th:text="${item.lineSubtotal}">0.00</span>
+                    euro
+                </strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="order-card order-details-card">
+        <div class="section-heading">
+            <h2>Status History</h2>
+        </div>
+
+        <div class="order-timeline">
+            <div th:each="history : ${order.statusHistory}" class="order-timeline-item">
+                <span class="order-status" th:text="${history.status}">PENDING</span>
+                <div>
+                    <strong th:text="${history.changedAt}">Changed at</strong>
+                    <p th:if="${history.changedByName != null}" th:text="${history.changedByName}">Changed by</p>
+                    <p th:if="${history.note != null && !history.note.isBlank()}" th:text="${history.note}">Note</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

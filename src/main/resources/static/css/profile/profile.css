@@ -50,12 +50,31 @@
 }
 
 .address-content p:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 15px;
     color: #333;
 }
 
+.default-address-badge {
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    background: #d4edda;
+    color: #155724;
+    font-size: 12px;
+    font-weight: 700;
+}
+
 .address-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-top: 0.75rem;
+}
+
+.address-actions form {
+    margin: 0;
 }
 
 .btn-edit {
