@@ -33,7 +33,6 @@ public class AddressController {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         AddressRequest addressRequest = AddressRequest.builder().build();
 
-        modelAndView.addObject("user", user);
         modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
         modelAndView.addObject("addressRequest", addressRequest);
         modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
@@ -51,7 +50,6 @@ public class AddressController {
         UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
         AddressRequest addressRequest = addressService.initializeAddressEditRequest(addressResponse);
 
-        modelAndView.addObject("user", user);
         modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
         modelAndView.addObject("addressRequest", addressRequest);
         modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
@@ -70,7 +68,6 @@ public class AddressController {
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/addresses");
 
-            modelAndView.addObject("user", user);
             modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
             modelAndView.addObject("addressRequest", request);
             modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
@@ -96,7 +93,6 @@ public class AddressController {
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/addresses");
 
-            modelAndView.addObject("user", user);
             modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
             modelAndView.addObject("addressRequest", addressRequest);
             modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
@@ -119,6 +115,16 @@ public class AddressController {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         addressService.deleteAddress(user, id);
         redirectAttributes.addFlashAttribute("successMessage", "Address deleted!");
+        return "redirect:/addresses";
+    }
+
+    @PostMapping("/{id}/default")
+    public String setDefaultAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                    @PathVariable String id,
+                                    RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        addressService.setDefaultAddress(user, id);
+        redirectAttributes.addFlashAttribute("successMessage", "Default address updated!");
         return "redirect:/addresses";
     }
 }
