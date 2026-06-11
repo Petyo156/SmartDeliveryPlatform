@@ -26,4 +26,8 @@ public class CartItemResponse {
     private BigDecimal unitPrice;
 
     private BigDecimal lineSubtotal;
+
+    private Boolean availableForCheckout;
+
+    private String availabilityMessage;
 }

@@ -11,6 +11,7 @@ import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
 import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.product.repository.ProductRepository;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.AddCartItemRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.CartItemResponse;
@@ -45,7 +46,7 @@ public class CartService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CartResponse getCartResponse(User user) {
         Cart cart = getCartForUser(user);
         return toCartResponse(cart);
@@ -57,6 +58,7 @@ public class CartService {
         Cart cart = getCartForUser(user);
         Product product = getProductBySlug(request.getProductSlug());
 
+        validateProductDoesNotBelongToUserMerchant(user, product);
         validateSingleMerchantCart(cart, product);
         validateProductCanBeAdded(product);
 
@@ -77,6 +79,7 @@ public class CartService {
         Cart cart = getCartForUser(user);
         Product product = getProductBySlug(request.getProductSlug());
 
+        validateProductDoesNotBelongToUserMerchant(user, product);
         validateProductCanBeAdded(product);
         clearCart(cart);
         addItemToCart(cart, product, quantity);
@@ -99,6 +102,27 @@ public class CartService {
 
         cartItemRepository.delete(cartItem);
         log.info("Removed cart item {}", itemId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CartItem> getValidatedCartItemsForCheckout(User user) {
+        Cart cart = getCartForUser(user);
+
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            throw new CartOperationException("Your cart is empty.");
+        }
+
+        List<CartItem> cartItems = cart.getItems();
+        validateProductsCanBeOrdered(cartItems);
+        return cartItems;
+    }
+
+    @Transactional
+    public void clearCartItems(User user) {
+        Cart cart = getCartForUser(user);
+        clearCart(cart);
+        cartRepository.saveAndFlush(cart);
+        log.info("Cleared user's cart");
     }
 
     private Product getProductBySlug(String slug) {
@@ -134,6 +158,17 @@ public class CartService {
 
         if (Boolean.TRUE.equals(product.getMerchant().getIsClosed())) {
             throw new CartOperationException("This merchant is currently closed.");
+        }
+    }
+
+    private void validateProductsCanBeOrdered(List<CartItem> cartItems) {
+        boolean unavailableProductExists = cartItems.stream()
+                .map(CartItem::getProduct)
+                .anyMatch(product -> !Boolean.TRUE.equals(product.getIsAvailable())
+                        || Boolean.TRUE.equals(product.getIsDeleted()));
+
+        if (unavailableProductExists) {
+            throw new CartOperationException("Your cart contains a product that is no longer available.");
         }
     }
 
@@ -178,7 +213,7 @@ public class CartService {
     }
 
     private CartResponse toCartResponse(Cart cart) {
-        if(cart.getItems() == null || cart.getItems().isEmpty()) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
             return initializeCartResponse(cart, null, null, List.of(), BigDecimal.ZERO);
         }
 
@@ -197,6 +232,9 @@ public class CartService {
     }
 
     private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal total) {
+        boolean checkoutAvailable = items.stream()
+                .allMatch(item -> Boolean.TRUE.equals(item.getAvailableForCheckout()));
+
         return CartResponse.builder()
                 .id(cart.getId())
                 .merchantName(merchantName)
@@ -204,13 +242,16 @@ public class CartService {
                 .items(items)
                 .total(total)
                 .empty(items.isEmpty())
+                .checkoutAvailable(checkoutAvailable)
                 .build();
     }
 
     private CartItemResponse toCartItemResponse(CartItem item) {
         BigDecimal unitPrice = item.getProduct().getPrice();
         BigDecimal lineSubtotal = unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-        return initializeCartItemResponse(item, unitPrice, lineSubtotal);
+        boolean availableForCheckout = productAvailableForCheckout(item.getProduct());
+        String availabilityMessage = availableForCheckout ? null : "Currently unavailable";
+        return initializeCartItemResponse(item, unitPrice, lineSubtotal, availableForCheckout, availabilityMessage);
     }
 
     private CartItem initializeCartItem(Cart cart, Product product, int quantity) {
@@ -221,7 +262,7 @@ public class CartService {
                 .build();
     }
 
-    private CartItemResponse initializeCartItemResponse(CartItem item, BigDecimal unitPrice, BigDecimal lineSubtotal) {
+    private CartItemResponse initializeCartItemResponse(CartItem item, BigDecimal unitPrice, BigDecimal lineSubtotal, boolean availableForCheckout, String availabilityMessage) {
         return CartItemResponse.builder()
                 .id(item.getId())
                 .productSlug(item.getProduct().getSlug())
@@ -230,6 +271,22 @@ public class CartService {
                 .quantity(item.getQuantity())
                 .unitPrice(unitPrice)
                 .lineSubtotal(lineSubtotal)
+                .availableForCheckout(availableForCheckout)
+                .availabilityMessage(availabilityMessage)
                 .build();
+    }
+
+    private void validateProductDoesNotBelongToUserMerchant(User user, Product product) {
+        if (user.getRole() != UserRole.MERCHANT) {
+            return;
+        }
+
+        if (product.getMerchant().getUser().getEmail().equals(user.getEmail())) {
+            throw new CartOperationException("You cannot order from your own shop.");
+        }
+    }
+
+    private boolean productAvailableForCheckout(Product product) {
+        return Boolean.TRUE.equals(product.getIsAvailable()) && !Boolean.TRUE.equals(product.getIsDeleted());
     }
 }

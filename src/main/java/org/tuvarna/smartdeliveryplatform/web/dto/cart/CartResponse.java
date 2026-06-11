@@ -25,4 +25,6 @@ public class CartResponse {
     private BigDecimal total;
 
     private Boolean empty;
+
+    private Boolean checkoutAvailable;
 }
