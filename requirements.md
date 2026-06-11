@@ -12,8 +12,9 @@ Backend:
 
 Controller responsibilities:
 
-* Call the SearchService.
-* Return a SearchResponse DTO.
+* Call the Service.
+* Use Request DTOs to receive data from the frontend with jakarta.validation.constraints.
+* Return a Response DTO.
 * Do not include business logic.
 * Do not include filtering logic.
 * Follow the current project standard.
