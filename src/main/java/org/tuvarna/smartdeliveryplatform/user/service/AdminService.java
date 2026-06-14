@@ -44,6 +44,7 @@ public class AdminService {
         user.setStatus(status);
         userRepository.save(user);
         updateMerchantStatusIfNeeded(user, status);
+        updateCourierStatusIfNeeded(user, status);
         log.info("Updated status for user {} to {}", email, status);
     }
 
@@ -81,7 +82,7 @@ public class AdminService {
             throw new IllegalStateException("User is already an admin and cannot become a courier");
         }
 
-        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
+        if (courierService.courierExistsForUserEmail(user.getEmail())) {
             throw new IllegalStateException("User is already a courier");
         }
 
@@ -95,7 +96,7 @@ public class AdminService {
     public void makeUserAdmin(String email) {
         User user = userService.getUserByEmail(email);
 
-        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
+        if (courierService.courierExistsForUserEmail(user.getEmail())) {
             throw new IllegalStateException("User is a courier and cannot be an admin");
         }
 
@@ -155,6 +156,14 @@ public class AdminService {
         }
 
         merchantService.setMerchantActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+    }
+
+    private void updateCourierStatusIfNeeded(User user, UserStatus status) {
+        if (user.getRole() != UserRole.COURIER) {
+            return;
+        }
+
+        courierService.setCourierActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
     }
 
     private static UserResponse initializeUserResponse(User user) {

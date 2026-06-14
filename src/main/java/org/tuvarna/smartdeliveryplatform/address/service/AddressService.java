@@ -81,10 +81,8 @@ public class AddressService {
     }
 
     @Transactional
-    public void updateAddress(User authenticatedUser, String addressId, AddressRequest addressRequest) {
-        UUID uuid = UUID.fromString(addressId);
-
-        Address address = addressRepository.findAddressByIdAndUser(uuid, authenticatedUser)
+    public void updateAddress(User authenticatedUser, UUID addressId, AddressRequest addressRequest) {
+        Address address = addressRepository.findAddressByIdAndUser(addressId, authenticatedUser)
                 .orElseThrow(() -> new IllegalArgumentException("Address not found"));
 
         address.setCity(addressRequest.getCity());
@@ -96,15 +94,14 @@ public class AddressService {
         log.info("Successfully updated address {} for user: {}", addressId, authenticatedUser.getEmail());
     }
 
-    public UserAddressResponse getAddressResponse(String editAddressId, User user) {
-        Address address = getAddressByIdAndUser(UUID.fromString(editAddressId), user);
+    public UserAddressResponse getAddressResponse(UUID editAddressId, User user) {
+        Address address = getAddressByIdAndUser(editAddressId, user);
         return initializeUserAddressResponse(address);
     }
 
     @Transactional
-    public void deleteAddress(User user, String id) {
-        UUID addressId = UUID.fromString(id);
-        Address address = findAddressByIdAndUser(addressId, user);
+    public void deleteAddress(User user, UUID id) {
+        Address address = findAddressByIdAndUser(id, user);
 
         boolean deletedDefaultAddress = Boolean.TRUE.equals(address.getIsDefault());
         addressRepository.delete(address);
@@ -117,9 +114,8 @@ public class AddressService {
     }
 
     @Transactional
-    public void setDefaultAddress(User user, String id) {
-        UUID addressId = UUID.fromString(id);
-        Address defaultAddress = getAddressByIdAndUser(addressId, user);
+    public void setDefaultAddress(User user, UUID id) {
+        Address defaultAddress = getAddressByIdAndUser(id, user);
 
         clearDefaultAddresses(user);
         defaultAddress.setIsDefault(true);

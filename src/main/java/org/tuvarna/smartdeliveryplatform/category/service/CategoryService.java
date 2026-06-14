@@ -56,11 +56,10 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteMerchantCategory(AuthenticationMetadata authenticationMetadata, String categoryId) {
+    public void deleteMerchantCategory(AuthenticationMetadata authenticationMetadata, UUID categoryId) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
 
-        UUID categoryUUID = UUID.fromString(categoryId);
-        Category category = getCategoryById(categoryUUID);
+        Category category = getCategoryById(categoryId);
 
         if (category.getIsGlobal()) {
             throw new IllegalStateException("Global categories cannot be deleted");
