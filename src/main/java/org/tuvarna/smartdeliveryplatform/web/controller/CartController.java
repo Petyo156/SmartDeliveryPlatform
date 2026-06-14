@@ -55,13 +55,14 @@ public class CartController {
         CartResponse cart = cartService.getCartResponse(user);
         List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
         boolean canAddMoreAddresses = addressService.canAddMoreAddresses(user);
+        OrderPlacementRequest orderPlacementRequest = orderService.initializeOrderPlacementRequest(addresses);
 
         ModelAndView modelAndView = new ModelAndView("cart/cart");
         modelAndView.addObject("cart", cart);
         modelAndView.addObject("addresses", addresses);
         modelAndView.addObject("canAddMoreAddresses", canAddMoreAddresses);
         modelAndView.addObject("quantityRequest", UpdateCartItemQuantityRequest.builder().build());
-        modelAndView.addObject("orderPlacementRequest", orderService.initializeOrderPlacementRequest(addresses));
+        modelAndView.addObject("orderPlacementRequest", orderPlacementRequest);
         return modelAndView;
     }
 

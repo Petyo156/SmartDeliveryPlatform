@@ -14,6 +14,8 @@ import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/addresses")
 public class AddressController {
@@ -44,7 +46,7 @@ public class AddressController {
     @GetMapping("/{editAddressId}/edit")
     public ModelAndView getEditAddressPage(
             @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-            @PathVariable String editAddressId) {
+            @PathVariable UUID editAddressId) {
         ModelAndView modelAndView = new ModelAndView("profile/addresses");
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
@@ -53,7 +55,7 @@ public class AddressController {
         modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
         modelAndView.addObject("addressRequest", addressRequest);
         modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-        modelAndView.addObject("editAddressId", editAddressId);
+        modelAndView.addObject("editAddressId", editAddressId.toString());
 
         return modelAndView;
     }
@@ -84,7 +86,7 @@ public class AddressController {
 
     @PostMapping("/{editingAddressId}/edit")
     public ModelAndView updateAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                      @PathVariable String editingAddressId,
+                                      @PathVariable UUID editingAddressId,
                                       @Valid @ModelAttribute("addressRequest") AddressRequest addressRequest,
                                       BindingResult bindingResult,
                                       RedirectAttributes redirectAttributes) {
@@ -96,7 +98,7 @@ public class AddressController {
             modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
             modelAndView.addObject("addressRequest", addressRequest);
             modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-            modelAndView.addObject("editAddressId", editingAddressId);
+            modelAndView.addObject("editAddressId", editingAddressId.toString());
 
             return modelAndView;
         }
@@ -109,7 +111,7 @@ public class AddressController {
 
     @PostMapping("/{id}")
     public String deleteAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                @PathVariable String id,
+                                @PathVariable UUID id,
                                 RedirectAttributes redirectAttributes) {
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
@@ -120,7 +122,7 @@ public class AddressController {
 
     @PostMapping("/{id}/default")
     public String setDefaultAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                    @PathVariable String id,
+                                    @PathVariable UUID id,
                                     RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         addressService.setDefaultAddress(user, id);

@@ -244,7 +244,7 @@ public class AdminController {
     }
 
     @PostMapping("/couriers/toggle-status")
-    public ModelAndView toggleCourierStatus(
+    public ModelAndView toggleCourierActiveStatus(
             @Valid @ModelAttribute("courierEmailRequest") AdminEmailRequest courierEmailRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -260,8 +260,8 @@ public class AdminController {
             return modelAndView;
         }
 
-        courierService.toggleCourierStatus(courierEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "Courier status toggled successfully: " + courierEmailRequest.getEmail());
+        courierService.toggleCourierActiveStatus(courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Courier active status toggled successfully: " + courierEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/couriers");
     }
 }
