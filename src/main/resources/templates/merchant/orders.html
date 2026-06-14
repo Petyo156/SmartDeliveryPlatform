@@ -22,6 +22,9 @@
         <p>Review orders placed for your merchant.</p>
     </section>
 
+    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
     <section th:if="${orders == null || orders.isEmpty()}" class="orders-empty">
         <i class="fas fa-receipt"></i>
         <h2>No incoming orders</h2>
@@ -36,7 +39,9 @@
                     <h2 th:text="${order.clientName}">Customer</h2>
                 </div>
 
-                <span class="order-status" th:text="${order.status}">PENDING</span>
+                <span class="order-status"
+                      th:classappend="${order.status}"
+                      th:text="${order.status}">PENDING</span>
             </div>
 
             <div class="order-meta">
@@ -51,6 +56,11 @@
                 <p>
                     <i class="fas fa-store"></i>
                     <span th:text="${order.merchantAddress}">Merchant address</span>
+                </p>
+                <p>
+                    <i class="fas fa-motorcycle"></i>
+                    <span th:text="${order.courierName}">Courier</span>
+                    <span th:if="${order.courierAssigned}" th:text="${'(' + order.courierEmail + ')'}">courier@example.com</span>
                 </p>
             </div>
 
@@ -96,6 +106,33 @@
                th:href="@{/dashboard/merchant/orders/{orderNumber}(orderNumber=${order.orderNumber})}">
                 View details
             </a>
+
+            <div class="order-actions"
+                 th:if="${order.actions.canAcceptByMerchant || order.actions.canCancelByMerchant || order.actions.canMarkPreparingByMerchant || order.actions.canMarkPreparedByMerchant}">
+                <form th:if="${order.actions.canAcceptByMerchant}"
+                      th:action="@{/dashboard/merchant/orders/{orderNumber}/accept(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <button type="submit">Accept</button>
+                </form>
+
+                <form th:if="${order.actions.canMarkPreparingByMerchant}"
+                      th:action="@{/dashboard/merchant/orders/{orderNumber}/preparing(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <button type="submit">Mark preparing</button>
+                </form>
+
+                <form th:if="${order.actions.canMarkPreparedByMerchant}"
+                      th:action="@{/dashboard/merchant/orders/{orderNumber}/prepared(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <button type="submit">Mark prepared</button>
+                </form>
+
+                <form th:if="${order.actions.canCancelByMerchant}"
+                      th:action="@{/dashboard/merchant/orders/{orderNumber}/cancel(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <button type="submit" class="order-action-danger">Cancel</button>
+                </form>
+            </div>
         </article>
     </section>
 </main>

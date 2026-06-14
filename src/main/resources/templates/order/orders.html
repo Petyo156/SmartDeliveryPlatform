@@ -39,7 +39,9 @@
                     <h2 th:text="${order.merchantName}">Merchant</h2>
                 </div>
 
-                <span class="order-status" th:text="${order.status}">PENDING</span>
+                <span class="order-status"
+                      th:classappend="${order.status}"
+                      th:text="${order.status}">PENDING</span>
             </div>
 
             <div class="order-meta">
@@ -54,6 +56,11 @@
                 <p>
                     <i class="fas fa-store"></i>
                     <span th:text="${order.merchantAddress}">Merchant address</span>
+                </p>
+                <p>
+                    <i class="fas fa-motorcycle"></i>
+                    <span th:text="${order.courierName}">Courier</span>
+                    <span th:if="${order.courierAssigned}" th:text="${'(' + order.courierEmail + ')'}">courier@example.com</span>
                 </p>
             </div>
 

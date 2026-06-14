@@ -21,6 +21,9 @@
         <p>Order details and status history.</p>
     </section>
 
+    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
     <article class="order-card order-details-card">
         <div class="order-card-header">
             <div>
@@ -28,7 +31,9 @@
                 <h2 th:text="${order.status}">PENDING</h2>
             </div>
 
-            <span class="order-status" th:text="${order.paymentStatus}">PENDING</span>
+            <span class="order-status"
+                  th:classappend="${order.status}"
+                  th:text="${order.status}">PENDING</span>
         </div>
 
         <div class="order-details-grid">
@@ -41,6 +46,11 @@
                 <span>Customer</span>
                 <strong th:text="${order.clientName}">Customer</strong>
                 <p th:text="${order.deliveryAddress}">Delivery address</p>
+            </div>
+            <div>
+                <span>Courier</span>
+                <strong th:text="${order.courierName}">Courier</strong>
+                <p th:if="${order.courierAssigned}" th:text="${order.courierEmail}">courier@example.com</p>
             </div>
             <div>
                 <span>Created at</span>
@@ -77,6 +87,57 @@
                     euro
                 </strong>
             </div>
+        </div>
+
+        <div class="order-actions"
+             th:if="${order.actions.canAcceptByMerchant || order.actions.canCancelByMerchant || order.actions.canMarkPreparingByMerchant || order.actions.canMarkPreparedByMerchant || order.actions.canConfirmByCourier || order.actions.canDeclineByCourier || order.actions.canMarkOnTheWayByCourier || order.actions.canMarkDeliveredByCourier}">
+            <form th:if="${order.actions.canAcceptByMerchant}"
+                  th:action="@{/dashboard/merchant/orders/{orderNumber}/accept(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">Accept</button>
+            </form>
+
+            <form th:if="${order.actions.canMarkPreparingByMerchant}"
+                  th:action="@{/dashboard/merchant/orders/{orderNumber}/preparing(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">Mark preparing</button>
+            </form>
+
+            <form th:if="${order.actions.canMarkPreparedByMerchant}"
+                  th:action="@{/dashboard/merchant/orders/{orderNumber}/prepared(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">Mark prepared</button>
+            </form>
+
+            <form th:if="${order.actions.canCancelByMerchant}"
+                  th:action="@{/dashboard/merchant/orders/{orderNumber}/cancel(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit" class="order-action-danger">Cancel</button>
+            </form>
+
+            <form th:if="${order.actions.canConfirmByCourier}"
+                  th:action="@{/courier/orders/{orderNumber}/confirm(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">Confirm</button>
+            </form>
+
+            <form th:if="${order.actions.canDeclineByCourier}"
+                  th:action="@{/courier/orders/{orderNumber}/decline(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit" class="order-action-danger">Decline</button>
+            </form>
+
+            <form th:if="${order.actions.canMarkOnTheWayByCourier}"
+                  th:action="@{/courier/orders/{orderNumber}/on-the-way(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">On the way</button>
+            </form>
+
+            <form th:if="${order.actions.canMarkDeliveredByCourier}"
+                  th:action="@{/courier/orders/{orderNumber}/delivered(orderNumber=${order.orderNumber})}"
+                  method="post">
+                <button type="submit">Delivered</button>
+            </form>
         </div>
     </article>
 
@@ -123,7 +184,9 @@
 
         <div class="order-timeline">
             <div th:each="history : ${order.statusHistory}" class="order-timeline-item">
-                <span class="order-status" th:text="${history.status}">PENDING</span>
+                <span class="order-status"
+                      th:classappend="${history.status}"
+                      th:text="${history.status}">PENDING</span>
                 <div>
                     <strong th:text="${history.changedAt}">Changed at</strong>
                     <p th:if="${history.changedByName != null}" th:text="${history.changedByName}">Changed by</p>
