@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException;
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
+import org.tuvarna.smartdeliveryplatform.exception.CourierOrderWorkflowException;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
+import org.tuvarna.smartdeliveryplatform.exception.MerchantOrderWorkflowException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
@@ -69,12 +72,37 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler({
-            OrderOperationException.class
+            MerchantOrderWorkflowException.class,
+            CourierAssignmentException.class
     })
-    public String orderOperationFailed(RedirectAttributes redirectAttributes, OrderOperationException e) {
+    public String merchantOrderWorkflowFailed(RedirectAttributes redirectAttributes,
+                                              OrderOperationException e,
+                                              HttpServletRequest request) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
-        return "redirect:/cart";
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/dashboard/merchant/orders");
+    }
+
+    @ExceptionHandler({
+            CourierOrderWorkflowException.class
+    })
+    public String courierOrderWorkflowFailed(RedirectAttributes redirectAttributes,
+                                             CourierOrderWorkflowException e,
+                                             HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/courier/orders");
+    }
+
+    @ExceptionHandler({
+            OrderOperationException.class
+    })
+    public String orderOperationFailed(RedirectAttributes redirectAttributes,
+                                       OrderOperationException e,
+                                       HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/cart");
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

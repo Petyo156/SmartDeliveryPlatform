@@ -1,5 +1,5 @@
 package org.tuvarna.smartdeliveryplatform.exception;
 
 public class ExceptionMessages {
-    public static final String USER_WITH_EMAIL_DOESNT_EXIST = "User with given email does not exist";
+    public static final String NO_AVAILABLE_COURIER = "No available courier right now. Please try again shortly.";
 }
