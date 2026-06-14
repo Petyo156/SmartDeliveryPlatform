@@ -22,6 +22,9 @@ public class Courier {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 

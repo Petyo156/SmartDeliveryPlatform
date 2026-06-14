@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class CourierResponse {
     private String userEmail;
 
+    private Boolean isActive;
+
     private Boolean isAvailable;
 
     private Double currentLat;
