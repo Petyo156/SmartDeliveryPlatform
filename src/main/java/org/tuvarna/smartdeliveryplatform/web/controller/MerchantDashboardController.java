@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderWorkflowService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
@@ -26,17 +27,20 @@ import java.util.List;
 public class MerchantDashboardController {
     private final MerchantService merchantService;
     private final OrderService orderService;
+    private final OrderWorkflowService orderWorkflowService;
     private final AddressService addressService;
     private final UserService userService;
     private final RedirectUrlResolver redirectUrlResolver;
 
     public MerchantDashboardController(MerchantService merchantService,
                                        OrderService orderService,
+                                       OrderWorkflowService orderWorkflowService,
                                        AddressService addressService,
                                        UserService userService,
                                        RedirectUrlResolver redirectUrlResolver) {
         this.merchantService = merchantService;
         this.orderService = orderService;
+        this.orderWorkflowService = orderWorkflowService;
         this.addressService = addressService;
         this.userService = userService;
         this.redirectUrlResolver = redirectUrlResolver;
@@ -89,6 +93,50 @@ public class MerchantDashboardController {
         modelAndView.addObject("order", order);
 
         return modelAndView;
+    }
+
+    @PostMapping("/orders/{orderNumber}/accept")
+    public ModelAndView acceptOrder(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                    @PathVariable String orderNumber,
+                                    RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        orderWorkflowService.acceptByMerchant(orderNumber, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Order accepted and courier assigned.");
+
+        return new ModelAndView("redirect:/dashboard/merchant/orders/" + orderNumber);
+    }
+
+    @PostMapping("/orders/{orderNumber}/cancel")
+    public ModelAndView cancelOrder(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                    @PathVariable String orderNumber,
+                                    RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        orderWorkflowService.cancelByMerchant(orderNumber, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Order cancelled.");
+
+        return new ModelAndView("redirect:/dashboard/merchant/orders/" + orderNumber);
+    }
+
+    @PostMapping("/orders/{orderNumber}/preparing")
+    public ModelAndView markOrderPreparing(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                           @PathVariable String orderNumber,
+                                           RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        orderWorkflowService.markPreparingByMerchant(orderNumber, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Order marked as preparing.");
+
+        return new ModelAndView("redirect:/dashboard/merchant/orders/" + orderNumber);
+    }
+
+    @PostMapping("/orders/{orderNumber}/prepared")
+    public ModelAndView markOrderPrepared(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                          @PathVariable String orderNumber,
+                                          RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+        orderWorkflowService.markPreparedByMerchant(orderNumber, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Order marked as prepared.");
+
+        return new ModelAndView("redirect:/dashboard/merchant/orders/" + orderNumber);
     }
 
     @PostMapping("/toggle-closed-status")
