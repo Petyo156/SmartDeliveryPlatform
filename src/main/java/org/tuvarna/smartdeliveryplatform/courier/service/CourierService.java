@@ -20,12 +20,7 @@ public class CourierService {
 
     @Transactional
     public void createCourierForUser(User user) {
-        Courier courier = Courier.builder()
-                .user(user)
-                .isAvailable(true)
-                .currentLat(0.0)
-                .currentLng(0.0)
-                .build();
+        Courier courier = initializeCourier(user);
         courierRepository.save(courier);
     }
 
@@ -39,25 +34,62 @@ public class CourierService {
                 .orElseGet(() -> CourierResponse.builder().build());
     }
 
-    public Optional<Courier> getCourierByUserEmail(String email) {
-        return courierRepository.findCourierByUser_Email(email);
+    public boolean courierExistsForUserEmail(String email) {
+        return courierRepository.findCourierByUser_Email(email).isPresent();
+    }
+
+    public boolean courierCountMoreThanZero() {
+        return courierRepository.count() > 0;
     }
 
     @Transactional
-    public void toggleCourierStatus(String email) {
-        Courier courier = courierRepository.findCourierByUser_Email(email)
-                .orElseThrow(() -> new IllegalStateException("Courier with email '" + email + "' does not exist"));
-        courier.setIsAvailable(!courier.getIsAvailable());
+    public void toggleCourierActiveStatus(String email) {
+        Courier courier = getExistingCourierByUserEmail(email);
+        courier.setIsActive(!courier.getIsActive());
+        if (!courier.getIsActive()) {
+            courier.setIsAvailable(false);
+        }
         courierRepository.save(courier);
-        log.info("Toggled availability for courier {} to {}", email, courier.getIsAvailable());
+        log.info("Toggled active status for courier {} to {}", email, courier.getIsActive());
+    }
+
+    @Transactional
+    public void setCourierActiveStatus(String email, boolean isActive) {
+        Courier courier = getExistingCourierByUserEmail(email);
+        courier.setIsActive(isActive);
+        if (!isActive) {
+            courier.setIsAvailable(false);
+        }
+        courierRepository.save(courier);
+        log.info("Set active status for courier {} to {}", email, isActive);
     }
 
     private CourierResponse initializeCourierResponse(String searchEmail, Courier courier) {
         return CourierResponse.builder()
                 .userEmail(searchEmail)
+                .isActive(courier.getIsActive())
                 .isAvailable(courier.getIsAvailable())
                 .currentLng(courier.getCurrentLng())
                 .currentLat(courier.getCurrentLat())
+                .build();
+    }
+
+    private Optional<Courier> getCourierByUserEmail(String email) {
+        return courierRepository.findCourierByUser_Email(email);
+    }
+
+    private Courier getExistingCourierByUserEmail(String email) {
+        return getCourierByUserEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Courier with email '" + email + "' does not exist"));
+    }
+
+    private Courier initializeCourier(User user) {
+        return Courier.builder()
+                .user(user)
+                .isActive(true)
+                .isAvailable(true)
+                .currentLat(0.0)
+                .currentLng(0.0)
                 .build();
     }
 }
