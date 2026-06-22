@@ -19,6 +19,7 @@ public class ExceptionMessages {
     public static final String CHOOSE_SAVED_DELIVERY_ADDRESS = "Choose one of your saved delivery addresses.";
     public static final String CHECKOUT_ADDRESS_LIMIT_EXCEEDED = "You reached the maximum address limit. Delete an address before adding a new one.";
     public static final String DELIVERY_ADDRESS_FIELDS_REQUIRED = "City, street and building are required for delivery address.";
+    public static final String MINIMUM_ORDER_AMOUNT_REQUIRED = "Minimum order amount is %s euro, excluding delivery fee.";
     public static final String CART_IS_EMPTY = "Your cart is empty.";
     public static final String CART_ITEM_WAS_NOT_FOUND = "Cart item was not found.";
     public static final String CART_QUANTITY_MUST_BE_AT_LEAST_ONE = "Quantity must be at least 1.";

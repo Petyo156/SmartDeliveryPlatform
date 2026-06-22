@@ -63,10 +63,11 @@ public class OrderService {
         Merchant merchant = getMerchantFromCartItems(cartItems);
 
         validateMerchantCanAcceptOrders(merchant);
+        BigDecimal subtotal = calculateSubtotal(cartItems);
+        validateMinimumOrderAmount(subtotal);
 
         Address address = addressService.resolveCheckoutAddress(user, request);
         LocalDateTime localDateTime = LocalDateTime.now();
-        BigDecimal subtotal = calculateSubtotal(cartItems);
         Order order = createOrder(user, merchant, address, subtotal, localDateTime);
         List<OrderItem> orderItems = cartItems.stream()
                 .map(cartItem -> createOrderItem(order, cartItem))
@@ -170,6 +171,14 @@ public class OrderService {
     private BigDecimal calculateCartItemSubtotal(CartItem cartItem) {
         return cartItem.getProduct().getPrice()
                 .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+    }
+
+    private void validateMinimumOrderAmount(BigDecimal subtotal) {
+        if (subtotal.compareTo(OrderPricingService.MINIMUM_ORDER_AMOUNT) < 0) {
+            throw new OrderOperationException(
+                    ExceptionMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
+            );
+        }
     }
 
     private Order createOrder(User user, Merchant merchant, Address address, BigDecimal subtotal, LocalDateTime localDateTime) {
