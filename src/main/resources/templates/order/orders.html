@@ -22,7 +22,6 @@
     </section>
 
     <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
     <section th:if="${orders == null || orders.isEmpty()}" class="orders-empty">
         <i class="fas fa-receipt"></i>

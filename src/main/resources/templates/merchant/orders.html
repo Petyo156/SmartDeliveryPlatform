@@ -22,7 +22,6 @@
         <p>Review orders placed for your merchant.</p>
     </section>
 
-    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
     <section th:if="${orders == null || orders.isEmpty()}" class="orders-empty">
@@ -112,24 +111,28 @@
                 <form th:if="${order.actions.canAcceptByMerchant}"
                       th:action="@{/dashboard/merchant/orders/{orderNumber}/accept(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Accept</button>
                 </form>
 
                 <form th:if="${order.actions.canMarkPreparingByMerchant}"
                       th:action="@{/dashboard/merchant/orders/{orderNumber}/preparing(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Mark preparing</button>
                 </form>
 
                 <form th:if="${order.actions.canMarkPreparedByMerchant}"
                       th:action="@{/dashboard/merchant/orders/{orderNumber}/prepared(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Mark prepared</button>
                 </form>
 
                 <form th:if="${order.actions.canCancelByMerchant}"
                       th:action="@{/dashboard/merchant/orders/{orderNumber}/cancel(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit" class="order-action-danger">Cancel</button>
                 </form>
             </div>

@@ -55,6 +55,7 @@
                     <form th:action="@{'/addresses/' + ${address.id} + '/edit'}"
                           method="post"
                           th:object="${addressRequest}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                         <div class="input-group">
                             <input type="text"
@@ -107,6 +108,7 @@
 
                     <form th:action="@{'/addresses/' + ${address.id}}"
                           method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                         <button type="submit">
                             Delete
@@ -116,6 +118,7 @@
                     <form th:if="${!address.default}"
                           th:action="@{'/addresses/' + ${address.id} + '/default'}"
                           method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                         <button type="submit">
                             Set default
@@ -140,6 +143,7 @@
             <form th:action="@{/addresses}"
                   method="post"
                   th:object="${addressRequest}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                 <div class="input-group">
                     <input type="text"

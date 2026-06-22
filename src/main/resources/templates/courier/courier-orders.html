@@ -81,24 +81,28 @@
                 <form th:if="${order.actions.canConfirmByCourier}"
                       th:action="@{/courier/orders/{orderNumber}/confirm(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Confirm</button>
                 </form>
 
                 <form th:if="${order.actions.canDeclineByCourier}"
                       th:action="@{/courier/orders/{orderNumber}/decline(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit" class="order-action-danger">Decline</button>
                 </form>
 
                 <form th:if="${order.actions.canMarkOnTheWayByCourier}"
                       th:action="@{/courier/orders/{orderNumber}/on-the-way(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">On the way</button>
                 </form>
 
                 <form th:if="${order.actions.canMarkDeliveredByCourier}"
                       th:action="@{/courier/orders/{orderNumber}/delivered(orderNumber=${order.orderNumber})}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">Delivered</button>
                 </form>
             </div>

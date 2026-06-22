@@ -25,9 +25,10 @@
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
         <form th:action="@{/dashboard/merchant/my-shop}" method="post" th:object="${merchantProfileRequest}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <div class="input-group">
                 <label for="name">Shop Name</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="Enter shop name" required/>
+                <input type="text" id="name" th:field="*{name}" placeholder="Enter shop name"/>
                 <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></div>
             </div>
 
@@ -39,7 +40,7 @@
 
             <div class="input-group">
                 <label for="addressId">Address</label>
-                <select id="addressId" th:field="*{addressId}" required>
+                <select id="addressId" th:field="*{addressId}">
                     <option value="">-- Select Address --</option>
                     <option th:each="addr : ${merchantAddressResponses}"
                             th:value="${addr.id}"
@@ -51,7 +52,7 @@
 
             <div class="input-group">
                 <label for="image-url">Image Url</label>
-                <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url" required/>
+                <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url"/>
                 <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error-message"></div>
             </div>
 
