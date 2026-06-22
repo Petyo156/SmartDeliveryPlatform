@@ -14,6 +14,7 @@ import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 import org.tuvarna.smartdeliveryplatform.shared.utils.SlugUtil;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
@@ -64,6 +65,7 @@ public class MerchantService {
         Merchant merchant = getMerchantOptionalByUserEmail(email)
                 .orElseThrow(() -> new MerchantOperationException(ExceptionMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
         merchant.setIsActive(!merchant.getIsActive());
+        updateLinkedUserStatusFromMerchantStatus(merchant);
         if (!merchant.getIsActive()) {
             merchant.setIsClosed(true);
         }
@@ -191,6 +193,11 @@ public class MerchantService {
                 .createdAt(LocalDateTime.now())
                 .imageUrl(merchantRequest.getImageUrl())
                 .build();
+    }
+
+    private void updateLinkedUserStatusFromMerchantStatus(Merchant merchant) {
+        UserStatus linkedUserStatus = merchant.getIsActive() ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+        merchant.getUser().setStatus(linkedUserStatus);
     }
 
     private MerchantResponse initializeMerchantResponse(String searchEmail, Merchant merchant) {

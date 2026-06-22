@@ -10,6 +10,7 @@ import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.CourierResponse;
 import java.util.Optional;
@@ -51,6 +52,7 @@ public class CourierService {
     public void toggleCourierActiveStatus(String email) {
         Courier courier = getExistingCourierByUserEmail(email);
         courier.setIsActive(!courier.getIsActive());
+        updateLinkedUserStatusFromCourierStatus(courier);
         if (!courier.getIsActive()) {
             courier.setIsAvailable(false);
         }
@@ -115,6 +117,11 @@ public class CourierService {
     private Courier getRequiredCourierByUserEmail(String email) {
         return getCourierByUserEmail(email)
                 .orElseThrow(() -> new SystemOperationException(ExceptionMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
+    }
+
+    private void updateLinkedUserStatusFromCourierStatus(Courier courier) {
+        UserStatus linkedUserStatus = courier.getIsActive() ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+        courier.getUser().setStatus(linkedUserStatus);
     }
 
     private Courier initializeCourier(User user) {

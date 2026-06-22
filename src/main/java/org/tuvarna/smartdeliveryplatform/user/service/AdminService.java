@@ -43,8 +43,8 @@ public class AdminService {
         User user = getExistingUserByEmail(email);
         user.setStatus(status);
         userRepository.save(user);
-        updateMerchantStatusIfNeeded(user, status);
-        updateCourierStatusIfNeeded(user, status);
+        deactivateMerchantIfUserIsNotActive(user, status);
+        deactivateCourierIfUserIsNotActive(user, status);
         log.info("Updated status for user {} to {}", email, status);
     }
 
@@ -150,20 +150,20 @@ public class AdminService {
         return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
     }
 
-    private void updateMerchantStatusIfNeeded(User user, UserStatus status) {
-        if (user.getRole() != UserRole.MERCHANT) {
+    private void deactivateMerchantIfUserIsNotActive(User user, UserStatus status) {
+        if (user.getRole() != UserRole.MERCHANT || status == UserStatus.ACTIVE) {
             return;
         }
 
-        merchantService.setMerchantActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+        merchantService.setMerchantActiveStatus(user.getEmail(), false);
     }
 
-    private void updateCourierStatusIfNeeded(User user, UserStatus status) {
-        if (user.getRole() != UserRole.COURIER) {
+    private void deactivateCourierIfUserIsNotActive(User user, UserStatus status) {
+        if (user.getRole() != UserRole.COURIER || status == UserStatus.ACTIVE) {
             return;
         }
 
-        courierService.setCourierActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+        courierService.setCourierActiveStatus(user.getEmail(), false);
     }
 
     private User getExistingUserByEmail(String email) {
