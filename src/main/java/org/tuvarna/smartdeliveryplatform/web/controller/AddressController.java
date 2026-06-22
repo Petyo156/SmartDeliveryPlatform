@@ -3,9 +3,9 @@ package org.tuvarna.smartdeliveryplatform.web.controller;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
@@ -13,100 +13,92 @@ import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
+import org.tuvarna.smartdeliveryplatform.web.util.FlashValidationAttributes;
 
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/addresses")
 public class AddressController {
-
     private final AddressService addressService;
     private final UserService userService;
+    private final FlashValidationAttributes flashValidationAttributes;
 
-    public AddressController(AddressService addressService, UserService userService) {
+    public AddressController(AddressService addressService,
+                             UserService userService,
+                             FlashValidationAttributes flashValidationAttributes) {
         this.addressService = addressService;
         this.userService = userService;
+        this.flashValidationAttributes = flashValidationAttributes;
     }
 
-    @GetMapping()
-    public ModelAndView getAddressesPage(
-            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
-        ModelAndView modelAndView = new ModelAndView("profile/addresses");
+    @GetMapping
+    public String getAddressesPage(
+            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+            Model model) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         AddressRequest addressRequest = AddressRequest.builder().build();
 
-        modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
-        modelAndView.addObject("addressRequest", addressRequest);
-        modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-        modelAndView.addObject("editAddressId", null);
+        model.addAttribute("addresses", addressService.getAllAddressResponsesForUser(user));
+        flashValidationAttributes.addModelAttributeIfMissing(model, "addressRequest", addressRequest);
+        model.addAttribute("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
+        model.addAttribute("editAddressId", null);
 
-        return modelAndView;
+        return "profile/addresses";
     }
 
     @GetMapping("/{editAddressId}/edit")
-    public ModelAndView getEditAddressPage(
+    public String getEditAddressPage(
             @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-            @PathVariable UUID editAddressId) {
-        ModelAndView modelAndView = new ModelAndView("profile/addresses");
+            @PathVariable UUID editAddressId,
+            Model model) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         UserAddressResponse addressResponse = addressService.getAddressResponse(editAddressId, user);
         AddressRequest addressRequest = addressService.initializeAddressEditRequest(addressResponse);
 
-        modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
-        modelAndView.addObject("addressRequest", addressRequest);
-        modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-        modelAndView.addObject("editAddressId", editAddressId.toString());
+        model.addAttribute("addresses", addressService.getAllAddressResponsesForUser(user));
+        flashValidationAttributes.addModelAttributeIfMissing(model, "addressRequest", addressRequest);
+        model.addAttribute("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
+        model.addAttribute("editAddressId", editAddressId.toString());
 
-        return modelAndView;
+        return "profile/addresses";
     }
 
-    @PostMapping()
-    public ModelAndView createAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                      @Valid @ModelAttribute("addressRequest") AddressRequest request,
-                                      BindingResult bindingResult,
-                                      RedirectAttributes redirectAttributes) {
+    @PostMapping
+    public String createAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                @Valid @ModelAttribute("addressRequest") AddressRequest request,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
 
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView("profile/addresses");
-
-            modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
-            modelAndView.addObject("addressRequest", request);
-            modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-            modelAndView.addObject("editAddressId", null);
-
-            return modelAndView;
+            flashValidationAttributes.addValidationFlashAttribute(redirectAttributes, "addressRequest", request, bindingResult);
+            return "redirect:/addresses";
         }
 
         addressService.addAddress(user, request);
         redirectAttributes.addFlashAttribute("successMessage", "Address added successfully!");
 
-        return new ModelAndView("redirect:/addresses");
+        return "redirect:/addresses";
     }
 
     @PostMapping("/{editingAddressId}/edit")
-    public ModelAndView updateAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                      @PathVariable UUID editingAddressId,
-                                      @Valid @ModelAttribute("addressRequest") AddressRequest addressRequest,
-                                      BindingResult bindingResult,
-                                      RedirectAttributes redirectAttributes) {
+    public String updateAddress(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                @PathVariable UUID editingAddressId,
+                                @Valid @ModelAttribute("addressRequest") AddressRequest addressRequest,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
 
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView("profile/addresses");
-
-            modelAndView.addObject("addresses", addressService.getAllAddressResponsesForUser(user));
-            modelAndView.addObject("addressRequest", addressRequest);
-            modelAndView.addObject("canAddMoreAddresses", addressService.canAddMoreAddresses(user));
-            modelAndView.addObject("editAddressId", editingAddressId.toString());
-
-            return modelAndView;
+            flashValidationAttributes.addValidationFlashAttribute(redirectAttributes, "addressRequest", addressRequest, bindingResult);
+            return "redirect:/addresses/" + editingAddressId + "/edit";
         }
 
         addressService.updateAddress(user, editingAddressId, addressRequest);
         redirectAttributes.addFlashAttribute("successMessage", "Address updated successfully!");
 
-        return new ModelAndView("redirect:/addresses");
+        return "redirect:/addresses";
     }
 
     @PostMapping("/{id}")

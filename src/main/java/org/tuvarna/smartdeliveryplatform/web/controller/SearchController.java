@@ -1,10 +1,10 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.tuvarna.smartdeliveryplatform.merchant.service.SearchService;
 import org.tuvarna.smartdeliveryplatform.web.dto.search.SearchResponse;
 
@@ -19,36 +19,32 @@ public class SearchController {
     }
 
     @GetMapping
-    public ModelAndView searchAll(@RequestParam(required = false) String q) {
-        ModelAndView modelAndView = new ModelAndView("home/search-results");
+    public String searchAll(@RequestParam(required = false) String q, Model model) {
         SearchResponse searchResponse = searchService.searchAll(q);
 
-        modelAndView.addObject("searchResponse", searchResponse);
-        modelAndView.addObject("searchQuery", q);
+        model.addAttribute("searchResponse", searchResponse);
+        model.addAttribute("searchQuery", q);
 
-        return modelAndView;
+        return "home/search-results";
     }
 
     @GetMapping("/restaurants")
-    public ModelAndView searchRestaurants(@RequestParam(required = false) String q) {
-        ModelAndView modelAndView = new ModelAndView("home/search-results-restaurants");
+    public String searchRestaurants(@RequestParam(required = false) String q, Model model) {
         SearchResponse searchResponse = searchService.searchRestaurants(q);
 
-        modelAndView.addObject("searchResponse", searchResponse);
-        modelAndView.addObject("searchQuery", q);
+        model.addAttribute("searchResponse", searchResponse);
+        model.addAttribute("searchQuery", q);
 
-        return modelAndView;
+        return "home/search-results-restaurants";
     }
 
     @GetMapping("/shops")
-    public ModelAndView searchShops(@RequestParam(required = false) String q) {
-        ModelAndView modelAndView = new ModelAndView("home/search-results-shops");
+    public String searchShops(@RequestParam(required = false) String q, Model model) {
         SearchResponse searchResponse = searchService.searchShops(q);
 
-        modelAndView.addObject("searchResponse", searchResponse);
-        modelAndView.addObject("searchQuery", q);
+        model.addAttribute("searchResponse", searchResponse);
+        model.addAttribute("searchQuery", q);
 
-        return modelAndView;
+        return "home/search-results-shops";
     }
 }
-

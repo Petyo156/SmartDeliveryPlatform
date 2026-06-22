@@ -30,7 +30,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/", "/register", "/restaurants/**", "/shops/**", "/search/**", "/merchant/**",
                                       "/about", "/contact", "/faq", "/privacy", "/contact/submit",
-                                      "/careers", "/shipping", "/terms", "/cookies", "/error/404").permitAll()
+                                      "/careers", "/shipping", "/terms", "/cookies", "/error").permitAll()
                         .requestMatchers("/dashboard/merchant/**", "/products/**", "/category/**").hasRole("MERCHANT")
                         .requestMatchers("/courier/**").hasRole("COURIER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -44,8 +44,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .permitAll())
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                            request.getRequestDispatcher("/error/404").forward(request, response);
+                            response.sendError(HttpServletResponse.SC_NOT_FOUND);
                         }))
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
