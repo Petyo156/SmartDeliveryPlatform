@@ -25,7 +25,7 @@
         <form th:action="@{/register}" method="post" th:object="${registerRequest}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <div class="input-group">
-                <input type="email" th:field="*{userRegisterRequest.email}" placeholder="Email"/>
+                <input type="text" th:field="*{userRegisterRequest.email}" placeholder="Email"/>
                 <div th:if="${#fields.hasErrors('userRegisterRequest.email')}"
                      th:errors="*{userRegisterRequest.email}"
                      class="error-message">
