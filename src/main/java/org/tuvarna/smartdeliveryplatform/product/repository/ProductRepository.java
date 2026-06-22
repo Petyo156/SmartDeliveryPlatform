@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
       AND m.isActive = true
       AND m.type = :type
       AND LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
-    ORDER BY m.createdAt DESC
+    ORDER BY m.isClosed ASC, m.createdAt DESC
 """)
     List<Merchant> findMerchantsByProductNameMatchAndType(
             @Param("query") String query,
@@ -49,7 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
       AND p.isDeleted = false
       AND p.merchant.isActive = true
       AND LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
-    ORDER BY p.merchant.createdAt DESC
+    ORDER BY p.merchant.isClosed ASC, p.merchant.createdAt DESC
 """)
     List<Merchant> findMerchantsByProductNameMatch(@Param("query") String query);
 }

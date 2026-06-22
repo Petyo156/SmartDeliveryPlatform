@@ -128,7 +128,7 @@ public class CourierService {
         return Courier.builder()
                 .user(user)
                 .isActive(true)
-                .isAvailable(true)
+                .isAvailable(false)
                 .currentLat(0.0)
                 .currentLng(0.0)
                 .build();
