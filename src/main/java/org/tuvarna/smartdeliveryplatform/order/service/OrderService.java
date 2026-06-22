@@ -7,6 +7,7 @@ import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.CartItem;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
@@ -150,11 +151,11 @@ public class OrderService {
 
     private void validateMerchantCanAcceptOrders(Merchant merchant) {
         if (!Boolean.TRUE.equals(merchant.getIsActive())) {
-            throw new OrderOperationException("This merchant is not available.");
+            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE);
         }
 
         if (Boolean.TRUE.equals(merchant.getIsClosed())) {
-            throw new OrderOperationException("This merchant is currently closed.");
+            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED);
         }
     }
 

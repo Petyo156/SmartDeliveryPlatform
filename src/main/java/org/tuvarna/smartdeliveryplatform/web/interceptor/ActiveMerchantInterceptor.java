@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
@@ -33,6 +34,6 @@ public class ActiveMerchantInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        throw new InactiveMerchantAccessException("Your merchant account is inactive.");
+        throw new InactiveMerchantAccessException(ExceptionMessages.INACTIVE_MERCHANT_ACCOUNT);
     }
 }

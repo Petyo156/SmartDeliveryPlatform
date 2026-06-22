@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 import org.tuvarna.smartdeliveryplatform.courier.repository.CourierRepository;
+import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.CourierResponse;
 import java.util.Optional;
@@ -55,7 +58,7 @@ public class CourierService {
 
     @Transactional
     public void setCourierActiveStatus(String email, boolean isActive) {
-        Courier courier = getExistingCourierByUserEmail(email);
+        Courier courier = getRequiredCourierByUserEmail(email);
         courier.setIsActive(isActive);
         if (!isActive) {
             courier.setIsAvailable(false);
@@ -80,7 +83,12 @@ public class CourierService {
 
     private Courier getExistingCourierByUserEmail(String email) {
         return getCourierByUserEmail(email)
-                .orElseThrow(() -> new IllegalStateException("Courier with email '" + email + "' does not exist"));
+                .orElseThrow(() -> new CourierOperationException(ExceptionMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
+    }
+
+    private Courier getRequiredCourierByUserEmail(String email) {
+        return getCourierByUserEmail(email)
+                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
     }
 
     private Courier initializeCourier(User user) {

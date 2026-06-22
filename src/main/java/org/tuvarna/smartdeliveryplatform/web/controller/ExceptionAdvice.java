@@ -5,18 +5,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.tuvarna.smartdeliveryplatform.exception.AddressOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.AdminOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException;
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
+import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOrderWorkflowException;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
+import org.tuvarna.smartdeliveryplatform.exception.MerchantOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantOrderWorkflowException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
+import org.tuvarna.smartdeliveryplatform.exception.ProductOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.UserOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
+import org.tuvarna.smartdeliveryplatform.exception.UserWithPhoneNumberAlreadyExistsException;
 import org.tuvarna.smartdeliveryplatform.web.util.RedirectUrlResolver;
 
 @ControllerAdvice
@@ -45,6 +56,17 @@ public class ExceptionAdvice {
         redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
 
         return "redirect:/register";
+    }
+
+    @ExceptionHandler({
+            UserWithPhoneNumberAlreadyExistsException.class
+    })
+    public String userWithThisPhoneNumberAlreadyExists(RedirectAttributes redirectAttributes,
+                                                       UserWithPhoneNumberAlreadyExistsException e,
+                                                       HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, request.getRequestURI());
     }
 
     @ExceptionHandler({
@@ -105,7 +127,83 @@ public class ExceptionAdvice {
         return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/cart");
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler({
+            ProductOperationException.class,
+            CategoryOperationException.class
+    })
+    public String productCatalogOperationFailed(RedirectAttributes redirectAttributes,
+                                                RuntimeException e,
+                                                HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/products");
+    }
+
+    @ExceptionHandler({
+            AddressOperationException.class
+    })
+    public String addressOperationFailed(RedirectAttributes redirectAttributes,
+                                         AddressOperationException e,
+                                         HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/addresses");
+    }
+
+    @ExceptionHandler({
+            AdminOperationException.class
+    })
+    public String adminOperationFailed(RedirectAttributes redirectAttributes,
+                                       AdminOperationException e,
+                                       HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/admin/users");
+    }
+
+    @ExceptionHandler({
+            CourierOperationException.class
+    })
+    public String courierOperationFailed(RedirectAttributes redirectAttributes,
+                                         CourierOperationException e,
+                                         HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/admin/couriers");
+    }
+
+    @ExceptionHandler({
+            MerchantOperationException.class
+    })
+    public String merchantOperationFailed(RedirectAttributes redirectAttributes,
+                                          MerchantOperationException e,
+                                          HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/admin/merchants");
+    }
+
+    @ExceptionHandler({
+            UserOperationException.class
+    })
+    public String userOperationFailed(RedirectAttributes redirectAttributes,
+                                      UserOperationException e,
+                                      HttpServletRequest request) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/register");
+    }
+
+    @ExceptionHandler({
+            SystemOperationException.class
+    })
+    public ModelAndView systemOperationFailed(SystemOperationException e) {
+        ModelAndView modelAndView = new ModelAndView("exception/server-error");
+        modelAndView.addObject("errorTitle", ExceptionMessages.SERVER_ERROR_TITLE);
+        modelAndView.addObject("errorMessage", e.getMessage());
+        return modelAndView;
+    }
+
     @ExceptionHandler({
             InactiveMerchantAccessException.class,
             MerchantNotFoundException.class,
