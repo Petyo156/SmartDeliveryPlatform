@@ -13,6 +13,7 @@ import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOrderWorkflowException;
+import org.tuvarna.smartdeliveryplatform.exception.InactiveCourierAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantOperationException;
@@ -202,6 +203,7 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler({
+            InactiveCourierAccessException.class,
             InactiveMerchantAccessException.class,
             MerchantNotFoundException.class,
             OrderNotFoundException.class

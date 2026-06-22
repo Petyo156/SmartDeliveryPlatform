@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -14,10 +15,14 @@ import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 public class GlobalModelAttributes {
 
     private final MerchantService merchantService;
+    private final CourierService courierService;
     private final UserService userService;
 
-    public GlobalModelAttributes(MerchantService merchantService, UserService userService) {
+    public GlobalModelAttributes(MerchantService merchantService,
+                                 CourierService courierService,
+                                 UserService userService) {
         this.merchantService = merchantService;
+        this.courierService = courierService;
         this.userService = userService;
     }
 
@@ -49,6 +54,26 @@ public class GlobalModelAttributes {
         }
 
         return merchantService.merchantIsActive(authMeta.getUsername());
+    }
+
+    @ModelAttribute("courierIsAvailable")
+    public boolean courierAvailable() {
+        AuthenticationMetadata authMeta = getAuthenticationMetadata();
+        if (authMeta == null || authMeta.getRole() != UserRole.COURIER) {
+            return false;
+        }
+
+        return courierService.courierIsAvailable(authMeta);
+    }
+
+    @ModelAttribute("courierIsActive")
+    public boolean courierActive() {
+        AuthenticationMetadata authMeta = getAuthenticationMetadata();
+        if (authMeta == null || authMeta.getRole() != UserRole.COURIER) {
+            return false;
+        }
+
+        return courierService.courierIsActive(authMeta.getUsername());
     }
 
     private AuthenticationMetadata getAuthenticationMetadata() {

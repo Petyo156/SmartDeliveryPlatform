@@ -6,19 +6,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
-import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
-import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
+import org.tuvarna.smartdeliveryplatform.exception.InactiveCourierAccessException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 
 @Component
-public class ActiveMerchantInterceptor implements HandlerInterceptor {
+public class ActiveCourierInterceptor implements HandlerInterceptor {
 
-    private final MerchantService merchantService;
+    private final CourierService courierService;
 
-    public ActiveMerchantInterceptor(MerchantService merchantService) {
-        this.merchantService = merchantService;
+    public ActiveCourierInterceptor(CourierService courierService) {
+        this.courierService = courierService;
     }
 
     @Override
@@ -26,14 +26,14 @@ public class ActiveMerchantInterceptor implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication == null ? null : authentication.getPrincipal();
 
-        if (!(principal instanceof AuthenticationMetadata authMeta) || authMeta.getRole() != UserRole.MERCHANT) {
+        if (!(principal instanceof AuthenticationMetadata authMeta) || authMeta.getRole() != UserRole.COURIER) {
             return true;
         }
 
-        if (merchantService.merchantIsActive(authMeta.getUsername())) {
+        if (courierService.courierIsActive(authMeta.getUsername())) {
             return true;
         }
 
-        throw new InactiveMerchantAccessException(ExceptionMessages.INACTIVE_MERCHANT_ACCOUNT);
+        throw new InactiveCourierAccessException(ExceptionMessages.INACTIVE_COURIER_ACCOUNT);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveCourierInterceptor;
 import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveMerchantInterceptor;
 
 @Configuration
@@ -17,9 +18,12 @@ import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveMerchantIntercept
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final ActiveMerchantInterceptor activeMerchantInterceptor;
+    private final ActiveCourierInterceptor activeCourierInterceptor;
 
-    public WebMvcConfiguration(ActiveMerchantInterceptor activeMerchantInterceptor) {
+    public WebMvcConfiguration(ActiveMerchantInterceptor activeMerchantInterceptor,
+                               ActiveCourierInterceptor activeCourierInterceptor) {
         this.activeMerchantInterceptor = activeMerchantInterceptor;
+        this.activeCourierInterceptor = activeCourierInterceptor;
     }
 
     @Bean
@@ -58,5 +62,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(activeMerchantInterceptor)
                 .addPathPatterns("/dashboard/merchant/**", "/products/**", "/category/**");
+        registry.addInterceptor(activeCourierInterceptor)
+                .addPathPatterns("/courier/**");
     }
 }

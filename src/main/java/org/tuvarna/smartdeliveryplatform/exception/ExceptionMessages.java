@@ -10,6 +10,7 @@ public class ExceptionMessages {
     public static final String MERCHANT_IS_NOT_AVAILABLE = "This merchant is not available.";
     public static final String MERCHANT_IS_CURRENTLY_CLOSED = "This merchant is currently closed.";
     public static final String INACTIVE_MERCHANT_ACCOUNT = "Your merchant account is inactive.";
+    public static final String INACTIVE_COURIER_ACCOUNT = "Your courier account is inactive.";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String ADDRESS_NOT_FOUND_WITH_ID = "Address not found with id: %s";
     public static final String MAX_ADDRESS_LIMIT_EXCEEDED = "Maximum address limit of addresses exceeded";

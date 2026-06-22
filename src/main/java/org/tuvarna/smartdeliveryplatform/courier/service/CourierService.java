@@ -8,6 +8,8 @@ import org.tuvarna.smartdeliveryplatform.courier.repository.CourierRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
+import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.CourierResponse;
 import java.util.Optional;
@@ -65,6 +67,30 @@ public class CourierService {
         }
         courierRepository.save(courier);
         log.info("Set active status for courier {} to {}", email, isActive);
+    }
+
+    @Transactional
+    public void toggleCourierAvailability(String email) {
+        Courier courier = getExistingCourierByUserEmail(email);
+        courier.setIsAvailable(!courier.getIsAvailable());
+        courierRepository.save(courier);
+        log.info("Toggled availability for courier {} to {}", email, courier.getIsAvailable());
+    }
+
+    public boolean courierIsAvailable(AuthenticationMetadata authenticationMetadata) {
+        if (authenticationMetadata == null || authenticationMetadata.getRole() != UserRole.COURIER) {
+            return false;
+        }
+
+        return getCourierByUserEmail(authenticationMetadata.getUsername())
+                .map(Courier::getIsAvailable)
+                .orElse(false);
+    }
+
+    public boolean courierIsActive(String email) {
+        return getCourierByUserEmail(email)
+                .map(Courier::getIsActive)
+                .orElse(false);
     }
 
     private CourierResponse initializeCourierResponse(String searchEmail, Courier courier) {

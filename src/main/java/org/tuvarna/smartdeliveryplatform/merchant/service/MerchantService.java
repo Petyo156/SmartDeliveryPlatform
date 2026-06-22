@@ -105,10 +105,6 @@ public class MerchantService {
     }
 
     public boolean merchantIsClosedStatus(AuthenticationMetadata authenticationMetadata) {
-        if (null == authenticationMetadata) {
-            return false;
-        }
-
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         if (user == null || user.getRole() != UserRole.MERCHANT) {
             return false;
