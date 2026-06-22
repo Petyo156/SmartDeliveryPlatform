@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
+import org.tuvarna.smartdeliveryplatform.web.validation.ValidOrderPlacement;
 
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidOrderPlacement
 public class OrderPlacementRequest {
     @NotNull(message = "Delivery address option is required.")
     private CheckoutAddressMode addressMode;

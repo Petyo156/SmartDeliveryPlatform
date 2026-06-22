@@ -48,11 +48,16 @@ public class MerchantDashboardController {
 
     @GetMapping("/my-shop")
     public ModelAndView getMyShopPage(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+        MerchantProfileRequest merchantProfileRequest = merchantService.getMerchantProfileRequest(authenticationMetadata.getUsername());
+        return initializeMyShopPage(authenticationMetadata, merchantProfileRequest);
+    }
+
+    private ModelAndView initializeMyShopPage(AuthenticationMetadata authenticationMetadata,
+                                             MerchantProfileRequest merchantProfileRequest) {
         ModelAndView modelAndView = new ModelAndView("merchant/merchant");
 
         User user = userService.getUserByEmail(authenticationMetadata.getUsername());
         List<MerchantAddressResponse> merchantAddressResponses = addressService.getAllAddressesForMerchant(user);
-        MerchantProfileRequest merchantProfileRequest = merchantService.getMerchantProfileRequest(user.getEmail());
 
         modelAndView.addObject("merchantProfileRequest", merchantProfileRequest);
         modelAndView.addObject("merchantAddressResponses", merchantAddressResponses);
@@ -62,11 +67,11 @@ public class MerchantDashboardController {
 
     @PostMapping("/my-shop")
     public ModelAndView updateMyShop(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                               @Valid @ModelAttribute("merchantProfile") MerchantProfileRequest request,
+                               @Valid @ModelAttribute("merchantProfileRequest") MerchantProfileRequest request,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("redirect:/dashboard/merchant/my-shop");
+            return initializeMyShopPage(authenticationMetadata, request);
         }
 
         merchantService.updateMerchantProfile(authenticationMetadata, request);

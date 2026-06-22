@@ -12,6 +12,7 @@ import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.product.service.ProductService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.products.ProductRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.products.ProductResponse;
@@ -59,8 +60,8 @@ public class ProductController {
         modelAndView.addObject("globalCategories", globalCategories);
         modelAndView.addObject("merchantCategories", merchantCategories);
         modelAndView.addObject("productRequest", productRequest);
+        modelAndView.addObject("categoryRequest", CategoryRequest.builder().build());
         modelAndView.addObject("editProductSlug", editProductSlug);
-        modelAndView.addObject("categoryName", "");
 
         return modelAndView;
     }

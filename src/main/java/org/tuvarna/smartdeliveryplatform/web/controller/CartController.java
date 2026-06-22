@@ -52,18 +52,7 @@ public class CartController {
     @GetMapping
     public ModelAndView getCart(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
-        CartResponse cart = cartService.getCartResponse(user);
-        List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
-        boolean canAddMoreAddresses = addressService.canAddMoreAddresses(user);
-        OrderPlacementRequest orderPlacementRequest = orderService.initializeOrderPlacementRequest(addresses);
-
-        ModelAndView modelAndView = new ModelAndView("cart/cart");
-        modelAndView.addObject("cart", cart);
-        modelAndView.addObject("addresses", addresses);
-        modelAndView.addObject("canAddMoreAddresses", canAddMoreAddresses);
-        modelAndView.addObject("quantityRequest", UpdateCartItemQuantityRequest.builder().build());
-        modelAndView.addObject("orderPlacementRequest", orderPlacementRequest);
-        return modelAndView;
+        return initializeCartPage(user, null);
     }
 
     @PostMapping("/items")
@@ -131,17 +120,35 @@ public class CartController {
 
     @PostMapping("/place-order")
     public ModelAndView placeOrder(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                   @Valid @ModelAttribute OrderPlacementRequest request,
+                                   @Valid @ModelAttribute("orderPlacementRequest") OrderPlacementRequest request,
                                    BindingResult bindingResult,
                                    RedirectAttributes redirectAttributes) {
+        User user = userService.getAuthenticatedUser(authenticationMetadata);
+
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Choose a delivery address before placing your order.");
-            return new ModelAndView("redirect:/cart");
+            return initializeCartPage(user, request);
         }
 
-        User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderService.placeOrder(user, request);
         redirectAttributes.addFlashAttribute("successMessage", "Order placed successfully.");
         return new ModelAndView("redirect:/orders");
+    }
+
+    private ModelAndView initializeCartPage(User user, OrderPlacementRequest orderPlacementRequest) {
+        CartResponse cart = cartService.getCartResponse(user);
+        List<UserAddressResponse> addresses = addressService.getAllAddressResponsesForUser(user);
+        boolean canAddMoreAddresses = addressService.canAddMoreAddresses(user);
+
+        if (orderPlacementRequest == null) {
+            orderPlacementRequest = orderService.initializeOrderPlacementRequest(addresses);
+        }
+
+        ModelAndView modelAndView = new ModelAndView("cart/cart");
+        modelAndView.addObject("cart", cart);
+        modelAndView.addObject("addresses", addresses);
+        modelAndView.addObject("canAddMoreAddresses", canAddMoreAddresses);
+        modelAndView.addObject("quantityRequest", UpdateCartItemQuantityRequest.builder().build());
+        modelAndView.addObject("orderPlacementRequest", orderPlacementRequest);
+        return modelAndView;
     }
 }

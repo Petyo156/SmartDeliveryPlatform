@@ -44,7 +44,6 @@ public class ProfileController {
                                       RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView("profile/profile");
-            User user = userService.getAuthenticatedUser(authenticationMetadata);
             modelAndView.addObject("profileRequest", profileRequest);
             return modelAndView;
         }
