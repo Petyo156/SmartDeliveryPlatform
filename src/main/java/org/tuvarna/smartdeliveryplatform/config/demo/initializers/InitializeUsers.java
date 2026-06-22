@@ -51,7 +51,7 @@ public class InitializeUsers implements CommandLineRunner {
                 .email(demoUserRequest.getEmail())
                 .firstName(demoUserRequest.getFirstName())
                 .lastName(demoUserRequest.getLastName())
-                .phoneNumber(DemoDataConstants.DEMO_PHONE)
+                .phoneNumber(demoUserRequest.getPhoneNumber())
                 .password(DemoDataConstants.DEMO_PASSWORD)
                 .confirmPassword(DemoDataConstants.DEMO_PASSWORD)
                 .build();
@@ -62,52 +62,62 @@ public class InitializeUsers implements CommandLineRunner {
                 new DemoUserRequest(
                         DemoDataConstants.USER1_EMAIL,
                         "Petar",
-                        "Petrov"
+                        "Petrov",
+                        "0000000001"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.USER2_EMAIL,
                         "Koko",
-                        "Kolev"
+                        "Kolev",
+                        "0000000002"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.COURIER1_EMAIL,
                         "Kurier",
-                        "Kurierov"
+                        "Kurierov",
+                        "0000000003"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.COURIER2_EMAIL,
                         "Courier",
-                        "Courierv"
+                        "Courierv",
+                        "0000000004"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.RESTAURANT_PIZZA_HEAVEN_EMAIL,
                         "Pizza",
-                        "Heaven"
+                        "Heaven",
+                        "0000000005"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.RESTAURANT_BURGER_KINGDOM_EMAIL,
                         "Burger",
-                        "Kingdom"
+                        "Kingdom",
+                        "0000000006"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.RESTAURANT_SUSHI_WORLD_EMAIL,
                         "Sushi",
-                        "World"
+                        "World",
+                        "0000000007"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.SHOP_TECH_STORE_EMAIL,
                         "Tech",
-                        "Store"
+                        "Store",
+                        "0000000008"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.SHOP_FRESH_MARKET_EMAIL,
                         "Fresh",
-                        "Market"
+                        "Market",
+                        "0000000009"
                 ),
                 new DemoUserRequest(
                         DemoDataConstants.SHOP_FLOWER_SHOP_EMAIL,
                         "Flower",
-                        "Shop"
+                        "Shop",
+                        "0000000010"
                 )
         );
     }
