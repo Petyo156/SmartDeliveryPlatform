@@ -40,6 +40,10 @@
     </form>
 </section>
 
+<section class="category-pills">
+    <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/shops')}"></div>
+</section>
+
 <main class="merchant-grid">
     <!-- Merchant Name Matches Section -->
     <div th:if="${searchResponse.hasMerchantMatches}">

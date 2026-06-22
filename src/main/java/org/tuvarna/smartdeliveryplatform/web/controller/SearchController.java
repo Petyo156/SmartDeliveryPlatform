@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.SearchService;
 import org.tuvarna.smartdeliveryplatform.web.dto.search.SearchResponse;
 
@@ -13,9 +14,11 @@ import org.tuvarna.smartdeliveryplatform.web.dto.search.SearchResponse;
 public class SearchController {
 
     private final SearchService searchService;
+    private final CategoryService categoryService;
 
-    public SearchController(SearchService searchService) {
+    public SearchController(SearchService searchService, CategoryService categoryService) {
         this.searchService = searchService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
@@ -34,6 +37,8 @@ public class SearchController {
 
         model.addAttribute("searchResponse", searchResponse);
         model.addAttribute("searchQuery", q);
+        model.addAttribute("selectedCategory", null);
+        model.addAttribute("categoryPill", categoryService.getGlobalRestaurantCategories());
 
         return "home/search-results-restaurants";
     }
@@ -44,6 +49,8 @@ public class SearchController {
 
         model.addAttribute("searchResponse", searchResponse);
         model.addAttribute("searchQuery", q);
+        model.addAttribute("selectedCategory", null);
+        model.addAttribute("categoryPill", categoryService.getGlobalShopCategories());
 
         return "home/search-results-shops";
     }
