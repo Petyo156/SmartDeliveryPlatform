@@ -37,11 +37,25 @@
         </div>
 
         <div class="order-details-grid">
-            <div>
-                <span>Merchant</span>
-                <strong th:text="${order.merchantName}">Merchant</strong>
-                <p th:text="${order.merchantAddress}">Merchant address</p>
-            </div>
+            <a class="order-merchant-link order-details-merchant-link"
+               th:href="@{/merchant/{slug}(slug=${order.merchantSlug})}">
+                <div class="order-merchant-image">
+                    <img th:if="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                         th:src="${order.merchantImageUrl}"
+                         th:alt="${order.merchantName}"
+                         onerror="this.style.display='none'">
+                    <div th:unless="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                         class="order-merchant-placeholder">
+                        <i class="fas fa-store"></i>
+                    </div>
+                </div>
+
+                <div class="order-merchant-heading">
+                    <span>Merchant</span>
+                    <strong th:text="${order.merchantName}">Merchant</strong>
+                    <p th:text="${order.merchantAddress}">Merchant address</p>
+                </div>
+            </a>
             <div>
                 <span>Customer</span>
                 <strong th:text="${order.clientName}">Customer</strong>

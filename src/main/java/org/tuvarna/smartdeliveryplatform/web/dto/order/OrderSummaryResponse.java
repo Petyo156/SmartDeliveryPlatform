@@ -23,6 +23,10 @@ public class OrderSummaryResponse {
 
     private String merchantName;
 
+    private String merchantSlug;
+
+    private String merchantImageUrl;
+
     private String merchantAddress;
 
     private String clientName;
