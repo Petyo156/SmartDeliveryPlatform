@@ -1,6 +1,7 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
+import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.service.AdminService;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.AdminEmailRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.AdminSearchRequest;
@@ -191,6 +193,7 @@ public class AdminController {
 
     @PostMapping("/admins/demote")
     public String demoteAdmin(
+            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
             @Valid @ModelAttribute("demoteAdminRequest") AdminEmailRequest demoteAdminRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -200,7 +203,7 @@ public class AdminController {
             return "redirect:/admin/admins";
         }
 
-        adminService.demoteAdmin(demoteAdminRequest.getEmail());
+        adminService.demoteAdmin(demoteAdminRequest.getEmail(), authenticationMetadata.getUsername());
         redirectAttributes.addFlashAttribute("successMessage", "Admin demoted successfully: " + demoteAdminRequest.getEmail());
         return "redirect:/admin/admins";
     }

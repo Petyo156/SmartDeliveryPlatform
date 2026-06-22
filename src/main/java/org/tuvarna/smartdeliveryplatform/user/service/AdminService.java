@@ -41,6 +41,8 @@ public class AdminService {
     @Transactional
     public void updateUserStatus(String email, UserStatus status) {
         User user = getExistingUserByEmail(email);
+        validateMainAdminStatusCanBeChanged(user);
+
         user.setStatus(status);
         userRepository.save(user);
         deactivateMerchantIfUserIsNotActive(user, status);
@@ -110,14 +112,18 @@ public class AdminService {
     }
 
     @Transactional
-    public void demoteAdmin(String email) {
+    public void demoteAdmin(String email, String actingAdminEmail) {
         User user = getExistingUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
             throw new AdminOperationException(ExceptionMessages.USER_NOT_ADMIN_CANNOT_BE_DEMOTED);
         }
 
-        if(user.getEmail().equals("admin@smartdelivery.bg")) {
+        if (user.getEmail().equals(actingAdminEmail)) {
+            throw new AdminOperationException(ExceptionMessages.ADMIN_CANNOT_DEMOTE_SELF);
+        }
+
+        if (isMainAdmin(user)) {
             throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_CANNOT_BE_DEMOTED);
         }
 
@@ -148,6 +154,16 @@ public class AdminService {
 
     public boolean adminAlreadyExists() {
         return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
+    }
+
+    private void validateMainAdminStatusCanBeChanged(User user) {
+        if (isMainAdmin(user)) {
+            throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED);
+        }
+    }
+
+    private boolean isMainAdmin(User user) {
+        return DemoDataConstants.ADMIN_EMAIL.equals(user.getEmail());
     }
 
     private void deactivateMerchantIfUserIsNotActive(User user, UserStatus status) {

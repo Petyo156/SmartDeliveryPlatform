@@ -54,5 +54,7 @@ public class ExceptionMessages {
     public static final String USER_COURIER_CANNOT_BE_ADMIN = "User is a courier and cannot be an admin";
     public static final String USER_MERCHANT_CANNOT_BE_ADMIN = "User is a merchant and cannot be an admin";
     public static final String USER_NOT_ADMIN_CANNOT_BE_DEMOTED = "User is not an admin and cannot be demoted";
+    public static final String ADMIN_CANNOT_DEMOTE_SELF = "You cannot demote your own admin account";
     public static final String MAIN_ADMIN_CANNOT_BE_DEMOTED = "Main admin cannot be demoted";
+    public static final String MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED = "Main admin status cannot be changed";
 }
