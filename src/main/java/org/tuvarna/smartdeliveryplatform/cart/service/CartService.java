@@ -9,6 +9,8 @@ import org.tuvarna.smartdeliveryplatform.cart.repository.CartItemRepository;
 import org.tuvarna.smartdeliveryplatform.cart.repository.CartRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException;
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.product.repository.ProductRepository;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -109,7 +111,7 @@ public class CartService {
         Cart cart = getCartForUser(user);
 
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new CartOperationException("Your cart is empty.");
+            throw new CartOperationException(ExceptionMessages.CART_IS_EMPTY);
         }
 
         List<CartItem> cartItems = cart.getItems();
@@ -127,37 +129,37 @@ public class CartService {
 
     private Product getProductBySlug(String slug) {
         return productRepository.findBySlug(slug)
-                .orElseThrow(() -> new CartOperationException("Product was not found."));
+                .orElseThrow(() -> new CartOperationException(ExceptionMessages.PRODUCT_WAS_NOT_FOUND));
     }
 
     private Cart getCartForUser(User user) {
         return cartRepository.findByUser_Email(user.getEmail())
-                .orElseThrow(() -> new CartOperationException("Cart was not found for user."));
+                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.CART_WAS_NOT_FOUND_FOR_USER));
     }
 
     private CartItem getCartItemForUser(String userEmail, UUID itemId) {
         return cartItemRepository.findByIdAndCart_User_Email(itemId, userEmail)
-                .orElseThrow(() -> new CartOperationException("Cart item was not found."));
+                .orElseThrow(() -> new CartOperationException(ExceptionMessages.CART_ITEM_WAS_NOT_FOUND));
     }
 
     private int validateQuantity(Integer quantity) {
         if (quantity == null || quantity < 1) {
-            throw new CartOperationException("Quantity must be at least 1.");
+            throw new CartOperationException(ExceptionMessages.CART_QUANTITY_MUST_BE_AT_LEAST_ONE);
         }
         return quantity;
     }
 
     private void validateProductCanBeAdded(Product product) {
         if (!Boolean.TRUE.equals(product.getIsAvailable()) || Boolean.TRUE.equals(product.getIsDeleted())) {
-            throw new CartOperationException("This product is not available.");
+            throw new CartOperationException(ExceptionMessages.CART_PRODUCT_IS_NOT_AVAILABLE);
         }
 
         if (!Boolean.TRUE.equals(product.getMerchant().getIsActive())) {
-            throw new CartOperationException("This merchant is not available.");
+            throw new CartOperationException(ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE);
         }
 
         if (Boolean.TRUE.equals(product.getMerchant().getIsClosed())) {
-            throw new CartOperationException("This merchant is currently closed.");
+            throw new CartOperationException(ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED);
         }
     }
 
@@ -168,13 +170,13 @@ public class CartService {
                         || Boolean.TRUE.equals(product.getIsDeleted()));
 
         if (unavailableProductExists) {
-            throw new CartOperationException("Your cart contains a product that is no longer available.");
+            throw new CartOperationException(ExceptionMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT);
         }
     }
 
     private void validateSingleMerchantCart(Cart cart, Product product) {
         if (hasDifferentMerchant(cart, product)) {
-            throw new CartMerchantConflictException("Your cart contains items from another merchant. You can only order from one merchant at a time.");
+            throw new CartMerchantConflictException(ExceptionMessages.CART_MERCHANT_CONFLICT);
         }
     }
 
@@ -282,7 +284,7 @@ public class CartService {
         }
 
         if (product.getMerchant().getUser().getEmail().equals(user.getEmail())) {
-            throw new CartOperationException("You cannot order from your own shop.");
+            throw new CartOperationException(ExceptionMessages.CANNOT_ORDER_FROM_OWN_SHOP);
         }
     }
 

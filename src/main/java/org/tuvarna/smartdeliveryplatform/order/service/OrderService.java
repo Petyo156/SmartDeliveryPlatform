@@ -7,6 +7,7 @@ import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.CartItem;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
@@ -14,15 +15,12 @@ import org.tuvarna.smartdeliveryplatform.order.model.Order;
 import org.tuvarna.smartdeliveryplatform.order.model.OrderItem;
 import org.tuvarna.smartdeliveryplatform.order.model.OrderStatusHistory;
 import org.tuvarna.smartdeliveryplatform.order.repository.OrderRepository;
-import org.tuvarna.smartdeliveryplatform.order.repository.OrderStatusHistoryRepository;
 import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
 import org.tuvarna.smartdeliveryplatform.shared.enums.OrderStatus;
 import org.tuvarna.smartdeliveryplatform.shared.enums.PaymentStatus;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderDetailsResponse;
-import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderItemResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderPlacementRequest;
-import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderStatusHistoryResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderSummaryResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.profile.UserAddressResponse;
 
@@ -36,19 +34,23 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OrderService {
-    private static final BigDecimal PHASE_ONE_DELIVERY_FEE = BigDecimal.ZERO;
+    private static final BigDecimal DEFAULT_DELIVERY_FEE = BigDecimal.TWO;
+    private static final DateTimeFormatter ORDER_NUMBER_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
     private final OrderRepository orderRepository;
-    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final OrderStatusHistoryService orderStatusHistoryService;
+    private final OrderResponseMapper orderResponseMapper;
     private final CartService cartService;
     private final AddressService addressService;
 
     public OrderService(OrderRepository orderRepository,
-                        OrderStatusHistoryRepository orderStatusHistoryRepository,
+                        OrderStatusHistoryService orderStatusHistoryService,
+                        OrderResponseMapper orderResponseMapper,
                         CartService cartService,
                         AddressService addressService) {
         this.orderRepository = orderRepository;
-        this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.orderStatusHistoryService = orderStatusHistoryService;
+        this.orderResponseMapper = orderResponseMapper;
         this.cartService = cartService;
         this.addressService = addressService;
     }
@@ -67,15 +69,12 @@ public class OrderService {
         List<OrderItem> orderItems = cartItems.stream()
                 .map(cartItem -> createOrderItem(order, cartItem))
                 .toList();
-
         order.setItems(new ArrayList<>(orderItems));
-        Order savedOrder = orderRepository.saveAndFlush(order);
 
-        OrderStatusHistory orderStatusHistory = createOrderStatusHistory(savedOrder, user, localDateTime);
-        orderStatusHistoryRepository.saveAndFlush(orderStatusHistory);
-
+        Order savedOrder = orderRepository.save(order);
+        orderStatusHistoryService.saveOrderStatusHistory(savedOrder, OrderStatus.PENDING, user,
+                                                        localDateTime, OrderWorkflowNotes.ORDER_PLACED);
         cartService.clearCartItems(user);
-
         log.info("Created order {} for user {}", savedOrder.getOrderNumber(), user.getEmail());
     }
 
@@ -83,7 +82,7 @@ public class OrderService {
     public List<OrderSummaryResponse> getOrdersForUser(String email) {
         return orderRepository.findAllByClient_EmailOrderByCreatedAtDesc(email)
                 .stream()
-                .map(this::toOrderSummaryResponse)
+                .map(orderResponseMapper::toClientSummary)
                 .toList();
     }
 
@@ -91,31 +90,48 @@ public class OrderService {
     public List<OrderSummaryResponse> getOrdersForMerchant(String merchantOwnerEmail) {
         return orderRepository.findAllByMerchant_User_EmailOrderByCreatedAtDesc(merchantOwnerEmail)
                 .stream()
-                .map(this::toOrderSummaryResponse)
+                .map(orderResponseMapper::toMerchantSummary)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderSummaryResponse> getOrdersForCourier(String courierEmail) {
+        return orderRepository.findAllByCourier_User_EmailOrderByCreatedAtDesc(courierEmail)
+                .stream()
+                .map(orderResponseMapper::toCourierSummary)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrderDetailsForUser(String orderNumber, String email) {
         Order order = orderRepository.findByOrderNumberAndClient_Email(orderNumber, email)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found."));
+                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+        List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
 
-        return toOrderDetailsResponse(order);
+        return orderResponseMapper.toClientDetails(order, statusHistory);
     }
 
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrderDetailsForMerchant(String orderNumber, String merchantOwnerEmail) {
         Order order = orderRepository.findByOrderNumberAndMerchant_User_Email(orderNumber, merchantOwnerEmail)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found."));
+                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+        List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
 
-        return toOrderDetailsResponse(order);
+        return orderResponseMapper.toMerchantDetails(order, statusHistory);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDetailsResponse getOrderDetailsForCourier(String orderNumber, String courierEmail) {
+        Order order = orderRepository.findByOrderNumberAndCourier_User_Email(orderNumber, courierEmail)
+                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+        List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
+
+        return orderResponseMapper.toCourierDetails(order, statusHistory);
     }
 
     public OrderPlacementRequest initializeOrderPlacementRequest(List<UserAddressResponse> addresses) {
         if (addresses.isEmpty()) {
-            return OrderPlacementRequest.builder()
-                    .addressMode(CheckoutAddressMode.NEW)
-                    .build();
+            return OrderPlacementRequest.builder().addressMode(CheckoutAddressMode.NEW).build();
         }
 
         UserAddressResponse defaultAddress = addresses.stream()
@@ -135,11 +151,11 @@ public class OrderService {
 
     private void validateMerchantCanAcceptOrders(Merchant merchant) {
         if (!Boolean.TRUE.equals(merchant.getIsActive())) {
-            throw new OrderOperationException("This merchant is not available.");
+            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE);
         }
 
         if (Boolean.TRUE.equals(merchant.getIsClosed())) {
-            throw new OrderOperationException("This merchant is currently closed.");
+            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED);
         }
     }
 
@@ -165,8 +181,8 @@ public class OrderService {
                 .deliveryLng(address.getLng())
                 .status(OrderStatus.PENDING)
                 .subtotal(subtotal)
-                .deliveryFee(PHASE_ONE_DELIVERY_FEE)
-                .totalPrice(subtotal.add(PHASE_ONE_DELIVERY_FEE))
+                .deliveryFee(DEFAULT_DELIVERY_FEE)
+                .totalPrice(subtotal.add(DEFAULT_DELIVERY_FEE))
                 .createdAt(localDateTime)
                 .updatedAt(localDateTime)
                 .orderNumber(generateOrderNumber())
@@ -186,113 +202,14 @@ public class OrderService {
                 .build();
     }
 
-    private OrderStatusHistory createOrderStatusHistory(Order order, User changedBy, LocalDateTime now) {
-        return OrderStatusHistory.builder()
-                .order(order)
-                .status(OrderStatus.PENDING)
-                .changedAt(now)
-                .changedBy(changedBy)
-                .note("Order placed")
-                .build();
-    }
-
     private String generateOrderNumber() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return "ORD-%s-%s".formatted(
-                LocalDateTime.now().format(dateTimeFormatter),
+                LocalDateTime.now().format(ORDER_NUMBER_TIMESTAMP_FORMAT),
                 UUID.randomUUID()
                         .toString()
                         .replace("-", "")
                         .substring(0, 6)
                         .toUpperCase()
-        );
-    }
-
-    private OrderSummaryResponse toOrderSummaryResponse(Order order) {
-        return OrderSummaryResponse.builder()
-                .id(order.getId())
-                .orderNumber(order.getOrderNumber())
-                .merchantName(order.getMerchant().getName())
-                .merchantAddress(formatMerchantAddress(order.getMerchant()))
-                .clientName(order.getClient().getFirstName() + " " + order.getClient().getLastName())
-                .status(order.getStatus())
-                .paymentStatus(order.getPaymentStatus())
-                .subtotal(order.getSubtotal())
-                .deliveryFee(order.getDeliveryFee())
-                .totalPrice(order.getTotalPrice())
-                .deliveryAddress(formatDeliveryAddress(order))
-                .createdAt(order.getCreatedAt())
-                .items(order.getItems().stream()
-                        .map(this::toOrderItemResponse)
-                        .toList())
-                .build();
-    }
-
-    private OrderDetailsResponse toOrderDetailsResponse(Order order) {
-        return OrderDetailsResponse.builder()
-                .id(order.getId())
-                .orderNumber(order.getOrderNumber())
-                .status(order.getStatus())
-                .paymentStatus(order.getPaymentStatus())
-                .merchantName(order.getMerchant().getName())
-                .merchantAddress(formatMerchantAddress(order.getMerchant()))
-                .clientName(order.getClient().getFirstName() + " " + order.getClient().getLastName())
-                .deliveryAddress(formatDeliveryAddress(order))
-                .subtotal(order.getSubtotal())
-                .deliveryFee(order.getDeliveryFee())
-                .totalPrice(order.getTotalPrice())
-                .createdAt(order.getCreatedAt())
-                .items(order.getItems().stream()
-                        .map(this::toOrderItemResponse)
-                        .toList())
-                .statusHistory(orderStatusHistoryRepository.findAllByOrderOrderByChangedAtAsc(order)
-                        .stream()
-                        .map(this::toOrderStatusHistoryResponse)
-                        .toList())
-                .build();
-    }
-
-    private OrderStatusHistoryResponse toOrderStatusHistoryResponse(OrderStatusHistory statusHistory) {
-        User changedBy = statusHistory.getChangedBy();
-        String changedByName = changedBy == null
-                ? null
-                : changedBy.getFirstName() + " " + changedBy.getLastName();
-
-        return OrderStatusHistoryResponse.builder()
-                .status(statusHistory.getStatus())
-                .changedAt(statusHistory.getChangedAt())
-                .changedByName(changedByName)
-                .note(statusHistory.getNote())
-                .build();
-    }
-
-    private OrderItemResponse toOrderItemResponse(OrderItem item) {
-        BigDecimal lineSubtotal = item.getPriceAtOrderTime()
-                .multiply(BigDecimal.valueOf(item.getQuantity()));
-
-        return OrderItemResponse.builder()
-                .productName(item.getProductNameAtOrder())
-                .productImageUrl(item.getProductImageAtOrder())
-                .quantity(item.getQuantity())
-                .unitPrice(item.getPriceAtOrderTime())
-                .lineSubtotal(lineSubtotal)
-                .build();
-    }
-
-    private String formatDeliveryAddress(Order order) {
-        return "%s, %s, %s".formatted(
-                order.getDeliveryCity(),
-                order.getDeliveryStreet(),
-                order.getDeliveryBuilding()
-        );
-    }
-
-    private String formatMerchantAddress(Merchant merchant) {
-        Address address = merchant.getAddress();
-        return "%s, %s, %s".formatted(
-                address.getCity(),
-                address.getStreet(),
-                address.getBuilding()
         );
     }
 }

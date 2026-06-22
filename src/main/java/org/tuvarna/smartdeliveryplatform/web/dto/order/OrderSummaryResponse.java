@@ -31,6 +31,14 @@ public class OrderSummaryResponse {
 
     private PaymentStatus paymentStatus;
 
+    private String courierName;
+
+    private String courierEmail;
+
+    private boolean courierAssigned;
+
+    private OrderWorkflowActionsResponse actions;
+
     private BigDecimal subtotal;
 
     private BigDecimal deliveryFee;

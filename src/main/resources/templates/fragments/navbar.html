@@ -7,7 +7,7 @@
         <div class="links">
             <div class="dropdown" th:if="${null != user && user.role.name == 'MERCHANT' && merchantIsActive}">
             <form th:action="@{/dashboard/merchant/toggle-closed-status}" method="post" class="toggle-status-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button type="submit" class="dropdown-item toggle-status-btn">
                     <i class="fa-solid" th:classappend="${merchantIsClosed != null && merchantIsClosed} ? 'fa-store' : 'fa-store-slash'"></i>
                     <span th:text="${merchantIsClosed != null && merchantIsClosed} ? 'Open Shop' : 'Close Shop'"></span>

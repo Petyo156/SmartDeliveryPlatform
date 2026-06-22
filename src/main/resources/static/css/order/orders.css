@@ -83,6 +83,7 @@ body {
 .order-details-link {
     display: inline-flex;
     align-items: center;
+    gap: 0.45rem;
     width: fit-content;
     border-radius: 6px;
     padding: 0.65rem 0.9rem;
@@ -139,6 +140,51 @@ body {
     color: #856404;
     font-size: 0.8rem;
     font-weight: 800;
+}
+
+.order-status.PENDING {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.order-status.ACCEPTED {
+    background: #e7f0ff;
+    color: #164c96;
+}
+
+.order-status.COURIER_ACCEPTED {
+    background: #eaf7ee;
+    color: #176436;
+}
+
+.order-status.PREPARING {
+    background: #f1ecff;
+    color: #4d2f91;
+}
+
+.order-status.PREPARED {
+    background: #fff1e6;
+    color: #9a4a05;
+}
+
+.order-status.ON_THE_WAY {
+    background: #e8f7ff;
+    color: #0f5f78;
+}
+
+.order-status.DELIVERED {
+    background: #e6ffed;
+    color: #0f7a2f;
+}
+
+.order-status.CANCELLED {
+    background: #ffebeb;
+    color: #b30000;
+}
+
+.order-status.DECLINED {
+    background: #ffe8e8;
+    color: #9f1d1d;
 }
 
 .order-meta {
@@ -221,6 +267,41 @@ body {
 
 .order-details-link {
     margin-top: 1rem;
+}
+
+.order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eeeeee;
+}
+
+.order-actions form {
+    margin: 0;
+}
+
+.order-actions button {
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 0.95rem;
+    background: #1c48b7;
+    color: white;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.order-actions button:hover {
+    background: #153a93;
+}
+
+.order-actions .order-action-danger {
+    background: #b42318;
+}
+
+.order-actions .order-action-danger:hover {
+    background: #921b13;
 }
 
 .order-details-card {

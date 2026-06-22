@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.Cart;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
+import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.UserOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
-import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailDoesntExistException;
+import org.tuvarna.smartdeliveryplatform.exception.UserWithPhoneNumberAlreadyExistsException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
@@ -45,6 +48,7 @@ public class UserService {
         AddressRequest addressRequest = registerRequest.getAddressRequest();
         validateInput(userRequest.getEmail(), userRequest.getPassword());
         checkIfEmailAlreadyExists(userRequest.getEmail());
+        checkIfPhoneNumberAlreadyExists(userRequest.getPhoneNumber());
         checkIfPasswordsMatch(userRequest.getPassword(), userRequest.getConfirmPassword());
 
         setupUser(userRequest, addressRequest);
@@ -53,7 +57,7 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(()
-                -> new UserWithEmailDoesntExistException("User with email '" + email + "' does not exist"));
+                -> new SystemOperationException(ExceptionMessages.USER_WITH_EMAIL_DOES_NOT_EXIST));
     }
 
     public void saveUser(User user) {
@@ -72,6 +76,16 @@ public class UserService {
         return userRepository.count() > 1;
     }
 
+    public void checkIfPhoneNumberBelongsToAnotherUser(String phoneNumber, String email) {
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            return;
+        }
+
+        if (userRepository.existsByPhoneNumberAndEmailNot(phoneNumber, email)) {
+            throw new UserWithPhoneNumberAlreadyExistsException(ExceptionMessages.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS);
+        }
+    }
+
     public User initializeUser(UserRegisterRequest userRegisterRequest) {
         return User.builder()
                 .email(userRegisterRequest.getEmail())
@@ -87,22 +101,28 @@ public class UserService {
 
     private void validateInput(String email, String password) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email must not be empty");
+            throw new UserOperationException(ExceptionMessages.EMAIL_MUST_NOT_BE_EMPTY);
         }
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password must not be empty");
+            throw new UserOperationException(ExceptionMessages.PASSWORD_MUST_NOT_BE_EMPTY);
         }
     }
 
     private void checkIfPasswordsMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
-            throw new PasswordsDoNotMatchException("Passwords do not match");
+            throw new PasswordsDoNotMatchException(ExceptionMessages.PASSWORDS_DO_NOT_MATCH);
         }
     }
 
     private void checkIfEmailAlreadyExists(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new UserWithEmailAlreadyExistsException("User with this email already exists");
+            throw new UserWithEmailAlreadyExistsException(ExceptionMessages.USER_WITH_EMAIL_ALREADY_EXISTS);
+        }
+    }
+
+    private void checkIfPhoneNumberAlreadyExists(String phoneNumber) {
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new UserWithPhoneNumberAlreadyExistsException(ExceptionMessages.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS);
         }
     }
 

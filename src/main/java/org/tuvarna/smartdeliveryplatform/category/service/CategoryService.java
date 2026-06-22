@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.category.model.Category;
 import org.tuvarna.smartdeliveryplatform.category.repository.CategoryRepository;
+import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
@@ -43,11 +46,11 @@ public class CategoryService {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
 
         if (categoryName == null || categoryName.isBlank()) {
-            throw new IllegalArgumentException("Category name is required");
+            throw new CategoryOperationException(ExceptionMessages.CATEGORY_NAME_REQUIRED);
         }
 
         if (categoryRepository.existsByNameIgnoreCaseAndMerchantAndIsDeletedFalse(categoryName, merchant)) {
-            throw new IllegalStateException("Category with this name already exists for this merchant");
+            throw new CategoryOperationException(ExceptionMessages.CATEGORY_ALREADY_EXISTS_FOR_MERCHANT);
         }
 
         Category category = initializeCategory(merchant, categoryName);
@@ -56,24 +59,23 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteMerchantCategory(AuthenticationMetadata authenticationMetadata, String categoryId) {
+    public void deleteMerchantCategory(AuthenticationMetadata authenticationMetadata, UUID categoryId) {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
 
-        UUID categoryUUID = UUID.fromString(categoryId);
-        Category category = getCategoryById(categoryUUID);
+        Category category = getCategoryById(categoryId);
 
         if (category.getIsGlobal()) {
-            throw new IllegalStateException("Global categories cannot be deleted");
+            throw new CategoryOperationException(ExceptionMessages.GLOBAL_CATEGORIES_CANNOT_BE_DELETED);
         }
 
         if (!category.getMerchant().getId().equals(merchant.getId())) {
-            throw new IllegalStateException("You cannot delete another merchant's category");
+            throw new CategoryOperationException(ExceptionMessages.CANNOT_DELETE_ANOTHER_MERCHANT_CATEGORY);
         }
 
         boolean hasProducts = productCategoryService.categoryHasProducts(category);
 
         if (hasProducts) {
-            throw new IllegalStateException("Category contains products");
+            throw new CategoryOperationException(ExceptionMessages.CATEGORY_CONTAINS_PRODUCTS);
         }
 
         category.setIsDeleted(true);
@@ -84,12 +86,12 @@ public class CategoryService {
 
     public Category getCategoryById(UUID categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalStateException("Category with this id does not exist"));
+                .orElseThrow(() -> new CategoryOperationException(ExceptionMessages.CATEGORY_WITH_ID_DOES_NOT_EXIST));
     }
 
     public UUID getGlobalCategoryIdByNameAndType(String categoryName, MerchantType merchantType) {
         return categoryRepository.findCategoryByNameAndTypeAndIsGlobalTrue(categoryName, merchantType)
-                .orElseThrow(() -> new IllegalStateException("Global category for this merchant type with this name does not exist"))
+                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.GLOBAL_CATEGORY_NOT_FOUND_FOR_MERCHANT_TYPE))
                 .getId();
     }
 

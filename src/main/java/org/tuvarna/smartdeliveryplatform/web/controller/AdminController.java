@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
@@ -20,6 +19,7 @@ import org.tuvarna.smartdeliveryplatform.web.dto.admin.CourierResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserResponse;
+import org.tuvarna.smartdeliveryplatform.web.dto.admin.UserStatusRequest;
 
 import java.util.List;
 
@@ -43,20 +43,38 @@ public class AdminController {
         ModelAndView modelAndView = new ModelAndView("admin/users");
 
         UserResponse userResponse = UserResponse.builder().build();
+        UserStatusRequest userStatusRequest = UserStatusRequest.builder().build();
+
         if (!bindingResult.hasErrors()) {
-            userResponse = adminService.getUserByEmail(searchRequest.getSearchEmail());
+            userResponse = adminService.findUserResponseByEmail(searchRequest.getSearchEmail());
+            if (userResponse.getEmail() != null) {
+                userStatusRequest = UserStatusRequest.builder()
+                        .email(userResponse.getEmail())
+                        .status(userResponse.getStatus())
+                        .build();
+            }
         }
 
         modelAndView.addObject("userResponse", userResponse);
+        modelAndView.addObject("userStatusRequest", userStatusRequest);
         modelAndView.addObject("userStatuses", UserStatus.values());
         modelAndView.addObject("searchHasErrors", bindingResult.hasErrors());
         return modelAndView;
     }
 
     @PostMapping("/users/status")
-    public ModelAndView updateUserStatus(@RequestParam String email, @RequestParam UserStatus status, RedirectAttributes redirectAttributes) {
-        adminService.updateUserStatus(email, status);
-        redirectAttributes.addFlashAttribute("successMessage", "User status updated successfully for: " + email);
+    public ModelAndView updateUserStatus(
+            @Valid @ModelAttribute("userStatusRequest") UserStatusRequest userStatusRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid user status request.");
+            return new ModelAndView("redirect:/admin/users");
+        }
+
+        adminService.updateUserStatus(userStatusRequest.getEmail(), userStatusRequest.getStatus());
+        redirectAttributes.addFlashAttribute("successMessage", "User status updated successfully for: " + userStatusRequest.getEmail());
 
         return new ModelAndView("redirect:/admin/users");
     }
@@ -200,18 +218,8 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView("admin/admins");
-            List<UserResponse> admins = adminService.getAdmins();
-            UserResponse userResponse = UserResponse.builder().build();
-            AdminEmailRequest adminEmailRequest = AdminEmailRequest.builder().build();
-
-            modelAndView.addObject("admins", admins);
-            modelAndView.addObject("userResponse", userResponse);
-            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
-            modelAndView.addObject("adminEmailRequest", adminEmailRequest);
-            modelAndView.addObject("demoteAdminRequest", demoteAdminRequest);
-            modelAndView.addObject("searchHasErrors", false);
-            return modelAndView;
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid admin demotion request.");
+            return new ModelAndView("redirect:/admin/admins");
         }
 
         adminService.demoteAdmin(demoteAdminRequest.getEmail());
@@ -226,16 +234,8 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView("admin/merchants");
-            MerchantResponse merchantResponse = MerchantResponse.builder().build();
-            MerchantRequest merchantRequest = MerchantRequest.builder().build();
-
-            modelAndView.addObject("merchantResponse", merchantResponse);
-            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
-            modelAndView.addObject("merchantRequest", merchantRequest);
-            modelAndView.addObject("merchantEmailRequest", merchantEmailRequest);
-            modelAndView.addObject("searchHasErrors", false);
-            return modelAndView;
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid merchant status request.");
+            return new ModelAndView("redirect:/admin/merchants");
         }
 
         merchantService.toggleMerchantActiveStatus(merchantEmailRequest.getEmail());
@@ -244,24 +244,18 @@ public class AdminController {
     }
 
     @PostMapping("/couriers/toggle-status")
-    public ModelAndView toggleCourierStatus(
+    public ModelAndView toggleCourierActiveStatus(
             @Valid @ModelAttribute("courierEmailRequest") AdminEmailRequest courierEmailRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView("admin/couriers");
-            CourierResponse courierResponse = CourierResponse.builder().build();
-
-            modelAndView.addObject("courierResponse", courierResponse);
-            modelAndView.addObject("searchRequest", AdminSearchRequest.builder().build());
-            modelAndView.addObject("courierEmailRequest", courierEmailRequest);
-            modelAndView.addObject("searchHasErrors", false);
-            return modelAndView;
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid courier status request.");
+            return new ModelAndView("redirect:/admin/couriers");
         }
 
-        courierService.toggleCourierStatus(courierEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "Courier status toggled successfully: " + courierEmailRequest.getEmail());
+        courierService.toggleCourierActiveStatus(courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Courier active status toggled successfully: " + courierEmailRequest.getEmail());
         return new ModelAndView("redirect:/admin/couriers");
     }
 }

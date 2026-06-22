@@ -31,6 +31,14 @@ public class OrderDetailsResponse {
 
     private String clientName;
 
+    private String courierName;
+
+    private String courierEmail;
+
+    private boolean courierAssigned;
+
+    private OrderWorkflowActionsResponse actions;
+
     private String deliveryAddress;
 
     private BigDecimal subtotal;

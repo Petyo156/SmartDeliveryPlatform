@@ -7,6 +7,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/category")
 public class CategoryController {
@@ -28,7 +30,7 @@ public class CategoryController {
 
     @PostMapping("/{categoryId}/delete")
     public String deleteCategory(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                 @PathVariable String categoryId,
+                                 @PathVariable UUID categoryId,
                                  RedirectAttributes redirectAttributes) {
         categoryService.deleteMerchantCategory(authenticationMetadata, categoryId);
         redirectAttributes.addFlashAttribute("successMessage", "Category deleted successfully!");

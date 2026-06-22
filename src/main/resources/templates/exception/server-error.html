@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>500 - Server Error</title>
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/css/exception/server-error.css">
+    <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
+<main>
+    <h1 th:text="${errorTitle}">Something went wrong</h1>
+    <p th:text="${errorMessage}">There was an error with your last request. Please try again later.</p>
+    <a th:href="@{/}">Go Home</a>
+</main>
+</body>
+</html>

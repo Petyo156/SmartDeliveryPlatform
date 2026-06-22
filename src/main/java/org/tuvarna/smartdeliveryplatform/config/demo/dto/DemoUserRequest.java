@@ -15,4 +15,6 @@ public class DemoUserRequest {
     private String firstName;
 
     private String lastName;
+
+    private String phoneNumber;
 }

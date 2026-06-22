@@ -23,31 +23,54 @@
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
         <form th:action="@{/register}" method="post" th:object="${registerRequest}">
-
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <div class="input-group">
-                <input type="email" th:field="*{userRegisterRequest.email}" placeholder="Email" required/>
+                <input type="email" th:field="*{userRegisterRequest.email}" placeholder="Email"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.email')}"
+                     th:errors="*{userRegisterRequest.email}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
-                <input type="password" th:field="*{userRegisterRequest.password}" placeholder="Password" required/>
+                <input type="password" th:field="*{userRegisterRequest.password}" placeholder="Password"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.password')}"
+                     th:errors="*{userRegisterRequest.password}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
-                <input type="password" th:field="*{userRegisterRequest.confirmPassword}" placeholder="Confirm Password" required/>
+                <input type="password" th:field="*{userRegisterRequest.confirmPassword}" placeholder="Confirm Password"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.confirmPassword')}"
+                     th:errors="*{userRegisterRequest.confirmPassword}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
-                <input type="text" th:field="*{userRegisterRequest.firstName}" placeholder="First Name" required/>
+                <input type="text" th:field="*{userRegisterRequest.firstName}" placeholder="First Name"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.firstName')}"
+                     th:errors="*{userRegisterRequest.firstName}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
-                <input type="text" th:field="*{userRegisterRequest.lastName}" placeholder="Last Name" required/>
+                <input type="text" th:field="*{userRegisterRequest.lastName}" placeholder="Last Name"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.lastName')}"
+                     th:errors="*{userRegisterRequest.lastName}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
                 <input type="text" th:field="*{userRegisterRequest.phoneNumber}" placeholder="Phone Number"/>
+                <div th:if="${#fields.hasErrors('userRegisterRequest.phoneNumber')}"
+                     th:errors="*{userRegisterRequest.phoneNumber}"
+                     class="error-message">
+                </div>
+                <div th:if="${phoneNumberError}" th:text="${phoneNumberError}" class="error-message"></div>
             </div>
 
             <!-- ADDRESS -->
@@ -55,14 +78,26 @@
 
             <div class="input-group">
                 <input type="text" th:field="*{addressRequest.city}" placeholder="City"/>
+                <div th:if="${#fields.hasErrors('addressRequest.city')}"
+                     th:errors="*{addressRequest.city}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
                 <input type="text" th:field="*{addressRequest.street}" placeholder="Street"/>
+                <div th:if="${#fields.hasErrors('addressRequest.street')}"
+                     th:errors="*{addressRequest.street}"
+                     class="error-message">
+                </div>
             </div>
 
             <div class="input-group">
                 <input type="text" th:field="*{addressRequest.building}" placeholder="Building"/>
+                <div th:if="${#fields.hasErrors('addressRequest.building')}"
+                     th:errors="*{addressRequest.building}"
+                     class="error-message">
+                </div>
             </div>
 
             <button type="submit">Register</button>

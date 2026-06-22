@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Orders | Smart Delivery</title>
+    <title>Courier Orders | Smart Delivery</title>
 
+    <link rel="stylesheet" href="/css/order/orders.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="icon" href="/images/favicon.ico">
@@ -15,10 +16,99 @@
 
 <div th:replace="~{fragments/navbar :: header}"></div>
 
-<div class="container">
-    <h1>My Orders</h1>
-    <p>Manage your orders here.</p>
-</div>
+<main class="orders-page">
+    <section class="orders-header">
+        <h1>Assigned Orders</h1>
+        <p>Pick up prepared orders and complete deliveries.</p>
+    </section>
+
+    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <section th:if="${orders == null || orders.isEmpty()}" class="orders-empty">
+        <i class="fas fa-motorcycle"></i>
+        <h2>No assigned orders</h2>
+        <p>Accepted orders assigned to you will appear here.</p>
+    </section>
+
+    <section th:unless="${orders == null || orders.isEmpty()}" class="orders-list">
+        <article th:each="order : ${orders}" class="order-card">
+            <div class="order-card-header">
+                <div>
+                    <span class="order-number" th:text="${order.orderNumber}">ORD-000</span>
+                    <h2 th:text="${order.merchantName}">Merchant</h2>
+                </div>
+
+                <span class="order-status"
+                      th:classappend="${order.status}"
+                      th:text="${order.status}">PENDING</span>
+            </div>
+
+            <div class="order-meta">
+                <p>
+                    <i class="fas fa-user"></i>
+                    <span th:text="${order.clientName}">Customer</span>
+                </p>
+                <p>
+                    <i class="fas fa-location-dot"></i>
+                    <span th:text="${order.deliveryAddress}">Delivery address</span>
+                </p>
+                <p>
+                    <i class="fas fa-store"></i>
+                    <span th:text="${order.merchantAddress}">Merchant address</span>
+                </p>
+                <p>
+                    <i class="fas fa-clock"></i>
+                    <span th:text="${order.createdAt}">Created at</span>
+                </p>
+            </div>
+
+            <div class="order-total">
+                <span>Total</span>
+                <strong>
+                    <span th:text="${order.totalPrice}">0.00</span>
+                    euro
+                </strong>
+            </div>
+
+            <a class="order-details-link"
+               th:href="@{/courier/orders/{orderNumber}(orderNumber=${order.orderNumber})}">
+                View details
+            </a>
+
+            <div class="order-actions"
+                 th:if="${order.actions.canConfirmByCourier || order.actions.canDeclineByCourier || order.actions.canMarkOnTheWayByCourier || order.actions.canMarkDeliveredByCourier}">
+                <form th:if="${order.actions.canConfirmByCourier}"
+                      th:action="@{/courier/orders/{orderNumber}/confirm(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit">Confirm</button>
+                </form>
+
+                <form th:if="${order.actions.canDeclineByCourier}"
+                      th:action="@{/courier/orders/{orderNumber}/decline(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="order-action-danger">Decline</button>
+                </form>
+
+                <form th:if="${order.actions.canMarkOnTheWayByCourier}"
+                      th:action="@{/courier/orders/{orderNumber}/on-the-way(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit">On the way</button>
+                </form>
+
+                <form th:if="${order.actions.canMarkDeliveredByCourier}"
+                      th:action="@{/courier/orders/{orderNumber}/delivered(orderNumber=${order.orderNumber})}"
+                      method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit">Delivered</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 

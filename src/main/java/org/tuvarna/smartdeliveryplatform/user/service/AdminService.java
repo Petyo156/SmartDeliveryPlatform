@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
+import org.tuvarna.smartdeliveryplatform.exception.AdminOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
@@ -18,14 +20,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class AdminService {
-    private final UserService userService;
     private final UserRepository userRepository;
     private final MerchantService merchantService;
     private final CourierService courierService;
 
-    public AdminService(UserService userService, UserRepository userRepository,
+    public AdminService(UserRepository userRepository,
                         MerchantService merchantService, CourierService courierService) {
-        this.userService = userService;
         this.userRepository = userRepository;
         this.merchantService = merchantService;
         this.courierService = courierService;
@@ -40,27 +40,28 @@ public class AdminService {
 
     @Transactional
     public void updateUserStatus(String email, UserStatus status) {
-        User user = userService.getUserByEmail(email);
+        User user = getExistingUserByEmail(email);
         user.setStatus(status);
         userRepository.save(user);
         updateMerchantStatusIfNeeded(user, status);
+        updateCourierStatusIfNeeded(user, status);
         log.info("Updated status for user {} to {}", email, status);
     }
 
     @Transactional
     public void makeUserMerchant(MerchantRequest merchantRequest) {
-        User user = userService.getUserByEmail(merchantRequest.getEmail());
+        User user = getExistingUserByEmail(merchantRequest.getEmail());
 
         if (user.getRole() == UserRole.COURIER) {
-            throw new IllegalStateException("User is already a courier and cannot become a merchant");
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_COURIER_CANNOT_BECOME_MERCHANT);
         }
 
         if (user.getRole() == UserRole.ADMIN) {
-            throw new IllegalStateException("User is already an admin and cannot become a merchant");
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_MERCHANT);
         }
 
         if (merchantService.getMerchantOptionalByUserEmail(merchantRequest.getEmail()).isPresent()) {
-            throw new IllegalStateException("User is already a merchant");
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_MERCHANT);
         }
 
         user.setRole(UserRole.MERCHANT);
@@ -71,18 +72,18 @@ public class AdminService {
 
     @Transactional
     public void makeUserCourier(String email) {
-        User user = userService.getUserByEmail(email);
+        User user = getExistingUserByEmail(email);
 
         if (user.getRole() == UserRole.MERCHANT) {
-            throw new IllegalStateException("User is already a merchant and cannot become a courier");
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_MERCHANT_CANNOT_BECOME_COURIER);
         }
 
         if (user.getRole() == UserRole.ADMIN) {
-            throw new IllegalStateException("User is already an admin and cannot become a courier");
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_COURIER);
         }
 
-        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
-            throw new IllegalStateException("User is already a courier");
+        if (courierService.courierExistsForUserEmail(user.getEmail())) {
+            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_COURIER);
         }
 
         user.setRole(UserRole.COURIER);
@@ -93,14 +94,14 @@ public class AdminService {
 
     @Transactional
     public void makeUserAdmin(String email) {
-        User user = userService.getUserByEmail(email);
+        User user = getExistingUserByEmail(email);
 
-        if (courierService.getCourierByUserEmail(user.getEmail()).isPresent()) {
-            throw new IllegalStateException("User is a courier and cannot be an admin");
+        if (courierService.courierExistsForUserEmail(user.getEmail())) {
+            throw new AdminOperationException(ExceptionMessages.USER_COURIER_CANNOT_BE_ADMIN);
         }
 
         if (merchantService.getMerchantOptionalByUserEmail(user.getEmail()).isPresent()) {
-            throw new IllegalStateException("User is a merchant and cannot be an admin");
+            throw new AdminOperationException(ExceptionMessages.USER_MERCHANT_CANNOT_BE_ADMIN);
         }
 
         user.setRole(UserRole.ADMIN);
@@ -110,14 +111,14 @@ public class AdminService {
 
     @Transactional
     public void demoteAdmin(String email) {
-        User user = userService.getUserByEmail(email);
+        User user = getExistingUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
-            throw new IllegalStateException("User is not an admin and cannot be demoted");
+            throw new AdminOperationException(ExceptionMessages.USER_NOT_ADMIN_CANNOT_BE_DEMOTED);
         }
 
         if(user.getEmail().equals("admin@smartdelivery.bg")) {
-            throw new IllegalStateException("Main admin cannot be demoted");
+            throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_CANNOT_BE_DEMOTED);
         }
 
         user.setRole(UserRole.CLIENT);
@@ -135,7 +136,7 @@ public class AdminService {
                 .orElseGet(() -> UserResponse.builder().build());
     }
 
-    public UserResponse getUserByEmail(String email) {
+    public UserResponse findUserResponseByEmail(String email) {
         if (null == email || email.isBlank()) {
             return UserResponse.builder().build();
         }
@@ -155,6 +156,19 @@ public class AdminService {
         }
 
         merchantService.setMerchantActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+    }
+
+    private void updateCourierStatusIfNeeded(User user, UserStatus status) {
+        if (user.getRole() != UserRole.COURIER) {
+            return;
+        }
+
+        courierService.setCourierActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+    }
+
+    private User getExistingUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AdminOperationException(ExceptionMessages.USER_WITH_EMAIL_DOES_NOT_EXIST));
     }
 
     private static UserResponse initializeUserResponse(User user) {

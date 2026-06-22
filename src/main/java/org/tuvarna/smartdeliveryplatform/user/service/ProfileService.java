@@ -19,6 +19,7 @@ public class ProfileService {
     @Transactional
     public void updateUserProfile(String email, UserProfileRequest request) {
         User user = userService.getUserByEmail(email);
+        userService.checkIfPhoneNumberBelongsToAnotherUser(request.getPhoneNumber(), email);
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());

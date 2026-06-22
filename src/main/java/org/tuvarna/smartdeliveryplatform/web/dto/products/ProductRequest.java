@@ -16,16 +16,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
-    @NotBlank
+    @NotBlank(message = "Product name is required.")
     private String name;
 
     private String description;
 
-    @NotNull
-    @DecimalMin("0.01")
+    @NotNull(message = "Price is required.")
+    @DecimalMin(value = "0.01", message = "Price must be at least 0.01.")
     private BigDecimal price;
 
-    @NotNull
+    @NotNull(message = "Category is required.")
     private UUID categoryId;
 
     private String imageUrl;
