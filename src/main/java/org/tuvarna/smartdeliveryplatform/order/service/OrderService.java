@@ -34,7 +34,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OrderService {
-    private static final BigDecimal DEFAULT_DELIVERY_FEE = BigDecimal.TWO;
     private static final DateTimeFormatter ORDER_NUMBER_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
     private final OrderRepository orderRepository;
@@ -42,17 +41,20 @@ public class OrderService {
     private final OrderResponseMapper orderResponseMapper;
     private final CartService cartService;
     private final AddressService addressService;
+    private final OrderPricingService orderPricingService;
 
     public OrderService(OrderRepository orderRepository,
                         OrderStatusHistoryService orderStatusHistoryService,
                         OrderResponseMapper orderResponseMapper,
                         CartService cartService,
-                        AddressService addressService) {
+                        AddressService addressService,
+                        OrderPricingService orderPricingService) {
         this.orderRepository = orderRepository;
         this.orderStatusHistoryService = orderStatusHistoryService;
         this.orderResponseMapper = orderResponseMapper;
         this.cartService = cartService;
         this.addressService = addressService;
+        this.orderPricingService = orderPricingService;
     }
 
     @Transactional
@@ -181,8 +183,8 @@ public class OrderService {
                 .deliveryLng(address.getLng())
                 .status(OrderStatus.PENDING)
                 .subtotal(subtotal)
-                .deliveryFee(DEFAULT_DELIVERY_FEE)
-                .totalPrice(subtotal.add(DEFAULT_DELIVERY_FEE))
+                .deliveryFee(OrderPricingService.DEFAULT_DELIVERY_FEE)
+                .totalPrice(orderPricingService.calculateTotal(subtotal))
                 .createdAt(localDateTime)
                 .updatedAt(localDateTime)
                 .orderNumber(generateOrderNumber())
