@@ -34,7 +34,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OrderService {
-    private static final BigDecimal DEFAULT_DELIVERY_FEE = BigDecimal.TWO;
     private static final DateTimeFormatter ORDER_NUMBER_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
     private final OrderRepository orderRepository;
@@ -42,17 +41,20 @@ public class OrderService {
     private final OrderResponseMapper orderResponseMapper;
     private final CartService cartService;
     private final AddressService addressService;
+    private final OrderPricingService orderPricingService;
 
     public OrderService(OrderRepository orderRepository,
                         OrderStatusHistoryService orderStatusHistoryService,
                         OrderResponseMapper orderResponseMapper,
                         CartService cartService,
-                        AddressService addressService) {
+                        AddressService addressService,
+                        OrderPricingService orderPricingService) {
         this.orderRepository = orderRepository;
         this.orderStatusHistoryService = orderStatusHistoryService;
         this.orderResponseMapper = orderResponseMapper;
         this.cartService = cartService;
         this.addressService = addressService;
+        this.orderPricingService = orderPricingService;
     }
 
     @Transactional
@@ -61,10 +63,11 @@ public class OrderService {
         Merchant merchant = getMerchantFromCartItems(cartItems);
 
         validateMerchantCanAcceptOrders(merchant);
+        BigDecimal subtotal = calculateSubtotal(cartItems);
+        validateMinimumOrderAmount(subtotal);
 
         Address address = addressService.resolveCheckoutAddress(user, request);
         LocalDateTime localDateTime = LocalDateTime.now();
-        BigDecimal subtotal = calculateSubtotal(cartItems);
         Order order = createOrder(user, merchant, address, subtotal, localDateTime);
         List<OrderItem> orderItems = cartItems.stream()
                 .map(cartItem -> createOrderItem(order, cartItem))
@@ -170,6 +173,14 @@ public class OrderService {
                 .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
     }
 
+    private void validateMinimumOrderAmount(BigDecimal subtotal) {
+        if (subtotal.compareTo(OrderPricingService.MINIMUM_ORDER_AMOUNT) < 0) {
+            throw new OrderOperationException(
+                    ExceptionMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
+            );
+        }
+    }
+
     private Order createOrder(User user, Merchant merchant, Address address, BigDecimal subtotal, LocalDateTime localDateTime) {
         return Order.builder()
                 .client(user)
@@ -181,8 +192,8 @@ public class OrderService {
                 .deliveryLng(address.getLng())
                 .status(OrderStatus.PENDING)
                 .subtotal(subtotal)
-                .deliveryFee(DEFAULT_DELIVERY_FEE)
-                .totalPrice(subtotal.add(DEFAULT_DELIVERY_FEE))
+                .deliveryFee(OrderPricingService.DEFAULT_DELIVERY_FEE)
+                .totalPrice(orderPricingService.calculateTotal(subtotal))
                 .createdAt(localDateTime)
                 .updatedAt(localDateTime)
                 .orderNumber(generateOrderNumber())

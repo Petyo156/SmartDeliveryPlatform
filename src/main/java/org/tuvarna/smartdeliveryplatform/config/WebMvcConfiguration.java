@@ -10,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveCourierInterceptor;
 import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveMerchantInterceptor;
 
 @Configuration
@@ -17,9 +18,12 @@ import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveMerchantIntercept
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final ActiveMerchantInterceptor activeMerchantInterceptor;
+    private final ActiveCourierInterceptor activeCourierInterceptor;
 
-    public WebMvcConfiguration(ActiveMerchantInterceptor activeMerchantInterceptor) {
+    public WebMvcConfiguration(ActiveMerchantInterceptor activeMerchantInterceptor,
+                               ActiveCourierInterceptor activeCourierInterceptor) {
         this.activeMerchantInterceptor = activeMerchantInterceptor;
+        this.activeCourierInterceptor = activeCourierInterceptor;
     }
 
     @Bean
@@ -30,7 +34,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/", "/register", "/restaurants/**", "/shops/**", "/search/**", "/merchant/**",
                                       "/about", "/contact", "/faq", "/privacy", "/contact/submit",
-                                      "/careers", "/shipping", "/terms", "/cookies", "/error/404").permitAll()
+                                      "/careers", "/shipping", "/terms", "/cookies", "/error").permitAll()
                         .requestMatchers("/dashboard/merchant/**", "/products/**", "/category/**").hasRole("MERCHANT")
                         .requestMatchers("/courier/**").hasRole("COURIER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -44,8 +48,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         .permitAll())
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                            request.getRequestDispatcher("/error/404").forward(request, response);
+                            response.sendError(HttpServletResponse.SC_NOT_FOUND);
                         }))
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
@@ -59,5 +62,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(activeMerchantInterceptor)
                 .addPathPatterns("/dashboard/merchant/**", "/products/**", "/category/**");
+        registry.addInterceptor(activeCourierInterceptor)
+                .addPathPatterns("/courier/**");
     }
 }

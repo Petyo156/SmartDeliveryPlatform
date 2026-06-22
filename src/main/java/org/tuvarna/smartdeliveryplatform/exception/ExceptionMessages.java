@@ -10,13 +10,16 @@ public class ExceptionMessages {
     public static final String MERCHANT_IS_NOT_AVAILABLE = "This merchant is not available.";
     public static final String MERCHANT_IS_CURRENTLY_CLOSED = "This merchant is currently closed.";
     public static final String INACTIVE_MERCHANT_ACCOUNT = "Your merchant account is inactive.";
+    public static final String INACTIVE_COURIER_ACCOUNT = "Your courier account is inactive.";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String ADDRESS_NOT_FOUND_WITH_ID = "Address not found with id: %s";
+    public static final String CANNOT_DELETE_MERCHANT_PROFILE_ADDRESS = "You cannot delete the address currently used by your merchant profile.";
     public static final String MAX_ADDRESS_LIMIT_EXCEEDED = "Maximum address limit of addresses exceeded";
     public static final String ADDRESS_FIELDS_REQUIRED_WHEN_ADDING = "City, street and building are required when adding address.";
     public static final String CHOOSE_SAVED_DELIVERY_ADDRESS = "Choose one of your saved delivery addresses.";
     public static final String CHECKOUT_ADDRESS_LIMIT_EXCEEDED = "You reached the maximum address limit. Delete an address before adding a new one.";
     public static final String DELIVERY_ADDRESS_FIELDS_REQUIRED = "City, street and building are required for delivery address.";
+    public static final String MINIMUM_ORDER_AMOUNT_REQUIRED = "Minimum order amount is %s euro, excluding delivery fee.";
     public static final String CART_IS_EMPTY = "Your cart is empty.";
     public static final String CART_ITEM_WAS_NOT_FOUND = "Cart item was not found.";
     public static final String CART_QUANTITY_MUST_BE_AT_LEAST_ONE = "Quantity must be at least 1.";
@@ -51,5 +54,7 @@ public class ExceptionMessages {
     public static final String USER_COURIER_CANNOT_BE_ADMIN = "User is a courier and cannot be an admin";
     public static final String USER_MERCHANT_CANNOT_BE_ADMIN = "User is a merchant and cannot be an admin";
     public static final String USER_NOT_ADMIN_CANNOT_BE_DEMOTED = "User is not an admin and cannot be demoted";
+    public static final String ADMIN_CANNOT_DEMOTE_SELF = "You cannot demote your own admin account";
     public static final String MAIN_ADMIN_CANNOT_BE_DEMOTED = "Main admin cannot be demoted";
+    public static final String MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED = "Main admin status cannot be changed";
 }

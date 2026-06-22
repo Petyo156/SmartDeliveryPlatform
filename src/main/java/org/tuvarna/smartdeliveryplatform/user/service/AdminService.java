@@ -41,10 +41,12 @@ public class AdminService {
     @Transactional
     public void updateUserStatus(String email, UserStatus status) {
         User user = getExistingUserByEmail(email);
+        validateMainAdminStatusCanBeChanged(user);
+
         user.setStatus(status);
         userRepository.save(user);
-        updateMerchantStatusIfNeeded(user, status);
-        updateCourierStatusIfNeeded(user, status);
+        deactivateMerchantIfUserIsNotActive(user, status);
+        deactivateCourierIfUserIsNotActive(user, status);
         log.info("Updated status for user {} to {}", email, status);
     }
 
@@ -110,14 +112,18 @@ public class AdminService {
     }
 
     @Transactional
-    public void demoteAdmin(String email) {
+    public void demoteAdmin(String email, String actingAdminEmail) {
         User user = getExistingUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
             throw new AdminOperationException(ExceptionMessages.USER_NOT_ADMIN_CANNOT_BE_DEMOTED);
         }
 
-        if(user.getEmail().equals("admin@smartdelivery.bg")) {
+        if (user.getEmail().equals(actingAdminEmail)) {
+            throw new AdminOperationException(ExceptionMessages.ADMIN_CANNOT_DEMOTE_SELF);
+        }
+
+        if (isMainAdmin(user)) {
             throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_CANNOT_BE_DEMOTED);
         }
 
@@ -150,20 +156,30 @@ public class AdminService {
         return userRepository.findByEmail(DemoDataConstants.ADMIN_EMAIL).isPresent();
     }
 
-    private void updateMerchantStatusIfNeeded(User user, UserStatus status) {
-        if (user.getRole() != UserRole.MERCHANT) {
-            return;
+    private void validateMainAdminStatusCanBeChanged(User user) {
+        if (isMainAdmin(user)) {
+            throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED);
         }
-
-        merchantService.setMerchantActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
     }
 
-    private void updateCourierStatusIfNeeded(User user, UserStatus status) {
-        if (user.getRole() != UserRole.COURIER) {
+    private boolean isMainAdmin(User user) {
+        return DemoDataConstants.ADMIN_EMAIL.equals(user.getEmail());
+    }
+
+    private void deactivateMerchantIfUserIsNotActive(User user, UserStatus status) {
+        if (user.getRole() != UserRole.MERCHANT || status == UserStatus.ACTIVE) {
             return;
         }
 
-        courierService.setCourierActiveStatus(user.getEmail(), status == UserStatus.ACTIVE);
+        merchantService.setMerchantActiveStatus(user.getEmail(), false);
+    }
+
+    private void deactivateCourierIfUserIsNotActive(User user, UserStatus status) {
+        if (user.getRole() != UserRole.COURIER || status == UserStatus.ACTIVE) {
+            return;
+        }
+
+        courierService.setCourierActiveStatus(user.getEmail(), false);
     }
 
     private User getExistingUserByEmail(String email) {

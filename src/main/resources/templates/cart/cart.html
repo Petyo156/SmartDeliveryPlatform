@@ -114,12 +114,28 @@
 
         <aside class="cart-summary">
             <h2>Order Summary</h2>
-            <div class="cart-summary-row">
-                <span>Total</span>
-                <strong>
-                    <span th:text="${cart.total}">0.00</span>
-                    euro
-                </strong>
+            <div class="cart-summary-breakdown">
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <strong>
+                        <span th:text="${cart.subtotal}">0.00</span>
+                        euro
+                    </strong>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Delivery fee</span>
+                    <strong>
+                        <span th:text="${cart.deliveryFee}">0.00</span>
+                        euro
+                    </strong>
+                </div>
+                <div class="cart-summary-row cart-summary-total">
+                    <span>Final total</span>
+                    <strong>
+                        <span th:text="${cart.total}">0.00</span>
+                        euro
+                    </strong>
+                </div>
             </div>
 
             <form th:action="@{/cart/place-order}"

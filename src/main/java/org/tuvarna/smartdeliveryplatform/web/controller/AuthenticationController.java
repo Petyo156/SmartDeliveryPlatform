@@ -3,65 +3,73 @@ package org.tuvarna.smartdeliveryplatform.web.controller;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.LoginRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
+import org.tuvarna.smartdeliveryplatform.web.util.FlashValidationAttributes;
 
 @Controller
 public class AuthenticationController {
     private final UserService userService;
+    private final FlashValidationAttributes flashValidationAttributes;
 
-    public AuthenticationController(UserService userService) {
+    public AuthenticationController(UserService userService, FlashValidationAttributes flashValidationAttributes) {
         this.userService = userService;
+        this.flashValidationAttributes = flashValidationAttributes;
     }
 
     @GetMapping("/register")
-    public ModelAndView register(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+    public String register(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                           Model model) {
         if (authenticationMetadata != null) {
-            return new ModelAndView("redirect:/");
+            return "redirect:/";
         }
 
-        ModelAndView modelAndView = new ModelAndView("auth/register");
-        modelAndView.addObject("registerRequest", new RegisterRequest());
-        modelAndView.addObject("hasHiddenElements", true);
-        return modelAndView;
+        flashValidationAttributes.addModelAttributeIfMissing(model, "registerRequest", new RegisterRequest());
+        model.addAttribute("hasHiddenElements", true);
+        return "auth/register";
     }
 
     @PostMapping("/register")
-    public ModelAndView register(@Valid RegisterRequest registerRequest, BindingResult bindingResult) {
+    public String register(@Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("auth/register");
+            flashValidationAttributes.addValidationFlashAttribute(redirectAttributes, "registerRequest", registerRequest, bindingResult);
+            return "redirect:/register";
         }
 
         userService.register(registerRequest);
-        return new ModelAndView("redirect:/login");
+        return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public ModelAndView login(@RequestParam(value = "error", required = false) String errorParam,
-                              @Valid LoginRequest loginRequest,
-                              BindingResult bindingResult,
-                              @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+    public String login(@RequestParam(value = "error", required = false) String errorParam,
+                        @Valid LoginRequest loginRequest,
+                        BindingResult bindingResult,
+                        @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                        Model model) {
 
         if (authenticationMetadata != null) {
-            return new ModelAndView("redirect:/");
+            return "redirect:/";
         }
 
-        ModelAndView modelAndView = new ModelAndView("auth/login");
-        modelAndView.addObject("error", errorParam);
-        modelAndView.addObject("loginRequest", loginRequest);
-        modelAndView.addObject("hasHiddenElements", true);
+        model.addAttribute("error", errorParam);
+        model.addAttribute("loginRequest", loginRequest);
+        model.addAttribute("hasHiddenElements", true);
 
         if (errorParam != null || bindingResult.hasErrors()) {
-            modelAndView.addObject("errorMessage", "Incorrect username or password!");
+            model.addAttribute("errorMessage", "Incorrect username or password!");
         }
 
-        return modelAndView;
+        return "auth/login";
     }
 }

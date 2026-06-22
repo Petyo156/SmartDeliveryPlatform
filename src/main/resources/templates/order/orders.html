@@ -33,10 +33,24 @@
     <section th:unless="${orders == null || orders.isEmpty()}" class="orders-list">
         <article th:each="order : ${orders}" class="order-card">
             <div class="order-card-header">
-                <div>
-                    <span class="order-number" th:text="${order.orderNumber}">ORD-000</span>
-                    <h2 th:text="${order.merchantName}">Merchant</h2>
-                </div>
+                <a class="order-merchant-link"
+                   th:href="@{/merchant/{slug}(slug=${order.merchantSlug})}">
+                    <div class="order-merchant-image">
+                        <img th:if="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                             th:src="${order.merchantImageUrl}"
+                             th:alt="${order.merchantName}"
+                             onerror="this.style.display='none'">
+                        <div th:unless="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                             class="order-merchant-placeholder">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
+
+                    <div class="order-merchant-heading">
+                        <span class="order-number" th:text="${order.orderNumber}">ORD-000</span>
+                        <h2 th:text="${order.merchantName}">Merchant</h2>
+                    </div>
+                </a>
 
                 <span class="order-status"
                       th:classappend="${order.status}"

@@ -2,10 +2,10 @@ package org.tuvarna.smartdeliveryplatform.web.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderDetailsResponse;
@@ -23,21 +23,21 @@ public class OrderController {
     }
 
     @GetMapping
-    public ModelAndView getMyOrders(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata) {
+    public String getMyOrders(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                              Model model) {
         List<OrderSummaryResponse> orders = orderService.getOrdersForUser(authenticationMetadata.getUsername());
 
-        ModelAndView modelAndView = new ModelAndView("order/orders");
-        modelAndView.addObject("orders", orders);
-        return modelAndView;
+        model.addAttribute("orders", orders);
+        return "order/orders";
     }
 
     @GetMapping("/{orderNumber}")
-    public ModelAndView getOrderDetails(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
-                                        @PathVariable String orderNumber) {
+    public String getOrderDetails(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
+                                  @PathVariable String orderNumber,
+                                  Model model) {
         OrderDetailsResponse order = orderService.getOrderDetailsForUser(orderNumber, authenticationMetadata.getUsername());
 
-        ModelAndView modelAndView = new ModelAndView("order/details");
-        modelAndView.addObject("order", order);
-        return modelAndView;
+        model.addAttribute("order", order);
+        return "order/details";
     }
 }

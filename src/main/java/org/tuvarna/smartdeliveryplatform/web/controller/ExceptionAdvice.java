@@ -1,11 +1,9 @@
 package org.tuvarna.smartdeliveryplatform.web.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.exception.AddressOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.AdminOperationException;
@@ -15,6 +13,7 @@ import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOrderWorkflowException;
+import org.tuvarna.smartdeliveryplatform.exception.InactiveCourierAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveMerchantAccessException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantOperationException;
@@ -197,14 +196,14 @@ public class ExceptionAdvice {
     @ExceptionHandler({
             SystemOperationException.class
     })
-    public ModelAndView systemOperationFailed(SystemOperationException e) {
-        ModelAndView modelAndView = new ModelAndView("exception/server-error");
-        modelAndView.addObject("errorTitle", ExceptionMessages.SERVER_ERROR_TITLE);
-        modelAndView.addObject("errorMessage", e.getMessage());
-        return modelAndView;
+    public String systemOperationFailed(SystemOperationException e, Model model) {
+        model.addAttribute("errorTitle", ExceptionMessages.SERVER_ERROR_TITLE);
+        model.addAttribute("errorMessage", e.getMessage());
+        return "exception/server-error";
     }
 
     @ExceptionHandler({
+            InactiveCourierAccessException.class,
             InactiveMerchantAccessException.class,
             MerchantNotFoundException.class,
             OrderNotFoundException.class

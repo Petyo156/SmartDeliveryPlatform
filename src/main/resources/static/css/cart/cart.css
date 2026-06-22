@@ -234,12 +234,27 @@ body {
     margin-bottom: 1rem;
 }
 
+.cart-summary-breakdown {
+    margin-bottom: 1rem;
+}
+
 .cart-summary-row {
     display: flex;
     justify-content: space-between;
-    padding-top: 1rem;
+    gap: 1rem;
+    padding: 0.7rem 0;
     border-top: 1px solid #eeeeee;
-    margin-bottom: 1rem;
+}
+
+.cart-summary-row:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.cart-summary-total {
+    border-top-color: #d7dce8;
+    font-size: 1.05rem;
+    font-weight: 800;
 }
 
 .place-order-form {

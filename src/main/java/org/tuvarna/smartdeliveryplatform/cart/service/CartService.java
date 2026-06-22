@@ -11,6 +11,7 @@ import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderPricingService;
 import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.product.repository.ProductRepository;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -32,13 +33,16 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final OrderPricingService orderPricingService;
 
     public CartService(CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
-                       ProductRepository productRepository) {
+                       ProductRepository productRepository,
+                       OrderPricingService orderPricingService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
+        this.orderPricingService = orderPricingService;
     }
 
     public Cart initializeCartForUser(User user) {
@@ -223,25 +227,29 @@ public class CartService {
                 .map(this::toCartItemResponse)
                 .toList();
 
-        BigDecimal total = items.stream()
+        BigDecimal subtotal = items.stream()
                 .map(CartItemResponse::getLineSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Product firstProduct = cart.getItems().getFirst().getProduct();
         String merchantName = firstProduct.getMerchant().getName();
         Boolean merchantIsClosed = firstProduct.getMerchant().getIsClosed();
-        return initializeCartResponse(cart, merchantName, merchantIsClosed, items, total);
+        return initializeCartResponse(cart, merchantName, merchantIsClosed, items, subtotal);
     }
 
-    private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal total) {
+    private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal subtotal) {
         boolean checkoutAvailable = items.stream()
                 .allMatch(item -> Boolean.TRUE.equals(item.getAvailableForCheckout()));
+        BigDecimal deliveryFee = items.isEmpty() ? BigDecimal.ZERO : OrderPricingService.DEFAULT_DELIVERY_FEE;
+        BigDecimal total = items.isEmpty() ? BigDecimal.ZERO : orderPricingService.calculateTotal(subtotal);
 
         return CartResponse.builder()
                 .id(cart.getId())
                 .merchantName(merchantName)
                 .merchantIsClosed(merchantIsClosed)
                 .items(items)
+                .subtotal(subtotal)
+                .deliveryFee(deliveryFee)
                 .total(total)
                 .empty(items.isEmpty())
                 .checkoutAvailable(checkoutAvailable)
