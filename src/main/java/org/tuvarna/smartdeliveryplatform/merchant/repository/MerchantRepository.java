@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
+import org.tuvarna.smartdeliveryplatform.user.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,8 @@ public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
     Optional<Merchant> getMerchantByUser_Email(String searchEmail);
 
     Optional<Merchant> findBySlugAndIsActiveTrue(String slug);
+
+    boolean existsByAddress_IdAndUser(UUID addressId, User user);
 
     List<Merchant> findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
 

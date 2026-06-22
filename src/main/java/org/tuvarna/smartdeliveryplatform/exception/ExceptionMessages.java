@@ -13,6 +13,7 @@ public class ExceptionMessages {
     public static final String INACTIVE_COURIER_ACCOUNT = "Your courier account is inactive.";
     public static final String ADDRESS_NOT_FOUND = "Address not found";
     public static final String ADDRESS_NOT_FOUND_WITH_ID = "Address not found with id: %s";
+    public static final String CANNOT_DELETE_MERCHANT_PROFILE_ADDRESS = "You cannot delete the address currently used by your merchant profile.";
     public static final String MAX_ADDRESS_LIMIT_EXCEEDED = "Maximum address limit of addresses exceeded";
     public static final String ADDRESS_FIELDS_REQUIRED_WHEN_ADDING = "City, street and building are required when adding address.";
     public static final String CHOOSE_SAVED_DELIVERY_ADDRESS = "Choose one of your saved delivery addresses.";

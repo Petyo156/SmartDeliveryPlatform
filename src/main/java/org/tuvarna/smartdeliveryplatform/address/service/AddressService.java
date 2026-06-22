@@ -8,6 +8,7 @@ import org.tuvarna.smartdeliveryplatform.address.repository.AddressRepository;
 import org.tuvarna.smartdeliveryplatform.exception.AddressOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
+import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantAddressUsageService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
@@ -27,9 +28,11 @@ public class AddressService {
     private static final int MAX_ADDRESSES_PER_USER = 5;
 
     private final AddressRepository addressRepository;
+    private final MerchantAddressUsageService merchantAddressUsageService;
 
-    public AddressService(AddressRepository addressRepository) {
+    public AddressService(AddressRepository addressRepository, MerchantAddressUsageService merchantAddressUsageService) {
         this.addressRepository = addressRepository;
+        this.merchantAddressUsageService = merchantAddressUsageService;
     }
 
     @Transactional
@@ -99,6 +102,7 @@ public class AddressService {
     @Transactional
     public void deleteAddress(User user, UUID id) {
         Address address = findAddressByIdAndUser(id, user);
+        validateAddressIsNotUsedByMerchantProfile(user, id);
 
         boolean deletedDefaultAddress = Boolean.TRUE.equals(address.getIsDefault());
         addressRepository.delete(address);
@@ -225,6 +229,12 @@ public class AddressService {
     private void validateAddressRequest(AddressRequest request) {
         if (request == null || !hasText(request.getCity()) || !hasText(request.getStreet()) || !hasText(request.getBuilding())) {
             throw new AddressOperationException(ExceptionMessages.ADDRESS_FIELDS_REQUIRED_WHEN_ADDING);
+        }
+    }
+
+    private void validateAddressIsNotUsedByMerchantProfile(User user, UUID addressId) {
+        if (merchantAddressUsageService.isMerchantProfileAddress(user, addressId)) {
+            throw new AddressOperationException(ExceptionMessages.CANNOT_DELETE_MERCHANT_PROFILE_ADDRESS);
         }
     }
 
