@@ -100,8 +100,6 @@ public class CourierService {
                 .userEmail(searchEmail)
                 .isActive(courier.getIsActive())
                 .isAvailable(courier.getIsAvailable())
-                .currentLng(courier.getCurrentLng())
-                .currentLat(courier.getCurrentLat())
                 .build();
     }
 
@@ -129,8 +127,6 @@ public class CourierService {
                 .user(user)
                 .isActive(true)
                 .isAvailable(false)
-                .currentLat(0.0)
-                .currentLng(0.0)
                 .build();
     }
 }

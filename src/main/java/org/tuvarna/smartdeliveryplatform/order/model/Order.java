@@ -47,12 +47,6 @@ public class Order {
     @Column(name = "delivery_building", nullable = false)
     private String deliveryBuilding;
 
-    @Column(name = "delivery_lat")
-    private Double deliveryLat;
-
-    @Column(name = "delivery_lng")
-    private Double deliveryLng;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;

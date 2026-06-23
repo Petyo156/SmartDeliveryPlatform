@@ -61,8 +61,6 @@
                     <th scope="col">Email</th>
                     <th scope="col">Active</th>
                     <th scope="col">Available</th>
-                    <th scope="col">Latitude</th>
-                    <th scope="col">Longitude</th>
                     <th scope="col">Actions</th>
                 </tr>
                 </thead>
@@ -71,8 +69,6 @@
                     <td th:text="${courierResponse.userEmail}"></td>
                     <td th:text="${courierResponse.isActive ? 'Yes' : 'No'}"></td>
                     <td th:text="${courierResponse.isAvailable ? 'Yes' : 'No'}"></td>
-                    <td th:text="${courierResponse.currentLat}"></td>
-                    <td th:text="${courierResponse.currentLng}"></td>
                     <td>
                         <form th:action="@{/admin/couriers/toggle-status}" method="post" aria-label="Toggle courier status" style="display:inline;">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
