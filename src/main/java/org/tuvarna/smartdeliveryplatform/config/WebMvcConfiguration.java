@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveCourierInterceptor;
 import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveMerchantInterceptor;
+import org.tuvarna.smartdeliveryplatform.web.interceptor.ActiveUserInterceptor;
 
 @Configuration
 @EnableWebSecurity
@@ -19,11 +20,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final ActiveMerchantInterceptor activeMerchantInterceptor;
     private final ActiveCourierInterceptor activeCourierInterceptor;
+    private final ActiveUserInterceptor activeUserInterceptor;
 
     public WebMvcConfiguration(ActiveMerchantInterceptor activeMerchantInterceptor,
-                               ActiveCourierInterceptor activeCourierInterceptor) {
+                               ActiveCourierInterceptor activeCourierInterceptor,
+                               ActiveUserInterceptor activeUserInterceptor) {
         this.activeMerchantInterceptor = activeMerchantInterceptor;
         this.activeCourierInterceptor = activeCourierInterceptor;
+        this.activeUserInterceptor = activeUserInterceptor;
     }
 
     @Bean
@@ -60,6 +64,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(activeUserInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/login", "/register", "/logout", "/error", "/css/**",
+                        "/js/**", "/images/**", "/webjars/**", "/favicon.ico");
         registry.addInterceptor(activeMerchantInterceptor)
                 .addPathPatterns("/dashboard/merchant/**", "/products/**", "/category/**");
         registry.addInterceptor(activeCourierInterceptor)
