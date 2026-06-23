@@ -18,6 +18,10 @@ public class CartResponse {
 
     private String merchantName;
 
+    private String merchantSlug;
+
+    private String merchantImageUrl;
+
     private List<CartItemResponse> items;
 
     private BigDecimal subtotal;

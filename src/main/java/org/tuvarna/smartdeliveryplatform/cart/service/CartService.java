@@ -12,6 +12,7 @@ import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderPricingService;
+import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.product.model.Product;
 import org.tuvarna.smartdeliveryplatform.product.repository.ProductRepository;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -220,7 +221,7 @@ public class CartService {
 
     private CartResponse toCartResponse(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            return initializeCartResponse(cart, null, null, null, List.of(), BigDecimal.ZERO);
+            return initializeCartResponse(cart, null, null, null, null, null, List.of(), BigDecimal.ZERO);
         }
 
         List<CartItemResponse> items = cart.getItems().stream()
@@ -232,13 +233,16 @@ public class CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Product firstProduct = cart.getItems().getFirst().getProduct();
-        String merchantName = firstProduct.getMerchant().getName();
-        Boolean merchantIsActive = firstProduct.getMerchant().getIsActive();
-        Boolean merchantIsClosed = firstProduct.getMerchant().getIsClosed();
-        return initializeCartResponse(cart, merchantName, merchantIsActive, merchantIsClosed, items, subtotal);
+        Merchant merchant = firstProduct.getMerchant();
+        String merchantName = merchant.getName();
+        String merchantSlug = merchant.getSlug();
+        String merchantImageUrl = merchant.getImageUrl();
+        Boolean merchantIsActive = merchant.getIsActive();
+        Boolean merchantIsClosed = merchant.getIsClosed();
+        return initializeCartResponse(cart, merchantName, merchantSlug, merchantImageUrl, merchantIsActive, merchantIsClosed, items, subtotal);
     }
 
-    private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsActive, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal subtotal) {
+    private CartResponse initializeCartResponse(Cart cart, String merchantName, String merchantSlug, String merchantImageUrl, Boolean merchantIsActive, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal subtotal) {
         boolean productsAvailable = items.stream().allMatch(item -> Boolean.TRUE.equals(item.getAvailableForCheckout()));
         boolean merchantAvailable = merchantCanAcceptOrders(merchantIsActive, merchantIsClosed);
         boolean checkoutAvailable = productsAvailable && merchantAvailable;
@@ -249,6 +253,8 @@ public class CartService {
         return CartResponse.builder()
                 .id(cart.getId())
                 .merchantName(merchantName)
+                .merchantSlug(merchantSlug)
+                .merchantImageUrl(merchantImageUrl)
                 .items(items)
                 .subtotal(subtotal)
                 .deliveryFee(deliveryFee)
