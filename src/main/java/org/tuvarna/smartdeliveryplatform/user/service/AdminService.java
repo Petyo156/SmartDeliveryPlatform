@@ -67,6 +67,7 @@ public class AdminService {
         }
 
         user.setRole(UserRole.MERCHANT);
+        user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
         merchantService.createMerchantForUser(user, merchantRequest);
         log.info("Made user {} a merchant", merchantRequest.getEmail());
@@ -89,6 +90,7 @@ public class AdminService {
         }
 
         user.setRole(UserRole.COURIER);
+        user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
         courierService.createCourierForUser(user);
         log.info("Made user {} a courier", email);
