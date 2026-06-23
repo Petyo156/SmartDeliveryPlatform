@@ -18,8 +18,6 @@ public class CartResponse {
 
     private String merchantName;
 
-    private Boolean merchantIsClosed;
-
     private List<CartItemResponse> items;
 
     private BigDecimal subtotal;
@@ -31,4 +29,6 @@ public class CartResponse {
     private Boolean empty;
 
     private Boolean checkoutAvailable;
+
+    private String checkoutUnavailableMessage;
 }

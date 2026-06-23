@@ -143,8 +143,9 @@
                   th:object="${orderPlacementRequest}"
                   class="place-order-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <p th:if="${!cart.checkoutAvailable}" class="cart-address-limit">
-                    Your cart contains a product that is currently unavailable.
+                <p th:if="${!cart.checkoutAvailable}" class="cart-address-limit"
+                   th:text="${cart.checkoutUnavailableMessage}">
+                    Checkout is currently unavailable.
                 </p>
 
                 <div th:if="${addresses != null && !addresses.isEmpty()}" class="checkout-address-section">

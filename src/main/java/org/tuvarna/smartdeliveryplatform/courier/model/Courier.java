@@ -28,9 +28,4 @@ public class Courier {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 
-    @Column(name = "current_lat")
-    private Double currentLat;
-
-    @Column(name = "current_lng")
-    private Double currentLng;
 }

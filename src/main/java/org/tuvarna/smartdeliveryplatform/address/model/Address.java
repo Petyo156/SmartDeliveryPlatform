@@ -31,12 +31,6 @@ public class Address {
     @Column(nullable = false)
     private String building;
 
-    @Column(name = "lat")
-    private Double lat;
-
-    @Column(name = "lng")
-    private Double lng;
-
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
 }

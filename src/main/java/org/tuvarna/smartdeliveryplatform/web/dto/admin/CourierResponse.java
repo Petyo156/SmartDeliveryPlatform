@@ -15,8 +15,4 @@ public class CourierResponse {
     private Boolean isActive;
 
     private Boolean isAvailable;
-
-    private Double currentLat;
-
-    private Double currentLng;
 }

@@ -220,7 +220,7 @@ public class CartService {
 
     private CartResponse toCartResponse(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            return initializeCartResponse(cart, null, null, List.of(), BigDecimal.ZERO);
+            return initializeCartResponse(cart, null, null, null, List.of(), BigDecimal.ZERO);
         }
 
         List<CartItemResponse> items = cart.getItems().stream()
@@ -233,26 +233,29 @@ public class CartService {
 
         Product firstProduct = cart.getItems().getFirst().getProduct();
         String merchantName = firstProduct.getMerchant().getName();
+        Boolean merchantIsActive = firstProduct.getMerchant().getIsActive();
         Boolean merchantIsClosed = firstProduct.getMerchant().getIsClosed();
-        return initializeCartResponse(cart, merchantName, merchantIsClosed, items, subtotal);
+        return initializeCartResponse(cart, merchantName, merchantIsActive, merchantIsClosed, items, subtotal);
     }
 
-    private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal subtotal) {
-        boolean checkoutAvailable = items.stream()
-                .allMatch(item -> Boolean.TRUE.equals(item.getAvailableForCheckout()));
+    private CartResponse initializeCartResponse(Cart cart, String merchantName, Boolean merchantIsActive, Boolean merchantIsClosed, List<CartItemResponse> items, BigDecimal subtotal) {
+        boolean productsAvailable = items.stream().allMatch(item -> Boolean.TRUE.equals(item.getAvailableForCheckout()));
+        boolean merchantAvailable = merchantCanAcceptOrders(merchantIsActive, merchantIsClosed);
+        boolean checkoutAvailable = productsAvailable && merchantAvailable;
+        String checkoutUnavailableMessage = resolveCheckoutUnavailableMessage(productsAvailable, merchantIsActive, merchantIsClosed);
         BigDecimal deliveryFee = items.isEmpty() ? BigDecimal.ZERO : OrderPricingService.DEFAULT_DELIVERY_FEE;
         BigDecimal total = items.isEmpty() ? BigDecimal.ZERO : orderPricingService.calculateTotal(subtotal);
 
         return CartResponse.builder()
                 .id(cart.getId())
                 .merchantName(merchantName)
-                .merchantIsClosed(merchantIsClosed)
                 .items(items)
                 .subtotal(subtotal)
                 .deliveryFee(deliveryFee)
                 .total(total)
                 .empty(items.isEmpty())
                 .checkoutAvailable(checkoutAvailable)
+                .checkoutUnavailableMessage(checkoutUnavailableMessage)
                 .build();
     }
 
@@ -298,5 +301,26 @@ public class CartService {
 
     private boolean productAvailableForCheckout(Product product) {
         return Boolean.TRUE.equals(product.getIsAvailable()) && !Boolean.TRUE.equals(product.getIsDeleted());
+    }
+
+    private boolean merchantCanAcceptOrders(Boolean merchantIsActive, Boolean merchantIsClosed) {
+        return merchantIsActive == null
+                || (Boolean.TRUE.equals(merchantIsActive) && !Boolean.TRUE.equals(merchantIsClosed));
+    }
+
+    private String resolveCheckoutUnavailableMessage(boolean productsAvailable, Boolean merchantIsActive, Boolean merchantIsClosed) {
+        if (!productsAvailable) {
+            return ExceptionMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT;
+        }
+
+        if (Boolean.FALSE.equals(merchantIsActive)) {
+            return ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE;
+        }
+
+        if (Boolean.TRUE.equals(merchantIsClosed)) {
+            return ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED;
+        }
+
+        return null;
     }
 }

@@ -188,8 +188,6 @@ public class OrderService {
                 .deliveryCity(address.getCity())
                 .deliveryStreet(address.getStreet())
                 .deliveryBuilding(address.getBuilding())
-                .deliveryLat(address.getLat())
-                .deliveryLng(address.getLng())
                 .status(OrderStatus.PENDING)
                 .subtotal(subtotal)
                 .deliveryFee(OrderPricingService.DEFAULT_DELIVERY_FEE)
