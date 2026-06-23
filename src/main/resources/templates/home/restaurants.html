@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Restaurants | Smart Delivery</title>
     <link rel="stylesheet" href="/css/home/merchant-browsing.css">
+    <link rel="stylesheet" href="/css/home/search-results.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
@@ -16,51 +17,71 @@
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
 
-<section class="merchant-page-header">
-    <h1>Browse Restaurants</h1>
-    <p>Discover delicious food from local restaurants</p>
-</section>
+<main class="search-page browse-page">
+    <section class="search-hero search-hero-restaurants">
+        <div class="search-hero-inner">
+            <div class="search-copy">
+                <span class="search-eyebrow">
+                    <i class="fas fa-utensils"></i>
+                    Restaurant delivery
+                </span>
+                <h1>Browse restaurants</h1>
+                <p>Discover local restaurants, favorite cuisines, and fresh meals ready for delivery.</p>
+            </div>
 
-<!--<div class="links">-->
-<!--    <a href="/">Home</a>-->
-<!--    <a href="/shops">Shops</a>-->
-<!--</div>-->
+            <div class="search-panel">
+                <form th:action="@{/search/restaurants}" method="get" class="search-page-form" aria-label="Search restaurants">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search restaurants and products..."/>
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
 
-<section class="page-search">
-    <form th:action="@{/search/restaurants}" method="get" class="search-form">
-        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search restaurants and products..."/>
-        <button type="submit" class="search-btn">
-            <i class="fas fa-search"></i>
-        </button>
-    </form>
-</section>
+                <nav class="search-tabs" aria-label="Browse sections">
+                    <a th:href="@{/restaurants}" class="active">Restaurants</a>
+                    <a th:href="@{/shops}">Shops</a>
+                </nav>
+            </div>
+        </div>
+    </section>
 
-<section class="category-pills">
-    <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>
-</section>
+    <section class="search-filter-pills">
+        <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>
+    </section>
 
-<section class="category-info" th:if="${selectedCategory != null}">
-    <p>
-        Showing restaurants offering <strong th:text="${selectedCategory}"></strong>.
-    </p>
-</section>
-
-<main class="merchant-grid">
-
-    <div th:if="${merchantCardResponses != null && !merchantCardResponses.isEmpty()}">
-
-        <div th:each="merchant : ${merchantCardResponses}">
-            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+    <section class="search-results-shell">
+        <div class="search-filter-note" th:if="${selectedCategory != null}">
+            <i class="fas fa-filter"></i>
+            <p>
+                Showing restaurants offering <strong th:text="${selectedCategory}"></strong>.
+            </p>
         </div>
 
-    </div>
+        <section class="search-result-section">
+            <div class="search-section-heading">
+                <span class="search-eyebrow">
+                    <i class="fas fa-fire"></i>
+                    Food nearby
+                </span>
+                <h2 th:if="${selectedCategory != null}">
+                    Restaurants offering <span th:text="${selectedCategory}"></span>
+                </h2>
+                <h2 th:unless="${selectedCategory != null}">All restaurants</h2>
+            </div>
 
-    <div th:if="${merchantCardResponses == null || merchantCardResponses.isEmpty()}" class="merchant-empty-state">
-        <i class="fas fa-utensils"></i>
-        <h3>No restaurants available</h3>
-        <p>Check back later for new restaurants</p>
-    </div>
+            <div class="search-results-grid"
+                 th:if="${merchantCardResponses != null && !merchantCardResponses.isEmpty()}">
+                <div th:each="merchant : ${merchantCardResponses}">
+                    <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                </div>
+            </div>
 
+            <div th:if="${merchantCardResponses == null || merchantCardResponses.isEmpty()}" class="search-empty-state">
+                <i class="fas fa-utensils"></i>
+                <h2>No restaurants available</h2>
+                <p>Check back later for new restaurants.</p>
+            </div>
+        </section>
+    </section>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

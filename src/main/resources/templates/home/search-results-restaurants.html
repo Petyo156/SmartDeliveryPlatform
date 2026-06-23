@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Search Results | Smart Delivery</title>
+    <title>Restaurant Search | Smart Delivery</title>
     <link rel="stylesheet" href="/css/home/merchant-browsing.css">
+    <link rel="stylesheet" href="/css/home/search-results.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
@@ -16,68 +17,84 @@
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
 
-<section class="merchant-page-header">
-    <h1>Search Results</h1>
-    <p th:if="${searchResponse.hasQuery}">
-        Results for: <strong th:text="${searchQuery}"></strong>
-    </p>
-    <p th:unless="${searchResponse.hasQuery}">
-        Enter a search query to find merchants or products
-    </p>
-</section>
+<main class="search-page">
+    <section class="search-hero search-hero-restaurants">
+        <div class="search-hero-inner">
+            <div class="search-copy">
+                <span class="search-eyebrow">
+                    <i class="fas fa-utensils"></i>
+                    Restaurant search
+                </span>
+                <h1>Search restaurants</h1>
+                <p th:if="${searchResponse.hasQuery}">
+                    Restaurant results for <strong th:text="${searchQuery}"></strong>.
+                </p>
+                <p th:unless="${searchResponse.hasQuery}">
+                    Find restaurants by name, cuisine, or product.
+                </p>
+            </div>
 
-<!--<div class="links">-->
-<!--    <a href="/">Home</a>-->
-<!--    <a href="/shops">Shops</a>-->
-<!--</div>-->
+            <div class="search-panel">
+                <form th:action="@{/search/restaurants}" method="get" class="search-page-form" aria-label="Search restaurants">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search restaurants or products..."/>
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
 
-<section class="page-search">
-    <form th:action="@{/search/restaurants}" method="get" class="global-search-form">
-        <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for restaurants or products..."/>
-        <button type="submit" class="search-btn">
-            <i class="fas fa-search"></i> Search
-        </button>
-    </form>
-</section>
-
-<section class="category-pills">
-    <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>
-</section>
-
-<main class="merchant-grid">
-    <!-- Merchant Name Matches Section -->
-    <div th:if="${searchResponse.hasMerchantMatches}">
-        <h2 style="grid-column: 1 / -1; margin-top: 30px; margin-bottom: 20px;">
-            <i class="fas fa-store"></i> Restaurant places by search:
-        </h2>
-        <div th:each="merchant : ${searchResponse.merchantMatches}">
-            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                <nav class="search-tabs" aria-label="Search scopes">
+                    <a th:href="@{/search(q=${searchQuery})}">All</a>
+                    <a th:href="@{/search/restaurants(q=${searchQuery})}" class="active">Restaurants</a>
+                    <a th:href="@{/search/shops(q=${searchQuery})}">Shops</a>
+                </nav>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Product Matches Section -->
-    <div th:if="${searchResponse.hasProductMatches}">
-        <h2 style="grid-column: 1 / -1; margin-top: 30px; margin-bottom: 20px;">
-            <i class="fas fa-box"></i><span th:text="'Restaurants that sell: ' + ${searchQuery}"></span>
-        </h2>
-        <div th:each="merchant : ${searchResponse.productMatches}">
-            <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+    <section class="search-filter-pills">
+        <div th:replace="~{fragments/category-pill :: category-pill(categories=${categoryPill}, selectedCategory=${selectedCategory}, baseUrl='/restaurants')}"></div>
+    </section>
+
+    <section class="search-results-shell">
+        <section class="search-result-section" th:if="${searchResponse.hasMerchantMatches}">
+            <div class="search-section-heading">
+                <span class="search-eyebrow">
+                    <i class="fas fa-store"></i>
+                    Restaurant matches
+                </span>
+                <h2>Restaurants by search</h2>
+            </div>
+            <div class="search-results-grid">
+                <div th:each="merchant : ${searchResponse.merchantMatches}">
+                    <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="search-result-section" th:if="${searchResponse.hasProductMatches}">
+            <div class="search-section-heading">
+                <span class="search-eyebrow">
+                    <i class="fas fa-box"></i>
+                    Product matches
+                </span>
+                <h2>Restaurants that sell <span th:text="${searchQuery}"></span></h2>
+            </div>
+            <div class="search-results-grid">
+                <div th:each="merchant : ${searchResponse.productMatches}">
+                    <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                </div>
+            </div>
+        </section>
+
+        <div th:unless="${searchResponse.hasResults}" class="search-empty-state">
+            <i class="fas fa-search"></i>
+            <h2 th:if="${searchResponse.hasQuery}">No restaurant results found for "<span th:text="${searchQuery}"></span>"</h2>
+            <h2 th:unless="${searchResponse.hasQuery}">Please enter a restaurant search query</h2>
+            <p>Try searching by restaurant name, cuisine, or product.</p>
         </div>
-    </div>
-
-    <!-- Empty State -->
-    <div th:unless="${searchResponse.hasResults}"
-         class="merchant-empty-state" style="grid-column: 1 / -1;">
-        <i class="fas fa-search"></i>
-        <h3 th:if="${searchResponse.hasQuery}">No results found for "<span th:text="${searchQuery}"></span>"</h3>
-        <h3 th:unless="${searchResponse.hasQuery}">Please enter a search query</h3>
-        <p>Try searching for a merchant name or product</p>
-    </div>
-
+    </section>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
-
