@@ -20,44 +20,107 @@
 <main class="home-container">
 
     <section class="hero">
-        <form th:action="@{/search}" method="get" class="global-search-form">
-            <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search for restaurants, shops, or products..."/>
-            <button type="submit" class="search-btn">
-                <i class="fas fa-search"></i> Search
-            </button>
-        </form>
+        <div class="hero-inner">
+            <div class="hero-copy">
+                <span class="hero-eyebrow">
+                    <i class="fas fa-bolt"></i>
+                    Fast local delivery
+                </span>
+                <h1>SmartDelivery</h1>
+                <p>
+                    Food and everyday goods from trusted local merchants.
+                </p>
 
-        <div class="hero-buttons">
-            <a th:href="@{/restaurants}" class="hero-btn">Browse Restaurants</a>
-            <a th:href="@{/shops}" class="hero-btn hero-btn-secondary">Browse Shops</a>
+                <form th:action="@{/search}" method="get" class="global-search-form" aria-label="Search SmartDelivery">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="q" th:value="${param.q}" class="search-input" placeholder="Search pizza, sushi, groceries, tech..."/>
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+
+                <div class="hero-buttons">
+                    <a th:href="@{/restaurants}" class="hero-btn">
+                        <i class="fas fa-utensils"></i>
+                        Browse Restaurants
+                    </a>
+                    <a th:href="@{/shops}" class="hero-btn hero-btn-secondary">
+                        <i class="fas fa-shopping-basket"></i>
+                        Browse Shops
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-highlights" aria-label="Delivery highlights">
+                <div>
+                    <strong>Fast</strong>
+                    <span>delivery</span>
+                </div>
+                <div>
+                    <strong>Local</strong>
+                    <span>restaurants and shops</span>
+                </div>
+                <div>
+                    <strong>Shops</strong>
+                    <span>groceries and essentials</span>
+                </div>
+                <div>
+                    <strong>Easy</strong>
+                    <span>search across merchants</span>
+                </div>
+                <div>
+                    <strong>Food</strong>
+                    <span>top rated restaurants</span>
+                </div>
+                <div>
+                    <strong>One</strong>
+                    <span>place for local orders</span>
+                </div>
+            </div>
         </div>
     </section>
 
     <section class="featured">
-        <h2>Popular Restaurants 🔥</h2>
-        <div class="merchant-grid"
-             th:if="${restaurantMerchants != null && !restaurantMerchants.isEmpty()}">
-            <div th:each="merchant : ${restaurantMerchants}">
-                <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+        <div class="featured-inner">
+            <div class="section-heading">
+                <span class="section-kicker">
+                    <i class="fas fa-fire"></i>
+                    Food nearby
+                </span>
+                <h2>Popular restaurants</h2>
+                <a th:href="@{/restaurants}" class="section-link">View all</a>
             </div>
-        </div>
-        <div class="merchant-empty-state"
-             th:if="${restaurantMerchants == null || restaurantMerchants.isEmpty()}">
-            <i class="fas fa-utensils"></i>
-            <h3>No restaurants available</h3>
-        </div>
 
-        <h2 class="section-spacing">Popular Shops 🛍️</h2>
-        <div class="merchant-grid"
-             th:if="${shopsMerchants != null && !shopsMerchants.isEmpty()}">
-            <div th:each="merchant : ${shopsMerchants}">
-                <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+            <div class="merchant-grid"
+                 th:if="${restaurantMerchants != null && !restaurantMerchants.isEmpty()}">
+                <div th:each="merchant : ${restaurantMerchants}">
+                    <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                </div>
             </div>
-        </div>
-        <div class="merchant-empty-state"
-             th:if="${shopsMerchants == null || shopsMerchants.isEmpty()}">
-            <i class="fas fa-store-slash"></i>
-            <h3>No shops available</h3>
+            <div class="merchant-empty-state"
+                 th:if="${restaurantMerchants == null || restaurantMerchants.isEmpty()}">
+                <i class="fas fa-utensils"></i>
+                <h3>No restaurants available</h3>
+            </div>
+
+            <div class="section-heading section-spacing">
+                <span class="section-kicker">
+                    <i class="fas fa-bag-shopping"></i>
+                    Essentials nearby
+                </span>
+                <h2>Popular shops</h2>
+                <a th:href="@{/shops}" class="section-link">View all</a>
+            </div>
+
+            <div class="merchant-grid"
+                 th:if="${shopsMerchants != null && !shopsMerchants.isEmpty()}">
+                <div th:each="merchant : ${shopsMerchants}">
+                    <div th:replace="~{fragments/merchant-card :: merchant-card(merchant=${merchant})}"></div>
+                </div>
+            </div>
+            <div class="merchant-empty-state"
+                 th:if="${shopsMerchants == null || shopsMerchants.isEmpty()}">
+                <i class="fas fa-store-slash"></i>
+                <h3>No shops available</h3>
+            </div>
         </div>
     </section>
 </main>
