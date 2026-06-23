@@ -19,6 +19,7 @@ public class UserProfileRequest {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
+    @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "^$|\\d{10}", message = "Phone number must contain exactly 10 digits")
     private String phoneNumber;
 }
