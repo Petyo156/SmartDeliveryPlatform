@@ -24,6 +24,10 @@
             Invalid email or password
         </div>
 
+        <div th:if="${param.inactive}" class="error-message">
+            Your account is inactive. Please contact support.
+        </div>
+
         <div th:if="${param.registered}" class="success-message">
             Registration successful. Please login.
         </div>
