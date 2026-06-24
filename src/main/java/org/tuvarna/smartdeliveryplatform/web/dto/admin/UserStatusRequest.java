@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 
 @Data
@@ -14,10 +15,10 @@ import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserStatusRequest {
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Valid email is required.")
+    @NotBlank(message = ValidationMessages.EMAIL_REQUIRED)
+    @Email(message = ValidationMessages.VALID_EMAIL_REQUIRED)
     private String email;
 
-    @NotNull(message = "Status is required.")
+    @NotNull(message = ValidationMessages.STATUS_REQUIRED)
     private UserStatus status;
 }

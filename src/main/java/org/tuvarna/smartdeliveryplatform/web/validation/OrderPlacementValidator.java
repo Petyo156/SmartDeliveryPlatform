@@ -2,6 +2,8 @@ package org.tuvarna.smartdeliveryplatform.web.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderPlacementRequest;
 
@@ -33,7 +35,7 @@ public class OrderPlacementValidator implements ConstraintValidator<ValidOrderPl
             return true;
         }
 
-        addViolation(context, "Choose one of your saved delivery addresses.", "addressId");
+        addViolation(context, ErrorMessages.CHOOSE_SAVED_DELIVERY_ADDRESS, "addressId");
         return false;
     }
 
@@ -41,17 +43,17 @@ public class OrderPlacementValidator implements ConstraintValidator<ValidOrderPl
         boolean valid = true;
 
         if (!hasText(request.getCity())) {
-            addViolation(context, "City is required.", "city");
+            addViolation(context, ValidationMessages.CITY_REQUIRED, "city");
             valid = false;
         }
 
         if (!hasText(request.getStreet())) {
-            addViolation(context, "Street is required.", "street");
+            addViolation(context, ValidationMessages.STREET_REQUIRED, "street");
             valid = false;
         }
 
         if (!hasText(request.getBuilding())) {
-            addViolation(context, "Building is required.", "building");
+            addViolation(context, ValidationMessages.BUILDING_REQUIRED, "building");
             valid = false;
         }
 

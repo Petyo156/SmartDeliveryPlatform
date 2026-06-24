@@ -13,6 +13,7 @@ import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderWorkflowService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.merchant.MerchantAddressResponse;
@@ -74,7 +75,7 @@ public class MerchantDashboardController {
         }
 
         merchantService.updateMerchantProfile(authenticationMetadata, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Merchant profile updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.MERCHANT_PROFILE_UPDATED);
         return "redirect:/dashboard/merchant/my-shop";
     }
 
@@ -105,7 +106,7 @@ public class MerchantDashboardController {
                               RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.acceptByMerchant(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order accepted and courier assigned.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_ACCEPTED_AND_COURIER_ASSIGNED);
 
         return "redirect:/dashboard/merchant/orders/" + orderNumber;
     }
@@ -116,7 +117,7 @@ public class MerchantDashboardController {
                               RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.cancelByMerchant(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order cancelled.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_CANCELLED);
 
         return "redirect:/dashboard/merchant/orders/" + orderNumber;
     }
@@ -127,7 +128,7 @@ public class MerchantDashboardController {
                                      RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.markPreparingByMerchant(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order marked as preparing.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_MARKED_PREPARING);
 
         return "redirect:/dashboard/merchant/orders/" + orderNumber;
     }
@@ -138,7 +139,7 @@ public class MerchantDashboardController {
                                     RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.markPreparedByMerchant(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order marked as prepared.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_MARKED_PREPARED);
 
         return "redirect:/dashboard/merchant/orders/" + orderNumber;
     }

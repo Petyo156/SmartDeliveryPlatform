@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.InactiveCourierAccessException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -34,6 +34,6 @@ public class ActiveCourierInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        throw new InactiveCourierAccessException(ExceptionMessages.INACTIVE_COURIER_ACCOUNT);
+        throw new InactiveCourierAccessException(ErrorMessages.INACTIVE_COURIER_ACCOUNT);
     }
 }

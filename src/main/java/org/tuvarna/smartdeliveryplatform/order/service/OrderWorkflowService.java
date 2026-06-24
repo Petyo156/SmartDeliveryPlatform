@@ -10,6 +10,8 @@ import org.tuvarna.smartdeliveryplatform.exception.MerchantOrderWorkflowExceptio
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.order.model.Order;
 import org.tuvarna.smartdeliveryplatform.order.repository.OrderRepository;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.shared.enums.OrderStatus;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 
@@ -64,7 +66,7 @@ public class OrderWorkflowService {
         Order order = getOrderForCourierWorkflow(orderNumber, courierUser);
         ensureCourierCanConfirm(order);
 
-        changeOrderStatus(order, OrderStatus.COURIER_ACCEPTED, courierUser, OrderWorkflowNotes.COURIER_ACCEPTED);
+        changeOrderStatus(order, OrderStatus.COURIER_ACCEPTED, courierUser, SuccessMessages.COURIER_ACCEPTED_HISTORY_NOTE);
 
         log.info("Courier {} confirmed order {}", courierUser.getEmail(), order.getOrderNumber());
     }
@@ -85,7 +87,7 @@ public class OrderWorkflowService {
         Order order = getOrderForMerchantWorkflow(orderNumber, merchantUser);
         ensureMerchantCanMarkPreparing(order);
 
-        changeOrderStatus(order, OrderStatus.PREPARING, merchantUser, OrderWorkflowNotes.MERCHANT_PREPARING);
+        changeOrderStatus(order, OrderStatus.PREPARING, merchantUser, SuccessMessages.MERCHANT_PREPARING_HISTORY_NOTE);
 
         log.info("Merchant {} marked order {} as preparing", merchantUser.getEmail(), order.getOrderNumber());
     }
@@ -95,7 +97,7 @@ public class OrderWorkflowService {
         Order order = getOrderForMerchantWorkflow(orderNumber, merchantUser);
         ensureMerchantCanMarkPrepared(order);
 
-        changeOrderStatus(order, OrderStatus.PREPARED, merchantUser, OrderWorkflowNotes.MERCHANT_PREPARED);
+        changeOrderStatus(order, OrderStatus.PREPARED, merchantUser, SuccessMessages.MERCHANT_PREPARED_HISTORY_NOTE);
 
         log.info("Merchant {} marked order {} as prepared", merchantUser.getEmail(), order.getOrderNumber());
     }
@@ -105,7 +107,7 @@ public class OrderWorkflowService {
         Order order = getOrderForCourierWorkflow(orderNumber, courierUser);
         ensureCourierCanMarkOnTheWay(order);
 
-        changeOrderStatus(order, OrderStatus.ON_THE_WAY, courierUser, OrderWorkflowNotes.COURIER_ON_THE_WAY);
+        changeOrderStatus(order, OrderStatus.ON_THE_WAY, courierUser, SuccessMessages.COURIER_ON_THE_WAY_HISTORY_NOTE);
 
         log.info("Courier {} marked order {} as on the way", courierUser.getEmail(), order.getOrderNumber());
     }
@@ -124,12 +126,12 @@ public class OrderWorkflowService {
 
     private Order getOrderForMerchantWorkflow(String orderNumber, User merchantUser) {
         return orderRepository.findByOrderNumberAndMerchant_User_Email(orderNumber, merchantUser.getEmail())
-                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderNotFoundException(ErrorMessages.ORDER_NOT_FOUND));
     }
 
     private Order getOrderForCourierWorkflow(String orderNumber, User courierUser) {
         return orderRepository.findByOrderNumberAndCourier_User_Email(orderNumber, courierUser.getEmail())
-                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderNotFoundException(ErrorMessages.ORDER_NOT_FOUND));
     }
 
     private void changeOrderStatus(Order order, OrderStatus status, User changedBy, String note) {
@@ -189,48 +191,48 @@ public class OrderWorkflowService {
 
     private void ensureMerchantCanAccept(Order order) {
         ensureMerchantOrderIsNotFinal(order);
-        ensureMerchantStatus(order, OrderStatus.PENDING, OrderWorkflowNotes.ACCEPT_PENDING_ONLY);
+        ensureMerchantStatus(order, OrderStatus.PENDING, ErrorMessages.ACCEPT_PENDING_ONLY);
     }
 
     private void ensureCourierCanConfirm(Order order) {
         ensureCourierOrderIsNotFinal(order);
-        ensureCourierStatus(order, OrderStatus.ACCEPTED, OrderWorkflowNotes.COURIER_CONFIRM_ACCEPTED_ONLY);
+        ensureCourierStatus(order, OrderStatus.ACCEPTED, ErrorMessages.COURIER_CONFIRM_ACCEPTED_ONLY);
     }
 
     private void ensureCourierCanDecline(Order order) {
         ensureCourierOrderIsNotFinal(order);
-        ensureCourierStatus(order, OrderStatus.ACCEPTED, OrderWorkflowNotes.COURIER_DECLINE_ACCEPTED_ONLY);
+        ensureCourierStatus(order, OrderStatus.ACCEPTED, ErrorMessages.COURIER_DECLINE_ACCEPTED_ONLY);
     }
 
     private void ensureMerchantCanMarkPreparing(Order order) {
         ensureMerchantOrderIsNotFinal(order);
-        ensureMerchantStatus(order, OrderStatus.COURIER_ACCEPTED, OrderWorkflowNotes.PREPARING_COURIER_ACCEPTED_ONLY);
+        ensureMerchantStatus(order, OrderStatus.COURIER_ACCEPTED, ErrorMessages.PREPARING_COURIER_ACCEPTED_ONLY);
     }
 
     private void ensureMerchantCanMarkPrepared(Order order) {
         ensureMerchantOrderIsNotFinal(order);
-        ensureMerchantStatus(order, OrderStatus.PREPARING, OrderWorkflowNotes.PREPARED_PREPARING_ONLY);
+        ensureMerchantStatus(order, OrderStatus.PREPARING, ErrorMessages.PREPARED_PREPARING_ONLY);
     }
 
     private void ensureCourierCanMarkOnTheWay(Order order) {
         ensureCourierOrderIsNotFinal(order);
-        ensureCourierStatus(order, OrderStatus.PREPARED, OrderWorkflowNotes.ON_THE_WAY_PREPARED_ONLY);
+        ensureCourierStatus(order, OrderStatus.PREPARED, ErrorMessages.ON_THE_WAY_PREPARED_ONLY);
     }
 
     private void ensureCourierCanMarkDelivered(Order order) {
         ensureCourierOrderIsNotFinal(order);
-        ensureCourierStatus(order, OrderStatus.ON_THE_WAY, OrderWorkflowNotes.DELIVERED_ON_THE_WAY_ONLY);
+        ensureCourierStatus(order, OrderStatus.ON_THE_WAY, ErrorMessages.DELIVERED_ON_THE_WAY_ONLY);
     }
 
     private void ensureMerchantOrderIsNotFinal(Order order) {
         if (OrderWorkflowRules.isFinal(order.getStatus())) {
-            throw new MerchantOrderWorkflowException(OrderWorkflowNotes.FINAL_ORDER_CHANGE_DENIED);
+            throw new MerchantOrderWorkflowException(ErrorMessages.FINAL_ORDER_CHANGE_DENIED);
         }
     }
 
     private void ensureCourierOrderIsNotFinal(Order order) {
         if (OrderWorkflowRules.isFinal(order.getStatus())) {
-            throw new CourierOrderWorkflowException(OrderWorkflowNotes.FINAL_ORDER_CHANGE_DENIED);
+            throw new CourierOrderWorkflowException(ErrorMessages.FINAL_ORDER_CHANGE_DENIED);
         }
     }
 
@@ -249,7 +251,7 @@ public class OrderWorkflowService {
     private void ensureMerchantCanCancel(Order order) {
         ensureMerchantOrderIsNotFinal(order);
         if (!OrderWorkflowRules.canMerchantCancel(order.getStatus())) {
-            throw new MerchantOrderWorkflowException(OrderWorkflowNotes.CANCEL_ALLOWED_STATUSES_ONLY);
+            throw new MerchantOrderWorkflowException(ErrorMessages.CANCEL_ALLOWED_STATUSES_ONLY);
         }
     }
 

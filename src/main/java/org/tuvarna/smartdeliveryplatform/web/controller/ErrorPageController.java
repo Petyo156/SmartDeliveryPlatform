@@ -6,7 +6,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 
 @Controller
 public class ErrorPageController implements ErrorController {
@@ -19,8 +19,8 @@ public class ErrorPageController implements ErrorController {
             return "exception/not-found";
         }
 
-        model.addAttribute("errorTitle", ExceptionMessages.SERVER_ERROR_TITLE);
-        model.addAttribute("errorMessage", "There was an error with your last request. Please try again later.");
+        model.addAttribute("errorTitle", ErrorMessages.SERVER_ERROR_TITLE);
+        model.addAttribute("errorMessage", ErrorMessages.GENERIC_REQUEST_ERROR);
         return "exception/server-error";
     }
 }

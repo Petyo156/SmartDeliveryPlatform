@@ -2,6 +2,7 @@ package org.tuvarna.smartdeliveryplatform.web.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
 
@@ -28,17 +29,17 @@ public class RegistrationAddressValidator implements ConstraintValidator<ValidRe
         context.disableDefaultConstraintViolation();
 
         if (!hasText(addressRequest.getCity())) {
-            addViolation(context, "City is required when adding an address.", "city");
+            addViolation(context, ValidationMessages.CITY_REQUIRED_WHEN_ADDING_ADDRESS, "city");
             valid = false;
         }
 
         if (!hasText(addressRequest.getStreet())) {
-            addViolation(context, "Street is required when adding an address.", "street");
+            addViolation(context, ValidationMessages.STREET_REQUIRED_WHEN_ADDING_ADDRESS, "street");
             valid = false;
         }
 
         if (!hasText(addressRequest.getBuilding())) {
-            addViolation(context, "Building is required when adding an address.", "building");
+            addViolation(context, ValidationMessages.BUILDING_REQUIRED_WHEN_ADDING_ADDRESS, "building");
             valid = false;
         }
 

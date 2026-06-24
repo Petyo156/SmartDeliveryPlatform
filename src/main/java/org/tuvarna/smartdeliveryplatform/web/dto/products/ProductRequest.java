@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,16 +17,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
-    @NotBlank(message = "Product name is required.")
+    @NotBlank(message = ValidationMessages.PRODUCT_NAME_REQUIRED)
     private String name;
 
     private String description;
 
-    @NotNull(message = "Price is required.")
-    @DecimalMin(value = "0.01", message = "Price must be at least 0.01.")
+    @NotNull(message = ValidationMessages.PRICE_REQUIRED)
+    @DecimalMin(value = "0.01", message = ValidationMessages.PRICE_MIN)
     private BigDecimal price;
 
-    @NotNull(message = "Category is required.")
+    @NotNull(message = ValidationMessages.CATEGORY_REQUIRED)
     private UUID categoryId;
 
     private String imageUrl;

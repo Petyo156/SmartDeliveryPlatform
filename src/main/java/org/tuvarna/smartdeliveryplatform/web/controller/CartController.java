@@ -16,6 +16,8 @@ import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.cart.AddCartItemRequest;
@@ -79,13 +81,13 @@ public class CartController {
         String redirectUrl = redirectUrlResolver.resolveRefererOrDefault(httpServletRequest, "/cart");
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.CHOOSE_VALID_PRODUCT_QUANTITY);
             return "redirect:" + redirectUrl;
         }
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         cartService.addProductToCart(user, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Product added to cart.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PRODUCT_ADDED_TO_CART);
         return "redirect:" + redirectUrl;
     }
 
@@ -98,13 +100,13 @@ public class CartController {
         String redirectUrl = redirectUrlResolver.resolveRefererOrDefault(httpServletRequest, "/cart");
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Choose a valid product quantity.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.CHOOSE_VALID_PRODUCT_QUANTITY);
             return "redirect:" + redirectUrl;
         }
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         cartService.clearCartAndAddProduct(user, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Cart cleared and product added.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.CART_CLEARED_AND_PRODUCT_ADDED);
         return "redirect:" + redirectUrl;
     }
 
@@ -112,10 +114,10 @@ public class CartController {
     public String updateQuantity(@AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
                                  @PathVariable UUID itemId,
                                  @Valid @ModelAttribute UpdateCartItemQuantityRequest request,
-                                 BindingResult bindingResult,
+        BindingResult bindingResult,
                                  RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.CART_QUANTITY_MUST_BE_AT_LEAST_ONE);
             return "redirect:/cart";
         }
 
@@ -146,7 +148,7 @@ public class CartController {
         }
 
         orderService.placeOrder(user, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Order placed successfully.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_PLACED);
         return "redirect:/orders";
     }
 }

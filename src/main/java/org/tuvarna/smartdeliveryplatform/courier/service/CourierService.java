@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 import org.tuvarna.smartdeliveryplatform.courier.repository.CourierRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -109,12 +109,12 @@ public class CourierService {
 
     private Courier getExistingCourierByUserEmail(String email) {
         return getCourierByUserEmail(email)
-                .orElseThrow(() -> new CourierOperationException(ExceptionMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
+                .orElseThrow(() -> new CourierOperationException(ErrorMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
     }
 
     private Courier getRequiredCourierByUserEmail(String email) {
         return getCourierByUserEmail(email)
-                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
+                .orElseThrow(() -> new SystemOperationException(ErrorMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
     }
 
     private void updateLinkedUserStatusFromCourierStatus(Courier courier) {

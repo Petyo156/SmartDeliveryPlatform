@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
@@ -77,7 +78,7 @@ public class AddressController {
         }
 
         addressService.addAddress(user, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Address added successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ADDRESS_ADDED);
 
         return "redirect:/addresses";
     }
@@ -96,7 +97,7 @@ public class AddressController {
         }
 
         addressService.updateAddress(user, editingAddressId, addressRequest);
-        redirectAttributes.addFlashAttribute("successMessage", "Address updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ADDRESS_UPDATED);
 
         return "redirect:/addresses";
     }
@@ -108,7 +109,7 @@ public class AddressController {
 
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         addressService.deleteAddress(user, id);
-        redirectAttributes.addFlashAttribute("successMessage", "Address deleted!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ADDRESS_DELETED);
         return "redirect:/addresses";
     }
 
@@ -118,7 +119,7 @@ public class AddressController {
                                     RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         addressService.setDefaultAddress(user, id);
-        redirectAttributes.addFlashAttribute("successMessage", "Default address updated!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.DEFAULT_ADDRESS_UPDATED);
         return "redirect:/addresses";
     }
 }

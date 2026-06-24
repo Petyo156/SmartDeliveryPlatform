@@ -22,7 +22,7 @@ import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.PasswordsDoNotMatchException;
 import org.tuvarna.smartdeliveryplatform.exception.ProductOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.UserOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.UserWithEmailAlreadyExistsException;
@@ -197,7 +197,7 @@ public class ExceptionAdvice {
             SystemOperationException.class
     })
     public String systemOperationFailed(SystemOperationException e, Model model) {
-        model.addAttribute("errorTitle", ExceptionMessages.SERVER_ERROR_TITLE);
+        model.addAttribute("errorTitle", ErrorMessages.SERVER_ERROR_TITLE);
         model.addAttribute("errorMessage", e.getMessage());
         return "exception/server-error";
     }

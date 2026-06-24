@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 
@@ -15,21 +16,21 @@ import org.tuvarna.smartdeliveryplatform.web.dto.auth.AddressRequest;
 @NoArgsConstructor
 @Builder
 public class MerchantRequest {
-    @NotBlank(message = "Email is required.")
+    @NotBlank(message = ValidationMessages.EMAIL_REQUIRED)
     private String email;
 
-    @NotBlank(message = "Name is required.")
+    @NotBlank(message = ValidationMessages.NAME_REQUIRED)
     private String name;
 
     private String description;
 
-    @NotNull(message = "Merchant type is required.")
+    @NotNull(message = ValidationMessages.MERCHANT_TYPE_REQUIRED)
     private MerchantType type;
 
     @Valid
-    @NotNull(message = "Address is required.")
+    @NotNull(message = ValidationMessages.ADDRESS_REQUIRED_PERIOD)
     private AddressRequest address;
 
-    @NotBlank(message = "Image url is required")
+    @NotBlank(message = ValidationMessages.IMAGE_URL_REQUIRED)
     private String imageUrl;
 }

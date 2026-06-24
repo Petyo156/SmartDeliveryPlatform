@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.MerchantOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
@@ -63,7 +63,7 @@ public class MerchantService {
     @Transactional
     public void toggleMerchantActiveStatus(String email) {
         Merchant merchant = getMerchantOptionalByUserEmail(email)
-                .orElseThrow(() -> new MerchantOperationException(ExceptionMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
+                .orElseThrow(() -> new MerchantOperationException(ErrorMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
         merchant.setIsActive(!merchant.getIsActive());
         updateLinkedUserStatusFromMerchantStatus(merchant);
         if (!merchant.getIsActive()) {
@@ -130,14 +130,14 @@ public class MerchantService {
         String slug = initializeSlugForMerchant(merchant, address.getCity());
         merchant.setSlug(slug);
         if(merchantRepository.existsMerchantBySlug(slug)) {
-            throw new SystemOperationException(ExceptionMessages.MERCHANT_SLUG_ALREADY_EXISTS);
+            throw new SystemOperationException(ErrorMessages.MERCHANT_SLUG_ALREADY_EXISTS);
         }
         merchantRepository.save(merchant);
     }
 
     public Merchant getMerchantByUserEmail(String email) {
         return merchantRepository.getMerchantByUser_Email(email)
-                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
+                .orElseThrow(() -> new SystemOperationException(ErrorMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
     }
 
     public Optional<Merchant> getMerchantOptionalByUserEmail(String email) {
@@ -147,7 +147,7 @@ public class MerchantService {
     @Transactional(readOnly = true)
     public MerchantPageResponse getMerchantPageBySlug(String slug) {
         Merchant merchant = merchantRepository.findBySlugAndIsActiveTrue(slug)
-                .orElseThrow(() -> new MerchantNotFoundException(ExceptionMessages.MERCHANT_WITH_SLUG_DOES_NOT_EXIST.formatted(slug)));
+                .orElseThrow(() -> new MerchantNotFoundException(ErrorMessages.MERCHANT_WITH_SLUG_DOES_NOT_EXIST.formatted(slug)));
 
         return toMerchantPageResponse(merchant);
     }

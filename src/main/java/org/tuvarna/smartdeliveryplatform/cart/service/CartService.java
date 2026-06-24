@@ -9,7 +9,7 @@ import org.tuvarna.smartdeliveryplatform.cart.repository.CartItemRepository;
 import org.tuvarna.smartdeliveryplatform.cart.repository.CartRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException;
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderPricingService;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
@@ -116,7 +116,7 @@ public class CartService {
         Cart cart = getCartForUser(user);
 
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new CartOperationException(ExceptionMessages.CART_IS_EMPTY);
+            throw new CartOperationException(ErrorMessages.CART_IS_EMPTY);
         }
 
         List<CartItem> cartItems = cart.getItems();
@@ -134,37 +134,37 @@ public class CartService {
 
     private Product getProductBySlug(String slug) {
         return productRepository.findBySlug(slug)
-                .orElseThrow(() -> new CartOperationException(ExceptionMessages.PRODUCT_WAS_NOT_FOUND));
+                .orElseThrow(() -> new CartOperationException(ErrorMessages.PRODUCT_WAS_NOT_FOUND));
     }
 
     private Cart getCartForUser(User user) {
         return cartRepository.findByUser_Email(user.getEmail())
-                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.CART_WAS_NOT_FOUND_FOR_USER));
+                .orElseThrow(() -> new SystemOperationException(ErrorMessages.CART_WAS_NOT_FOUND_FOR_USER));
     }
 
     private CartItem getCartItemForUser(String userEmail, UUID itemId) {
         return cartItemRepository.findByIdAndCart_User_Email(itemId, userEmail)
-                .orElseThrow(() -> new CartOperationException(ExceptionMessages.CART_ITEM_WAS_NOT_FOUND));
+                .orElseThrow(() -> new CartOperationException(ErrorMessages.CART_ITEM_WAS_NOT_FOUND));
     }
 
     private int validateQuantity(Integer quantity) {
         if (quantity == null || quantity < 1) {
-            throw new CartOperationException(ExceptionMessages.CART_QUANTITY_MUST_BE_AT_LEAST_ONE);
+            throw new CartOperationException(ErrorMessages.CART_QUANTITY_MUST_BE_AT_LEAST_ONE);
         }
         return quantity;
     }
 
     private void validateProductCanBeAdded(Product product) {
         if (!Boolean.TRUE.equals(product.getIsAvailable()) || Boolean.TRUE.equals(product.getIsDeleted())) {
-            throw new CartOperationException(ExceptionMessages.CART_PRODUCT_IS_NOT_AVAILABLE);
+            throw new CartOperationException(ErrorMessages.CART_PRODUCT_IS_NOT_AVAILABLE);
         }
 
         if (!Boolean.TRUE.equals(product.getMerchant().getIsActive())) {
-            throw new CartOperationException(ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE);
+            throw new CartOperationException(ErrorMessages.MERCHANT_IS_NOT_AVAILABLE);
         }
 
         if (Boolean.TRUE.equals(product.getMerchant().getIsClosed())) {
-            throw new CartOperationException(ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED);
+            throw new CartOperationException(ErrorMessages.MERCHANT_IS_CURRENTLY_CLOSED);
         }
     }
 
@@ -175,13 +175,13 @@ public class CartService {
                         || Boolean.TRUE.equals(product.getIsDeleted()));
 
         if (unavailableProductExists) {
-            throw new CartOperationException(ExceptionMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT);
+            throw new CartOperationException(ErrorMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT);
         }
     }
 
     private void validateSingleMerchantCart(Cart cart, Product product) {
         if (hasDifferentMerchant(cart, product)) {
-            throw new CartMerchantConflictException(ExceptionMessages.CART_MERCHANT_CONFLICT);
+            throw new CartMerchantConflictException(ErrorMessages.CART_MERCHANT_CONFLICT);
         }
     }
 
@@ -301,7 +301,7 @@ public class CartService {
         }
 
         if (product.getMerchant().getUser().getEmail().equals(user.getEmail())) {
-            throw new CartOperationException(ExceptionMessages.CANNOT_ORDER_FROM_OWN_SHOP);
+            throw new CartOperationException(ErrorMessages.CANNOT_ORDER_FROM_OWN_SHOP);
         }
     }
 
@@ -316,15 +316,15 @@ public class CartService {
 
     private String resolveCheckoutUnavailableMessage(boolean productsAvailable, Boolean merchantIsActive, Boolean merchantIsClosed) {
         if (!productsAvailable) {
-            return ExceptionMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT;
+            return ErrorMessages.CART_CONTAINS_UNAVAILABLE_PRODUCT;
         }
 
         if (Boolean.FALSE.equals(merchantIsActive)) {
-            return ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE;
+            return ErrorMessages.MERCHANT_IS_NOT_AVAILABLE;
         }
 
         if (Boolean.TRUE.equals(merchantIsClosed)) {
-            return ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED;
+            return ErrorMessages.MERCHANT_IS_CURRENTLY_CLOSED;
         }
 
         return null;

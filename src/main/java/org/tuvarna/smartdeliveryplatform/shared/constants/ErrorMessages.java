@@ -1,8 +1,15 @@
-package org.tuvarna.smartdeliveryplatform.exception;
+package org.tuvarna.smartdeliveryplatform.shared.constants;
 
-public class ExceptionMessages {
+public final class ErrorMessages {
     public static final String NO_AVAILABLE_COURIER = "No available courier right now. Please try again shortly.";
     public static final String SERVER_ERROR_TITLE = "Something went wrong";
+    public static final String GENERIC_REQUEST_ERROR = "There was an error with your last request. Please try again later.";
+    public static final String INCORRECT_USERNAME_OR_PASSWORD = "Incorrect username or password!";
+    public static final String INVALID_USER_STATUS_REQUEST = "Invalid user status request.";
+    public static final String INVALID_ADMIN_DEMOTION_REQUEST = "Invalid admin demotion request.";
+    public static final String INVALID_MERCHANT_STATUS_REQUEST = "Invalid merchant status request.";
+    public static final String INVALID_COURIER_STATUS_REQUEST = "Invalid courier status request.";
+    public static final String CHOOSE_VALID_PRODUCT_QUANTITY = "Choose a valid product quantity.";
     public static final String PRODUCT_NOT_FOUND = "Product not found";
     public static final String PRODUCT_WAS_NOT_FOUND = "Product was not found.";
     public static final String MERCHANT_CAN_ONLY_USE_ALLOWED_CATEGORIES = "Merchant can only use global categories or their own categories";
@@ -57,4 +64,14 @@ public class ExceptionMessages {
     public static final String ADMIN_CANNOT_DEMOTE_SELF = "You cannot demote your own admin account";
     public static final String MAIN_ADMIN_CANNOT_BE_DEMOTED = "Main admin cannot be demoted";
     public static final String MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED = "Main admin status cannot be changed";
+    public static final String ORDER_NOT_FOUND = "Order not found.";
+    public static final String FINAL_ORDER_CHANGE_DENIED = "Finalized orders cannot be changed.";
+    public static final String ACCEPT_PENDING_ONLY = "Only pending orders can be accepted.";
+    public static final String CANCEL_ALLOWED_STATUSES_ONLY = "Only orders that have not started delivery can be cancelled.";
+    public static final String COURIER_CONFIRM_ACCEPTED_ONLY = "Only accepted orders can be confirmed.";
+    public static final String COURIER_DECLINE_ACCEPTED_ONLY = "Only accepted orders can be declined.";
+    public static final String PREPARING_COURIER_ACCEPTED_ONLY = "Only courier-confirmed orders can be marked as preparing.";
+    public static final String PREPARED_PREPARING_ONLY = "Only preparing orders can be marked as prepared.";
+    public static final String ON_THE_WAY_PREPARED_ONLY = "Only prepared orders can be marked as on the way.";
+    public static final String DELIVERED_ON_THE_WAY_ONLY = "Only orders on the way can be marked as delivered.";
 }

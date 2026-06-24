@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.config.demo.dto.DemoDataConstants;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.exception.AdminOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
@@ -55,15 +55,15 @@ public class AdminService {
         User user = getExistingUserByEmail(merchantRequest.getEmail());
 
         if (user.getRole() == UserRole.COURIER) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_COURIER_CANNOT_BECOME_MERCHANT);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_COURIER_CANNOT_BECOME_MERCHANT);
         }
 
         if (user.getRole() == UserRole.ADMIN) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_MERCHANT);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_MERCHANT);
         }
 
         if (merchantService.getMerchantOptionalByUserEmail(merchantRequest.getEmail()).isPresent()) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_MERCHANT);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_MERCHANT);
         }
 
         user.setRole(UserRole.MERCHANT);
@@ -78,15 +78,15 @@ public class AdminService {
         User user = getExistingUserByEmail(email);
 
         if (user.getRole() == UserRole.MERCHANT) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_MERCHANT_CANNOT_BECOME_COURIER);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_MERCHANT_CANNOT_BECOME_COURIER);
         }
 
         if (user.getRole() == UserRole.ADMIN) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_COURIER);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_ADMIN_CANNOT_BECOME_COURIER);
         }
 
         if (courierService.courierExistsForUserEmail(user.getEmail())) {
-            throw new AdminOperationException(ExceptionMessages.USER_ALREADY_COURIER);
+            throw new AdminOperationException(ErrorMessages.USER_ALREADY_COURIER);
         }
 
         user.setRole(UserRole.COURIER);
@@ -101,11 +101,11 @@ public class AdminService {
         User user = getExistingUserByEmail(email);
 
         if (courierService.courierExistsForUserEmail(user.getEmail())) {
-            throw new AdminOperationException(ExceptionMessages.USER_COURIER_CANNOT_BE_ADMIN);
+            throw new AdminOperationException(ErrorMessages.USER_COURIER_CANNOT_BE_ADMIN);
         }
 
         if (merchantService.getMerchantOptionalByUserEmail(user.getEmail()).isPresent()) {
-            throw new AdminOperationException(ExceptionMessages.USER_MERCHANT_CANNOT_BE_ADMIN);
+            throw new AdminOperationException(ErrorMessages.USER_MERCHANT_CANNOT_BE_ADMIN);
         }
 
         user.setRole(UserRole.ADMIN);
@@ -118,15 +118,15 @@ public class AdminService {
         User user = getExistingUserByEmail(email);
 
         if (user.getRole() != UserRole.ADMIN) {
-            throw new AdminOperationException(ExceptionMessages.USER_NOT_ADMIN_CANNOT_BE_DEMOTED);
+            throw new AdminOperationException(ErrorMessages.USER_NOT_ADMIN_CANNOT_BE_DEMOTED);
         }
 
         if (user.getEmail().equals(actingAdminEmail)) {
-            throw new AdminOperationException(ExceptionMessages.ADMIN_CANNOT_DEMOTE_SELF);
+            throw new AdminOperationException(ErrorMessages.ADMIN_CANNOT_DEMOTE_SELF);
         }
 
         if (isMainAdmin(user)) {
-            throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_CANNOT_BE_DEMOTED);
+            throw new AdminOperationException(ErrorMessages.MAIN_ADMIN_CANNOT_BE_DEMOTED);
         }
 
         user.setRole(UserRole.CLIENT);
@@ -160,7 +160,7 @@ public class AdminService {
 
     private void validateMainAdminStatusCanBeChanged(User user) {
         if (isMainAdmin(user)) {
-            throw new AdminOperationException(ExceptionMessages.MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED);
+            throw new AdminOperationException(ErrorMessages.MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED);
         }
     }
 
@@ -186,7 +186,7 @@ public class AdminService {
 
     private User getExistingUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new AdminOperationException(ExceptionMessages.USER_WITH_EMAIL_DOES_NOT_EXIST));
+                .orElseThrow(() -> new AdminOperationException(ErrorMessages.USER_WITH_EMAIL_DOES_NOT_EXIST));
     }
 
     private static UserResponse initializeUserResponse(User user) {
