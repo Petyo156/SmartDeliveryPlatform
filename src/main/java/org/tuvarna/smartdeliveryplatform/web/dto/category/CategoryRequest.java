@@ -5,12 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryRequest {
-    @NotBlank(message = "Category name is required.")
+    @NotBlank(message = ValidationMessages.CATEGORY_NAME_REQUIRED)
     private String categoryName;
 }

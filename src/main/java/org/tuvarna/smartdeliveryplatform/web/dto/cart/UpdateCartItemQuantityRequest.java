@@ -6,13 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCartItemQuantityRequest {
-    @NotNull(message = "Quantity is required.")
-    @Min(value = 1, message = "Quantity must be at least 1.")
+    @NotNull(message = ValidationMessages.QUANTITY_REQUIRED)
+    @Min(value = 1, message = ValidationMessages.QUANTITY_MIN_ONE)
     private Integer quantity;
 }

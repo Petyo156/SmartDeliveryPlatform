@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 import java.util.UUID;
 
@@ -15,16 +16,16 @@ import java.util.UUID;
 @Builder
 public class MerchantProfileRequest {
 
-    @NotBlank(message = "Merchant name is required")
+    @NotBlank(message = ValidationMessages.MERCHANT_NAME_REQUIRED)
     private String name;
 
     private String description;
 
-    @NotNull(message = "Address is required")
+    @NotNull(message = ValidationMessages.ADDRESS_REQUIRED)
     private UUID addressId;
 
     private Boolean isClosed;
 
-    @NotBlank(message = "Image url is required")
+    @NotBlank(message = ValidationMessages.IMAGE_URL_REQUIRED)
     private String imageUrl;
 }

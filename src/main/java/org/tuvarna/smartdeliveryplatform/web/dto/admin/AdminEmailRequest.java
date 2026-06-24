@@ -6,13 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class AdminEmailRequest {
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Valid email is required.")
+    @NotBlank(message = ValidationMessages.EMAIL_REQUIRED)
+    @Email(message = ValidationMessages.VALID_EMAIL_REQUIRED)
     private String email;
 }

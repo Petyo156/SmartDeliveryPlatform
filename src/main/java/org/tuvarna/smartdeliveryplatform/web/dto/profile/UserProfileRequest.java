@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ValidationMessages;
 
 @Data
 @AllArgsConstructor
@@ -13,13 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserProfileRequest {
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = ValidationMessages.FIRST_NAME_REQUIRED)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = ValidationMessages.LAST_NAME_REQUIRED)
     private String lastName;
 
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^$|\\d{10}", message = "Phone number must contain exactly 10 digits")
+    @NotBlank(message = ValidationMessages.PHONE_REQUIRED)
+    @Pattern(regexp = "^$|\\d{10}", message = ValidationMessages.PHONE_EXACTLY_TEN_DIGITS)
     private String phoneNumber;
 }
