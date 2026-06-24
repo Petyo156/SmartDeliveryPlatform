@@ -6,19 +6,46 @@
 
     <link rel="stylesheet" href="/css/order/orders.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="icon" href="/images/favicon.ico">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="order-details-page">
 
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
 <main class="orders-page">
-    <section class="orders-header">
-        <h1 th:text="${order.orderNumber}">ORD-000</h1>
-        <p>Order details and status history.</p>
+    <section class="orders-header order-details-header">
+        <div class="order-details-title-row">
+            <a class="order-details-merchant-summary"
+               th:href="@{/merchant/{slug}(slug=${order.merchantSlug})}"
+               aria-label="Open merchant page">
+                <div class="order-merchant-image">
+                    <img th:if="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                         th:src="${order.merchantImageUrl}"
+                         th:alt="${order.merchantName}"
+                         onerror="this.style.display='none'">
+                    <div th:unless="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                         class="order-merchant-placeholder">
+                        <i class="fas fa-store"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <span>Order from</span>
+                    <strong th:text="${order.merchantName}">Merchant</strong>
+                </div>
+            </a>
+
+            <div class="order-details-title-copy">
+                <span class="order-number">Order details</span>
+                <h1 th:text="${order.orderNumber}">ORD-000</h1>
+                <p>Order details and status history.</p>
+            </div>
+        </div>
     </section>
 
     <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
@@ -37,44 +64,27 @@
         </div>
 
         <div class="order-details-grid">
-            <a class="order-merchant-link order-details-merchant-link"
-               th:href="@{/merchant/{slug}(slug=${order.merchantSlug})}">
-                <div class="order-merchant-image">
-                    <img th:if="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
-                         th:src="${order.merchantImageUrl}"
-                         th:alt="${order.merchantName}"
-                         onerror="this.style.display='none'">
-                    <div th:unless="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
-                         class="order-merchant-placeholder">
-                        <i class="fas fa-store"></i>
-                    </div>
-                </div>
-
-                <div class="order-merchant-heading">
-                    <span>Merchant</span>
-                    <strong th:text="${order.merchantName}">Merchant</strong>
-                    <p th:text="${order.merchantAddress}">Merchant address</p>
-                </div>
-            </a>
+            <div>
+                <span>Pickup address</span>
+                <strong th:text="${order.merchantName}">Merchant</strong>
+                <p th:text="${order.merchantAddress}">Merchant address</p>
+            </div>
             <div>
                 <span>Customer</span>
                 <strong th:text="${order.clientName}">Customer</strong>
                 <p th:text="${order.deliveryAddress}">Delivery address</p>
+                <p th:if="${order.clientPhoneNumber != null and !order.clientPhoneNumber.isBlank()}"
+                   th:text="${order.clientPhoneNumber}">+359 888 000 000</p>
             </div>
             <div>
                 <span>Courier</span>
                 <strong th:text="${order.courierName}">Courier</strong>
-                <p th:if="${order.courierAssigned}" th:text="${order.courierEmail}">courier@example.com</p>
+                <p th:if="${order.courierAssigned}" th:text="${order.courierPhoneNumber}">+359 888 000 000</p>
             </div>
             <div>
                 <span>Created at</span>
-                <strong th:text="${order.createdAt}">Created at</strong>
-            </div>
-            <div>
-                <span>Total</span>
-                <strong>
-                    <span th:text="${order.totalPrice}">0.00</span>
-                    euro
+                <strong th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm') : 'Not available'}">
+                    24 Jun 2026, 17:04
                 </strong>
             </div>
         </div>
@@ -84,21 +94,21 @@
                 <span>Subtotal</span>
                 <strong>
                     <span th:text="${order.subtotal}">0.00</span>
-                    euro
+                    €
                 </strong>
             </div>
             <div>
                 <span>Delivery fee</span>
                 <strong>
                     <span th:text="${order.deliveryFee}">0.00</span>
-                    euro
+                    €
                 </strong>
             </div>
             <div>
                 <span>Total price</span>
                 <strong>
                     <span th:text="${order.totalPrice}">0.00</span>
-                    euro
+                    €
                 </strong>
             </div>
         </div>
@@ -187,13 +197,13 @@
                         <span th:text="${item.quantity}">1</span>
                         x
                         <span th:text="${item.unitPrice}">0.00</span>
-                        euro
+                        €
                     </span>
                 </div>
 
                 <strong class="order-item-total">
                     <span th:text="${item.lineSubtotal}">0.00</span>
-                    euro
+                    €
                 </strong>
             </div>
         </div>
@@ -206,14 +216,16 @@
 
         <div class="order-timeline">
             <div th:each="history : ${order.statusHistory}" class="order-timeline-item">
-                <span class="order-status"
-                      th:classappend="${history.status}"
-                      th:text="${history.status}">PENDING</span>
                 <div>
-                    <strong th:text="${history.changedAt}">Changed at</strong>
+                    <strong th:text="${history.changedAt != null ? #temporals.format(history.changedAt, 'dd MMM yyyy, HH:mm') : 'Not available'}">
+                        24 Jun 2026, 17:04
+                    </strong>
                     <p th:if="${history.changedByName != null}" th:text="${history.changedByName}">Changed by</p>
                     <p th:if="${history.note != null && !history.note.isBlank()}" th:text="${history.note}">Note</p>
                 </div>
+                <span class="order-status"
+                      th:classappend="${history.status}"
+                      th:text="${history.status}">PENDING</span>
             </div>
         </div>
     </section>

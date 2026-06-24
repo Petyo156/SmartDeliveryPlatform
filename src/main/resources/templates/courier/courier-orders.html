@@ -6,24 +6,42 @@
 
     <link rel="stylesheet" href="/css/order/orders.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="icon" href="/images/favicon.ico">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="client-orders-page courier-orders-page">
 
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
-<main class="orders-page">
-    <section class="orders-header">
-        <h1>Assigned Orders</h1>
-        <p>Pick up prepared orders and complete deliveries.</p>
+<main class="orders-page client-orders-shell courier-orders-shell">
+    <section class="orders-header client-orders-header">
+        <div>
+            <span class="orders-eyebrow">
+                <i class="fas fa-motorcycle"></i>
+                Courier deliveries
+            </span>
+            <h1>Assigned Orders</h1>
+            <p>Review pickups, delivery addresses, and active courier actions.</p>
+        </div>
+
+        <div th:if="${orders != null}" class="client-orders-count">
+            <strong th:text="${#lists.size(orders)}">0</strong>
+            <span>orders</span>
+        </div>
     </section>
 
-    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    <div th:if="${successMessage}" class="client-order-message-stack">
+        <div class="success-message" th:text="${successMessage}"></div>
+    </div>
+
+    <div th:if="${errorMessage}" class="client-order-message-stack">
+        <div class="error-message" th:text="${errorMessage}"></div>
+    </div>
 
     <section th:if="${orders == null || orders.isEmpty()}" class="orders-empty">
         <i class="fas fa-motorcycle"></i>
@@ -31,80 +49,137 @@
         <p>Accepted orders assigned to you will appear here.</p>
     </section>
 
-    <section th:unless="${orders == null || orders.isEmpty()}" class="orders-list">
-        <article th:each="order : ${orders}" class="order-card">
-            <div class="order-card-header">
-                <div>
-                    <span class="order-number" th:text="${order.orderNumber}">ORD-000</span>
-                    <h2 th:text="${order.merchantName}">Merchant</h2>
-                </div>
+    <section th:unless="${orders == null || orders.isEmpty()}" class="orders-list client-orders-list courier-orders-list">
+        <article th:each="order : ${orders}" class="order-card client-order-card courier-order-card">
+            <div class="order-card-header client-order-card-header">
+                <a class="order-merchant-link"
+                   th:href="@{/merchant/{slug}(slug=${order.merchantSlug})}">
+                    <div class="order-merchant-image">
+                        <img th:if="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                             th:src="${order.merchantImageUrl}"
+                             th:alt="${order.merchantName}"
+                             onerror="this.style.display='none'">
+                        <div th:unless="${order.merchantImageUrl != null && !order.merchantImageUrl.isBlank()}"
+                             class="order-merchant-placeholder">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
 
-                <span class="order-status"
-                      th:classappend="${order.status}"
-                      th:text="${order.status}">PENDING</span>
+                    <div class="order-merchant-heading">
+                        <span class="order-number" th:text="${order.orderNumber}">ORD-000</span>
+                        <h2 th:text="${order.merchantName}">Merchant</h2>
+                    </div>
+                </a>
+
+                <div class="client-order-status-stack">
+                    <span class="client-order-placed-at">
+                        <i class="fas fa-clock"></i>
+                        <span>Placed at</span>
+                        <strong th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm') : 'Not available'}">
+                            24 Jun 2026, 16:23
+                        </strong>
+                    </span>
+                    <span class="order-status"
+                          th:classappend="${order.status}"
+                          th:text="${order.status}">PENDING</span>
+                </div>
             </div>
 
-            <div class="order-meta">
+            <div class="order-meta client-order-meta courier-order-meta">
                 <p>
                     <i class="fas fa-user"></i>
-                    <span th:text="${order.clientName}">Customer</span>
+                    <span>Customer</span>
+                    <strong th:text="${order.clientPhoneNumber != null and !order.clientPhoneNumber.isBlank() ? order.clientName + ' (' + order.clientPhoneNumber + ')' : order.clientName}">
+                        Customer
+                    </strong>
                 </p>
                 <p>
                     <i class="fas fa-location-dot"></i>
-                    <span th:text="${order.deliveryAddress}">Delivery address</span>
+                    <span>Delivery address</span>
+                    <strong th:text="${order.deliveryAddress}">Delivery address</strong>
                 </p>
                 <p>
                     <i class="fas fa-store"></i>
-                    <span th:text="${order.merchantAddress}">Merchant address</span>
-                </p>
-                <p>
-                    <i class="fas fa-clock"></i>
-                    <span th:text="${order.createdAt}">Created at</span>
+                    <span>Pickup address</span>
+                    <strong th:text="${order.merchantAddress}">Merchant address</strong>
                 </p>
             </div>
 
-            <div class="order-total">
-                <span>Total</span>
-                <strong>
-                    <span th:text="${order.totalPrice}">0.00</span>
-                    euro
-                </strong>
-            </div>
+            <div class="client-order-footer courier-order-footer">
+                <div class="client-order-pricing">
+                    <div>
+                        <span>Products</span>
+                        <strong>
+                            <span th:text="${order.subtotal}">0.00</span>
+                            €
+                        </strong>
+                    </div>
+                    <div>
+                        <span>Delivery fee</span>
+                        <strong>
+                            <span th:text="${order.deliveryFee}">0.00</span>
+                            €
+                        </strong>
+                    </div>
+                    <div class="client-order-total-price">
+                        <span>Total price</span>
+                        <strong>
+                            <span th:text="${order.totalPrice}">0.00</span>
+                            €
+                        </strong>
+                    </div>
+                </div>
 
-            <a class="order-details-link"
-               th:href="@{/courier/orders/{orderNumber}(orderNumber=${order.orderNumber})}">
-                View details
-            </a>
+                <div class="courier-order-footer-actions">
+                    <a class="order-details-link"
+                       th:href="@{/courier/orders/{orderNumber}(orderNumber=${order.orderNumber})}">
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                        View details
+                    </a>
 
-            <div class="order-actions"
-                 th:if="${order.actions.canConfirmByCourier || order.actions.canDeclineByCourier || order.actions.canMarkOnTheWayByCourier || order.actions.canMarkDeliveredByCourier}">
-                <form th:if="${order.actions.canConfirmByCourier}"
-                      th:action="@{/courier/orders/{orderNumber}/confirm(orderNumber=${order.orderNumber})}"
-                      method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit">Confirm</button>
-                </form>
+                    <div class="order-actions courier-order-actions"
+                         th:if="${order.actions.canConfirmByCourier || order.actions.canDeclineByCourier || order.actions.canMarkOnTheWayByCourier || order.actions.canMarkDeliveredByCourier}">
+                        <form th:if="${order.actions.canConfirmByCourier}"
+                              th:action="@{/courier/orders/{orderNumber}/confirm(orderNumber=${order.orderNumber})}"
+                              method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit">
+                                <i class="fas fa-check"></i>
+                                Confirm
+                            </button>
+                        </form>
 
-                <form th:if="${order.actions.canDeclineByCourier}"
-                      th:action="@{/courier/orders/{orderNumber}/decline(orderNumber=${order.orderNumber})}"
-                      method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="order-action-danger">Decline</button>
-                </form>
+                        <form th:if="${order.actions.canDeclineByCourier}"
+                              th:action="@{/courier/orders/{orderNumber}/decline(orderNumber=${order.orderNumber})}"
+                              method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="order-action-danger">
+                                <i class="fas fa-xmark"></i>
+                                Decline
+                            </button>
+                        </form>
 
-                <form th:if="${order.actions.canMarkOnTheWayByCourier}"
-                      th:action="@{/courier/orders/{orderNumber}/on-the-way(orderNumber=${order.orderNumber})}"
-                      method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit">On the way</button>
-                </form>
+                        <form th:if="${order.actions.canMarkOnTheWayByCourier}"
+                              th:action="@{/courier/orders/{orderNumber}/on-the-way(orderNumber=${order.orderNumber})}"
+                              method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit">
+                                <i class="fas fa-route"></i>
+                                On the way
+                            </button>
+                        </form>
 
-                <form th:if="${order.actions.canMarkDeliveredByCourier}"
-                      th:action="@{/courier/orders/{orderNumber}/delivered(orderNumber=${order.orderNumber})}"
-                      method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit">Delivered</button>
-                </form>
+                        <form th:if="${order.actions.canMarkDeliveredByCourier}"
+                              th:action="@{/courier/orders/{orderNumber}/delivered(orderNumber=${order.orderNumber})}"
+                              method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit">
+                                <i class="fas fa-house-circle-check"></i>
+                                Delivered
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </article>
     </section>
