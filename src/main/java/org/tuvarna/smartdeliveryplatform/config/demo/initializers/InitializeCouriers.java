@@ -41,6 +41,7 @@ public class InitializeCouriers implements CommandLineRunner {
 
     private void registerCourier(String email) {
         adminService.makeUserCourier(email);
+        courierService.toggleCourierAvailability(email);
     }
 
     private List<String> getDemoCourierEmails() {

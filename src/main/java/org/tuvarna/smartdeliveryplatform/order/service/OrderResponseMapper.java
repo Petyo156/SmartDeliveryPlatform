@@ -52,10 +52,12 @@ public class OrderResponseMapper {
                 .merchantImageUrl(order.getMerchant().getImageUrl())
                 .merchantAddress(formatMerchantAddress(order.getMerchant()))
                 .clientName(formatUserName(order.getClient()))
+                .clientPhoneNumber(order.getClient().getPhoneNumber())
                 .status(order.getStatus())
                 .paymentStatus(order.getPaymentStatus())
                 .courierName(formatCourierName(order.getCourier()))
                 .courierEmail(formatCourierEmail(order.getCourier()))
+                .courierPhoneNumber(formatCourierPhoneNumber(order.getCourier()))
                 .courierAssigned(order.getCourier() != null)
                 .actions(actions)
                 .subtotal(order.getSubtotal())
@@ -78,8 +80,10 @@ public class OrderResponseMapper {
                 .merchantImageUrl(order.getMerchant().getImageUrl())
                 .merchantAddress(formatMerchantAddress(order.getMerchant()))
                 .clientName(formatUserName(order.getClient()))
+                .clientPhoneNumber(order.getClient().getPhoneNumber())
                 .courierName(formatCourierName(order.getCourier()))
                 .courierEmail(formatCourierEmail(order.getCourier()))
+                .courierPhoneNumber(formatCourierPhoneNumber(order.getCourier()))
                 .courierAssigned(order.getCourier() != null)
                 .actions(actions)
                 .deliveryAddress(formatDeliveryAddress(order))
@@ -163,5 +167,9 @@ public class OrderResponseMapper {
 
     private String formatCourierEmail(Courier courier) {
         return courier == null ? null : courier.getUser().getEmail();
+    }
+
+    private String formatCourierPhoneNumber(Courier courier) {
+        return courier == null ? null : courier.getUser().getPhoneNumber();
     }
 }
