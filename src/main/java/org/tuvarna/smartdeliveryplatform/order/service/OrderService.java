@@ -7,7 +7,8 @@ import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.service.AddressService;
 import org.tuvarna.smartdeliveryplatform.cart.model.CartItem;
 import org.tuvarna.smartdeliveryplatform.cart.service.CartService;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.exception.OrderNotFoundException;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
@@ -76,7 +77,7 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
         orderStatusHistoryService.saveOrderStatusHistory(savedOrder, OrderStatus.PENDING, user,
-                                                        localDateTime, OrderWorkflowNotes.ORDER_PLACED);
+                                                        localDateTime, SuccessMessages.ORDER_PLACED_HISTORY_NOTE);
         cartService.clearCartItems(user);
         log.info("Created order {} for user {}", savedOrder.getOrderNumber(), user.getEmail());
     }
@@ -108,7 +109,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrderDetailsForUser(String orderNumber, String email) {
         Order order = orderRepository.findByOrderNumberAndClient_Email(orderNumber, email)
-                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderNotFoundException(ErrorMessages.ORDER_NOT_FOUND));
         List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
 
         return orderResponseMapper.toClientDetails(order, statusHistory);
@@ -117,7 +118,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrderDetailsForMerchant(String orderNumber, String merchantOwnerEmail) {
         Order order = orderRepository.findByOrderNumberAndMerchant_User_Email(orderNumber, merchantOwnerEmail)
-                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderNotFoundException(ErrorMessages.ORDER_NOT_FOUND));
         List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
 
         return orderResponseMapper.toMerchantDetails(order, statusHistory);
@@ -126,7 +127,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDetailsResponse getOrderDetailsForCourier(String orderNumber, String courierEmail) {
         Order order = orderRepository.findByOrderNumberAndCourier_User_Email(orderNumber, courierEmail)
-                .orElseThrow(() -> new OrderNotFoundException(OrderWorkflowNotes.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new OrderNotFoundException(ErrorMessages.ORDER_NOT_FOUND));
         List<OrderStatusHistory> statusHistory = orderStatusHistoryService.getStatusHistory(order);
 
         return orderResponseMapper.toCourierDetails(order, statusHistory);
@@ -154,11 +155,11 @@ public class OrderService {
 
     private void validateMerchantCanAcceptOrders(Merchant merchant) {
         if (!Boolean.TRUE.equals(merchant.getIsActive())) {
-            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_NOT_AVAILABLE);
+            throw new OrderOperationException(ErrorMessages.MERCHANT_IS_NOT_AVAILABLE);
         }
 
         if (Boolean.TRUE.equals(merchant.getIsClosed())) {
-            throw new OrderOperationException(ExceptionMessages.MERCHANT_IS_CURRENTLY_CLOSED);
+            throw new OrderOperationException(ErrorMessages.MERCHANT_IS_CURRENTLY_CLOSED);
         }
     }
 
@@ -176,7 +177,7 @@ public class OrderService {
     private void validateMinimumOrderAmount(BigDecimal subtotal) {
         if (subtotal.compareTo(OrderPricingService.MINIMUM_ORDER_AMOUNT) < 0) {
             throw new OrderOperationException(
-                    ExceptionMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
+                    ErrorMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
             );
         }
     }

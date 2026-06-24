@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserStatus;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.user.service.AdminService;
@@ -76,12 +78,12 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Invalid user status request.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.INVALID_USER_STATUS_REQUEST);
             return "redirect:/admin/users";
         }
 
         adminService.updateUserStatus(userStatusRequest.getEmail(), userStatusRequest.getStatus());
-        redirectAttributes.addFlashAttribute("successMessage", "User status updated successfully for: " + userStatusRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.USER_STATUS_UPDATED + userStatusRequest.getEmail());
 
         return "redirect:/admin/users";
     }
@@ -116,7 +118,7 @@ public class AdminController {
         }
 
         adminService.makeUserMerchant(merchantRequest);
-        redirectAttributes.addFlashAttribute("successMessage","Merchant created successfully for: " + merchantRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.MERCHANT_CREATED + merchantRequest.getEmail());
 
         return "redirect:/admin/merchants";
     }
@@ -150,7 +152,7 @@ public class AdminController {
         }
 
         adminService.makeUserCourier(courierEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "User assigned as courier successfully: " + courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.USER_ASSIGNED_AS_COURIER + courierEmailRequest.getEmail());
         return "redirect:/admin/couriers";
     }
 
@@ -187,7 +189,7 @@ public class AdminController {
         }
 
         adminService.makeUserAdmin(adminEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "User assigned as admin successfully: " + adminEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.USER_ASSIGNED_AS_ADMIN + adminEmailRequest.getEmail());
         return "redirect:/admin/admins";
     }
 
@@ -199,12 +201,12 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Invalid admin demotion request.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.INVALID_ADMIN_DEMOTION_REQUEST);
             return "redirect:/admin/admins";
         }
 
         adminService.demoteAdmin(demoteAdminRequest.getEmail(), authenticationMetadata.getUsername());
-        redirectAttributes.addFlashAttribute("successMessage", "Admin demoted successfully: " + demoteAdminRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ADMIN_DEMOTED + demoteAdminRequest.getEmail());
         return "redirect:/admin/admins";
     }
 
@@ -215,12 +217,12 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Invalid merchant status request.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.INVALID_MERCHANT_STATUS_REQUEST);
             return "redirect:/admin/merchants";
         }
 
         merchantService.toggleMerchantActiveStatus(merchantEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "Merchant status toggled successfully: " + merchantEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.MERCHANT_STATUS_TOGGLED + merchantEmailRequest.getEmail());
         return "redirect:/admin/merchants";
     }
 
@@ -231,12 +233,12 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Invalid courier status request.");
+            redirectAttributes.addFlashAttribute("errorMessage", ErrorMessages.INVALID_COURIER_STATUS_REQUEST);
             return "redirect:/admin/couriers";
         }
 
         courierService.toggleCourierActiveStatus(courierEmailRequest.getEmail());
-        redirectAttributes.addFlashAttribute("successMessage", "Courier active status toggled successfully: " + courierEmailRequest.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.COURIER_ACTIVE_STATUS_TOGGLED + courierEmailRequest.getEmail());
         return "redirect:/admin/couriers";
     }
 }

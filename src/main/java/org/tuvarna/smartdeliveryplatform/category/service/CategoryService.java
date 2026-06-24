@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.category.model.Category;
 import org.tuvarna.smartdeliveryplatform.category.repository.CategoryRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
@@ -46,11 +46,11 @@ public class CategoryService {
         Merchant merchant = merchantService.getMerchantByUserEmail(authenticationMetadata.getUsername());
 
         if (categoryName == null || categoryName.isBlank()) {
-            throw new CategoryOperationException(ExceptionMessages.CATEGORY_NAME_REQUIRED);
+            throw new CategoryOperationException(ErrorMessages.CATEGORY_NAME_REQUIRED);
         }
 
         if (categoryRepository.existsByNameIgnoreCaseAndMerchantAndIsDeletedFalse(categoryName, merchant)) {
-            throw new CategoryOperationException(ExceptionMessages.CATEGORY_ALREADY_EXISTS_FOR_MERCHANT);
+            throw new CategoryOperationException(ErrorMessages.CATEGORY_ALREADY_EXISTS_FOR_MERCHANT);
         }
 
         Category category = initializeCategory(merchant, categoryName);
@@ -65,17 +65,17 @@ public class CategoryService {
         Category category = getCategoryById(categoryId);
 
         if (category.getIsGlobal()) {
-            throw new CategoryOperationException(ExceptionMessages.GLOBAL_CATEGORIES_CANNOT_BE_DELETED);
+            throw new CategoryOperationException(ErrorMessages.GLOBAL_CATEGORIES_CANNOT_BE_DELETED);
         }
 
         if (!category.getMerchant().getId().equals(merchant.getId())) {
-            throw new CategoryOperationException(ExceptionMessages.CANNOT_DELETE_ANOTHER_MERCHANT_CATEGORY);
+            throw new CategoryOperationException(ErrorMessages.CANNOT_DELETE_ANOTHER_MERCHANT_CATEGORY);
         }
 
         boolean hasProducts = productCategoryService.categoryHasProducts(category);
 
         if (hasProducts) {
-            throw new CategoryOperationException(ExceptionMessages.CATEGORY_CONTAINS_PRODUCTS);
+            throw new CategoryOperationException(ErrorMessages.CATEGORY_CONTAINS_PRODUCTS);
         }
 
         category.setIsDeleted(true);
@@ -86,12 +86,12 @@ public class CategoryService {
 
     public Category getCategoryById(UUID categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryOperationException(ExceptionMessages.CATEGORY_WITH_ID_DOES_NOT_EXIST));
+                .orElseThrow(() -> new CategoryOperationException(ErrorMessages.CATEGORY_WITH_ID_DOES_NOT_EXIST));
     }
 
     public UUID getGlobalCategoryIdByNameAndType(String categoryName, MerchantType merchantType) {
         return categoryRepository.findCategoryByNameAndTypeAndIsGlobalTrue(categoryName, merchantType)
-                .orElseThrow(() -> new SystemOperationException(ExceptionMessages.GLOBAL_CATEGORY_NOT_FOUND_FOR_MERCHANT_TYPE))
+                .orElseThrow(() -> new SystemOperationException(ErrorMessages.GLOBAL_CATEGORY_NOT_FOUND_FOR_MERCHANT_TYPE))
                 .getId();
     }
 

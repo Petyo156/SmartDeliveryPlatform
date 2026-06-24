@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.LoginRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.auth.RegisterRequest;
@@ -67,7 +68,7 @@ public class AuthenticationController {
         model.addAttribute("hasHiddenElements", true);
 
         if (errorParam != null || bindingResult.hasErrors()) {
-            model.addAttribute("errorMessage", "Incorrect username or password!");
+            model.addAttribute("errorMessage", ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD);
         }
 
         return "auth/login";

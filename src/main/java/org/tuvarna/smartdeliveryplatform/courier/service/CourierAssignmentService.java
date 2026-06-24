@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 import org.tuvarna.smartdeliveryplatform.courier.repository.CourierRepository;
 import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.order.model.Order;
 import org.tuvarna.smartdeliveryplatform.order.model.OrderCourierDecline;
 import org.tuvarna.smartdeliveryplatform.order.repository.OrderCourierDeclineRepository;
@@ -32,7 +32,7 @@ public class CourierAssignmentService {
     public Courier assignAvailableCourier(Order order) {
         return findEligibleCourier(order)
                 .map(this::assignCourier)
-                .orElseThrow(() -> new CourierAssignmentException(ExceptionMessages.NO_AVAILABLE_COURIER));
+                .orElseThrow(() -> new CourierAssignmentException(ErrorMessages.NO_AVAILABLE_COURIER));
     }
 
     @Transactional

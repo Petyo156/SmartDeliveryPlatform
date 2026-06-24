@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.address.model.Address;
 import org.tuvarna.smartdeliveryplatform.address.repository.AddressRepository;
 import org.tuvarna.smartdeliveryplatform.exception.AddressOperationException;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.OrderOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantAddressUsageService;
 import org.tuvarna.smartdeliveryplatform.shared.enums.CheckoutAddressMode;
@@ -74,7 +74,7 @@ public class AddressService {
         }
 
         if (request.getAddressId() == null) {
-            throw new OrderOperationException(ExceptionMessages.CHOOSE_SAVED_DELIVERY_ADDRESS);
+            throw new OrderOperationException(ErrorMessages.CHOOSE_SAVED_DELIVERY_ADDRESS);
         }
 
         return findAddressByIdAndUser(request.getAddressId(), user);
@@ -83,7 +83,7 @@ public class AddressService {
     @Transactional
     public void updateAddress(User authenticatedUser, UUID addressId, AddressRequest addressRequest) {
         Address address = addressRepository.findAddressByIdAndUser(addressId, authenticatedUser)
-                .orElseThrow(() -> new AddressOperationException(ExceptionMessages.ADDRESS_NOT_FOUND));
+                .orElseThrow(() -> new AddressOperationException(ErrorMessages.ADDRESS_NOT_FOUND));
 
         address.setCity(addressRequest.getCity());
         address.setStreet(addressRequest.getStreet());
@@ -127,13 +127,13 @@ public class AddressService {
     @Transactional
     public Address createCheckoutAddress(User user, OrderPlacementRequest request) {
         if (!canAddMoreAddresses(user)) {
-            throw new OrderOperationException(ExceptionMessages.CHECKOUT_ADDRESS_LIMIT_EXCEEDED);
+            throw new OrderOperationException(ErrorMessages.CHECKOUT_ADDRESS_LIMIT_EXCEEDED);
         }
 
         if (!hasText(request.getCity())
                 || !hasText(request.getStreet())
                 || !hasText(request.getBuilding())) {
-            throw new OrderOperationException(ExceptionMessages.DELIVERY_ADDRESS_FIELDS_REQUIRED);
+            throw new OrderOperationException(ErrorMessages.DELIVERY_ADDRESS_FIELDS_REQUIRED);
         }
 
         AddressRequest addressRequest = initializeAddressRequest(request);
@@ -161,7 +161,7 @@ public class AddressService {
         validateAddressRequest(addressRequest);
 
         if (!canAddMoreAddresses(user)) {
-            throw new AddressOperationException(ExceptionMessages.MAX_ADDRESS_LIMIT_EXCEEDED);
+            throw new AddressOperationException(ErrorMessages.MAX_ADDRESS_LIMIT_EXCEEDED);
         }
 
         boolean isFirstAddress = getAllAddressesForUser(user).isEmpty();
@@ -215,7 +215,7 @@ public class AddressService {
 
     private Address findAddressByIdAndUser(UUID addressId, User user) {
         return addressRepository.findAddressByIdAndUser(addressId, user)
-                .orElseThrow(() -> new OrderOperationException(ExceptionMessages.CHOOSE_SAVED_DELIVERY_ADDRESS));
+                .orElseThrow(() -> new OrderOperationException(ErrorMessages.CHOOSE_SAVED_DELIVERY_ADDRESS));
     }
 
     private AddressRequest initializeAddressRequest(OrderPlacementRequest request) {
@@ -228,13 +228,13 @@ public class AddressService {
 
     private void validateAddressRequest(AddressRequest request) {
         if (request == null || !hasText(request.getCity()) || !hasText(request.getStreet()) || !hasText(request.getBuilding())) {
-            throw new AddressOperationException(ExceptionMessages.ADDRESS_FIELDS_REQUIRED_WHEN_ADDING);
+            throw new AddressOperationException(ErrorMessages.ADDRESS_FIELDS_REQUIRED_WHEN_ADDING);
         }
     }
 
     private void validateAddressIsNotUsedByMerchantProfile(User user, UUID addressId) {
         if (merchantAddressUsageService.isMerchantProfileAddress(user, addressId)) {
-            throw new AddressOperationException(ExceptionMessages.CANNOT_DELETE_MERCHANT_PROFILE_ADDRESS);
+            throw new AddressOperationException(ErrorMessages.CANNOT_DELETE_MERCHANT_PROFILE_ADDRESS);
         }
     }
 
@@ -257,6 +257,6 @@ public class AddressService {
 
     public Address getAddressByIdAndUser(UUID addressId, User user) {
         return addressRepository.findAddressByIdAndUser(addressId, user)
-                .orElseThrow(() -> new AddressOperationException(ExceptionMessages.ADDRESS_NOT_FOUND_WITH_ID.formatted(addressId)));
+                .orElseThrow(() -> new AddressOperationException(ErrorMessages.ADDRESS_NOT_FOUND_WITH_ID.formatted(addressId)));
     }
 }

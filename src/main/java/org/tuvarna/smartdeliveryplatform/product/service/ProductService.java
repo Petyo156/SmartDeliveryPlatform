@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.category.model.Category;
 import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
-import org.tuvarna.smartdeliveryplatform.exception.ExceptionMessages;
+import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.ProductOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
@@ -155,7 +155,7 @@ public class ProductService {
     private Product getProductBySlugAndMerchant(String slug, Merchant merchant) {
         Optional<Product> product = productRepository.findBySlugAndMerchant(slug, merchant);
         if(product.isEmpty()) {
-            throw new ProductOperationException(ExceptionMessages.PRODUCT_NOT_FOUND);
+            throw new ProductOperationException(ErrorMessages.PRODUCT_NOT_FOUND);
         }
         return product.get();
     }
@@ -167,7 +167,7 @@ public class ProductService {
         boolean isMerchantOwnCategory = category.getMerchant() != null && category.getMerchant().getId().equals(merchant.getId());
 
         if (!isGlobal && !isMerchantOwnCategory) {
-            throw new ProductOperationException(ExceptionMessages.MERCHANT_CAN_ONLY_USE_ALLOWED_CATEGORIES);
+            throw new ProductOperationException(ErrorMessages.MERCHANT_CAN_ONLY_USE_ALLOWED_CATEGORIES);
         }
 
         return category;
