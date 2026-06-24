@@ -1,0 +1,308 @@
+@import "../main.css";
+
+.merchant-profile-page {
+    min-height: 100vh;
+    background:
+            radial-gradient(circle at 12% 14%, rgba(74, 164, 255, 0.12), transparent 28rem),
+            linear-gradient(180deg, #ffffff 0%, var(--light-gray) 42%, #ffffff 100%);
+}
+
+.merchant-profile-shell {
+    width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
+    margin: 0 auto;
+    padding: clamp(1.75rem, 4vw, 3rem) 0 4rem;
+}
+
+.merchant-profile-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.merchant-profile-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--primary-dark);
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.merchant-profile-header h1 {
+    margin-top: 0.45rem;
+    color: var(--dark);
+    font-size: clamp(2.1rem, 4vw, 3.35rem);
+    line-height: 1;
+}
+
+.merchant-profile-header p {
+    max-width: 620px;
+    margin-top: 0.65rem;
+    color: var(--muted);
+}
+
+.merchant-profile-message {
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    font-weight: 850;
+}
+
+.merchant-profile-message.success-message {
+    border: 1px solid rgba(40, 199, 111, 0.24);
+    background: #e9fbf1;
+    color: #176b3b;
+}
+
+.merchant-profile-message.error-message,
+.field-error {
+    border: 1px solid rgba(240, 31, 33, 0.18);
+    background: #fff0f0;
+    color: #a20f12;
+}
+
+.merchant-profile-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.35fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.merchant-profile-preview {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.merchant-profile-preview {
+    overflow: hidden;
+}
+
+.merchant-profile-image-card {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--surface-muted);
+    overflow: hidden;
+}
+
+.merchant-profile-image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.merchant-profile-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--primary-dark);
+    background: var(--primary-soft);
+    font-size: 3rem;
+}
+
+.merchant-profile-preview-body {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem;
+}
+
+.merchant-profile-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.merchant-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 30px;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.merchant-status-chip i {
+    font-size: 0.48rem;
+}
+
+.merchant-status-chip.open {
+    background: #e9fbf1;
+    color: #176b3b;
+}
+
+.merchant-status-chip.closed {
+    background: #fff0f0;
+    color: #a20f12;
+}
+
+.merchant-profile-preview h2 {
+    color: var(--dark);
+    font-size: clamp(1.45rem, 2.5vw, 2rem);
+    line-height: 1.1;
+}
+
+.merchant-profile-preview p {
+    color: var(--muted);
+}
+
+.merchant-profile-form-panel {
+    padding: 0;
+}
+
+.merchant-profile-form-header {
+    margin-bottom: 1rem;
+}
+
+.merchant-profile-form-header h2 {
+    margin-top: 0.3rem;
+    color: var(--dark);
+    font-size: 1.45rem;
+    line-height: 1.15;
+}
+
+.merchant-profile-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.merchant-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.merchant-input-group {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.merchant-input-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.merchant-input-group label {
+    color: var(--dark);
+    font-size: 0.84rem;
+    font-weight: 900;
+}
+
+.merchant-input-shell {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    padding: 0 0.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.merchant-input-shell:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 164, 255, 0.12);
+}
+
+.merchant-input-shell i {
+    color: var(--primary);
+    width: 1rem;
+    text-align: center;
+}
+
+.merchant-input-shell input,
+.merchant-input-shell select,
+.merchant-input-shell textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--dark);
+    font: inherit;
+    font-weight: 700;
+    outline: none;
+}
+
+.merchant-input-shell select {
+    min-width: 0;
+    cursor: pointer;
+}
+
+.textarea-shell {
+    align-items: start;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.textarea-shell i {
+    margin-top: 0.2rem;
+}
+
+.merchant-input-shell textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.field-error {
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.merchant-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: fit-content;
+    min-height: 42px;
+    border: none;
+    border-radius: 999px;
+    background: var(--primary);
+    color: white;
+    padding: 0.65rem 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.merchant-save-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 980px) {
+    .merchant-profile-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .merchant-profile-shell {
+        width: min(100% - 1rem, var(--container));
+        padding: 1.25rem 0 3rem;
+    }
+
+    .merchant-profile-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .merchant-save-button {
+        width: 100%;
+    }
+
+    .merchant-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

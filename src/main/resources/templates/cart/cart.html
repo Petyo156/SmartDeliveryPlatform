@@ -42,7 +42,7 @@
                    class="fas fa-store"></i>
             </div>
             <div>
-                <span>Ordering from</span>
+                <span>Order from</span>
                 <strong th:text="${cart.merchantName}">Merchant</strong>
                 <small>
                     View merchant page
@@ -57,7 +57,7 @@
                 <i class="fas fa-store"></i>
             </div>
             <div>
-                <span>Ordering from</span>
+                <span>Order from</span>
                 <strong th:text="${cart.merchantName}">Merchant</strong>
             </div>
         </div>
@@ -112,7 +112,7 @@
                         </span>
                         <p>
                             <span th:text="${item.unitPrice}">0.00</span>
-                            euro each
+                            € each
                         </p>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
                     <span>Subtotal</span>
                     <strong>
                         <span th:text="${item.lineSubtotal}">0.00</span>
-                        euro
+                        €
                     </strong>
                 </div>
 
@@ -174,21 +174,21 @@
                     <span>Subtotal</span>
                     <strong>
                         <span th:text="${cart.subtotal}">0.00</span>
-                        euro
+                        €
                     </strong>
                 </div>
                 <div class="cart-summary-row">
                     <span>Delivery fee</span>
                     <strong>
                         <span th:text="${cart.deliveryFee}">0.00</span>
-                        euro
+                        €
                     </strong>
                 </div>
                 <div class="cart-summary-row cart-summary-total">
                     <span>Total</span>
                     <strong>
                         <span th:text="${cart.total}">0.00</span>
-                        euro
+                        €
                     </strong>
                 </div>
             </div>

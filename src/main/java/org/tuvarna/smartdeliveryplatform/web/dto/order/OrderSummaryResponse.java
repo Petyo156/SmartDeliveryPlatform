@@ -31,6 +31,8 @@ public class OrderSummaryResponse {
 
     private String clientName;
 
+    private String clientPhoneNumber;
+
     private OrderStatus status;
 
     private PaymentStatus paymentStatus;
@@ -38,6 +40,8 @@ public class OrderSummaryResponse {
     private String courierName;
 
     private String courierEmail;
+
+    private String courierPhoneNumber;
 
     private boolean courierAssigned;
 

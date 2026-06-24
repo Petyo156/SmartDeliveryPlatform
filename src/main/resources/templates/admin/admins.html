@@ -4,172 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Admins | Smart Delivery</title>
+
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="stylesheet" href="/css/admin/admin.css">
     <link rel="icon" href="/images/favicon.ico">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body>
 
-<nav aria-label="Admin navigation">
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/admin/users">Users</a></li>
-        <li><a href="/admin/merchants">Merchants</a></li>
-        <li><a href="/admin/couriers">Couriers</a></li>
-        <li><a href="/admin/admins" aria-current="page">Admins</a></li>
-    </ul>
-</nav>
+<body class="admin-page admin-admins-page">
 
-<main>
-    <h1>Admin Management</h1>
+<div th:replace="~{fragments/navbar :: header}"></div>
 
-    <section aria-labelledby="search-heading">
-        <h2 id="search-heading">Search Admins</h2>
-
-        <div role="status" th:if="${successMessage}">
-            <p th:text="${successMessage}"></p>
-        </div>
-
-        <div role="alert" th:if="${errorMessage}">
-            <p th:text="${errorMessage}"></p>
+<main class="admin-shell">
+    <section class="admin-page-header">
+        <div class="admin-header-copy">
+            <span class="admin-eyebrow">
+                <i class="fas fa-user-shield"></i>
+                Admin dashboard
+            </span>
+            <h1>Admin Management</h1>
+            <p>Search admin accounts, review active administrators, or promote a user to admin.</p>
         </div>
 
         <form th:action="@{/admin/admins}"
               th:object="${searchRequest}"
-              method="get">
-            <label for="searchEmail">Email:</label>
-            <input type="text"
-                   id="searchEmail"
-                   th:field="*{searchEmail}"
-                   placeholder="Enter admin email"
-                   autocomplete="email">
-            <div th:if="${#fields.hasErrors('searchEmail')}"
-                 th:errors="*{searchEmail}">
+              method="get"
+              class="admin-search-form admin-header-search"
+              aria-label="Search admins">
+            <label for="searchEmail">Search by admin email</label>
+            <div class="admin-input-row">
+                <div class="admin-input-shell">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text"
+                           id="searchEmail"
+                           th:field="*{searchEmail}"
+                           placeholder="Enter admin email"
+                           autocomplete="email">
+                </div>
+                <button type="submit" class="admin-primary-button">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
             </div>
-            <button type="submit">Search</button>
+            <div th:if="${#fields.hasErrors('searchEmail')}"
+                 th:errors="*{searchEmail}"
+                 class="field-error">
+            </div>
         </form>
     </section>
 
-    <section aria-labelledby="results-heading">
-        <h2 id="results-heading">Search Results</h2>
+    <div th:if="${successMessage}" class="admin-message success-message" role="status" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="admin-message error-message" role="alert" th:text="${errorMessage}"></div>
 
-        <div th:if="${userResponse.email != null}" role="region" aria-label="Admin information">
+    <section class="admin-panel" aria-labelledby="results-heading">
+        <div class="admin-section-heading admin-results-heading">
+            <div>
+                <span class="admin-eyebrow">Results</span>
+                <h2 id="results-heading">Search Results</h2>
+            </div>
+        </div>
+
+        <div th:if="${userResponse.email != null}"
+             class="admin-table-wrapper"
+             role="region"
+             aria-label="Admin information">
             <table>
-                <caption>Details for admin: <span th:text="${userResponse.email}"></span></caption>
                 <thead>
                 <tr>
-                    <th scope="col">Email</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
+                    <th scope="col">Admin</th>
                     <th scope="col">Phone</th>
                     <th scope="col">Role</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Created At</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td th:text="${userResponse.email}"></td>
-                    <td th:text="${userResponse.firstName}"></td>
-                    <td th:text="${userResponse.lastName}"></td>
-                    <td th:text="${userResponse.phoneNumber}"></td>
-                    <td th:text="${userResponse.role}"></td>
-                    <td th:text="${userResponse.status}"></td>
-                    <td th:text="${#temporals.format(userResponse.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
-                        <form th:action="@{/admin/admins/demote}" method="post" aria-label="Demote admin">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <input type="hidden" name="email" th:value="${userResponse.email}">
-                            <button type="submit">Demote</button>
-                        </form>
+                        <div class="admin-user-cell">
+                            <span class="admin-user-avatar">
+                                <i class="fas fa-user-shield"></i>
+                            </span>
+                            <div>
+                                <strong th:text="${userResponse.firstName + ' ' + userResponse.lastName}">Admin name</strong>
+                                <small th:text="${userResponse.email}">admin@example.com</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${userResponse.phoneNumber}">Phone</td>
+                    <td>
+                        <span class="admin-pill" th:text="${userResponse.role}">ADMIN</span>
+                    </td>
+                    <td>
+                        <span class="admin-status"
+                              th:classappend="${userResponse.status}"
+                              th:text="${userResponse.status}">ACTIVE</span>
+                    </td>
+                    <td th:text="${userResponse.createdAt != null ? #temporals.format(userResponse.createdAt, 'dd MMM yyyy, HH:mm') : 'Not available'}">
+                        24 Jun 2026, 12:00
+                    </td>
+                    <td>
+                        <div class="admin-action-row">
+                            <form th:action="@{/admin/admins/demote}" method="post" aria-label="Demote admin">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="email" th:value="${userResponse.email}">
+                                <button type="submit" class="admin-danger-button">
+                                    Demote
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div th:if="${!searchHasErrors and userResponse.email == null and searchRequest.searchEmail != null and !searchRequest.searchEmail.isBlank()}" role="status">
-            <p>No admin found with email: <strong th:text="${searchRequest.searchEmail}"></strong></p>
+        <div th:if="${!searchHasErrors and userResponse.email == null and searchRequest.searchEmail != null and !searchRequest.searchEmail.isBlank()}"
+             class="admin-empty-state"
+             role="status">
+            <i class="fas fa-magnifying-glass"></i>
+            <p>No admin found with email <strong th:text="${searchRequest.searchEmail}">admin@example.com</strong>.</p>
         </div>
 
-        <div th:if="${searchRequest.searchEmail == null or searchRequest.searchEmail.isBlank()}" role="note">
-            <p>Enter an email address and click Search to find an admin.</p>
+        <div th:if="${searchRequest.searchEmail == null or searchRequest.searchEmail.isBlank()}"
+             class="admin-empty-state"
+             role="note">
+            <i class="fas fa-user-shield"></i>
+            <p>Enter an email address to search for an admin.</p>
         </div>
     </section>
 
-    <section aria-labelledby="all-admins-heading">
-        <h2 id="all-admins-heading">All Admins</h2>
+    <section class="admin-panel" aria-labelledby="all-admins-heading">
+        <div class="admin-section-heading admin-results-heading">
+            <div>
+                <span class="admin-eyebrow">Overview</span>
+                <h2 id="all-admins-heading">All Admins</h2>
+            </div>
+        </div>
 
-        <div th:if="${admins != null and !admins.isEmpty()}">
+        <div th:if="${admins != null and !admins.isEmpty()}"
+             class="admin-table-wrapper"
+             role="region"
+             aria-label="All administrators">
             <table>
-                <caption>List of all administrators</caption>
                 <thead>
                 <tr>
-                    <th scope="col">Email</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
+                    <th scope="col">Admin</th>
                     <th scope="col">Phone</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Created At</th>
+                    <th scope="col">Created</th>
                     <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="admin : ${admins}">
-                    <td th:text="${admin.email}"></td>
-                    <td th:text="${admin.firstName}"></td>
-                    <td th:text="${admin.lastName}"></td>
-                    <td th:text="${admin.phoneNumber}"></td>
-                    <td th:text="${admin.status}"></td>
-                    <td th:text="${#temporals.format(admin.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
-                        <form th:action="@{/admin/admins/demote}" method="post" aria-label="Demote admin">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <input type="hidden" name="email" th:value="${admin.email}">
-                            <button type="submit">Demote</button>
-                        </form>
+                        <div class="admin-user-cell">
+                            <span class="admin-user-avatar">
+                                <i class="fas fa-user-shield"></i>
+                            </span>
+                            <div>
+                                <strong th:text="${admin.firstName + ' ' + admin.lastName}">Admin name</strong>
+                                <small th:text="${admin.email}">admin@example.com</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${admin.phoneNumber}">Phone</td>
+                    <td>
+                        <span class="admin-status"
+                              th:classappend="${admin.status}"
+                              th:text="${admin.status}">ACTIVE</span>
+                    </td>
+                    <td th:text="${admin.createdAt != null ? #temporals.format(admin.createdAt, 'dd MMM yyyy, HH:mm') : 'Not available'}">
+                        24 Jun 2026, 12:00
                     </td>
                     <td>
-                        <form th:action="@{/admin/users}" method="get">
-                            <input type="hidden" name="searchEmail" th:value="${admin.email}">
-                            <button type="submit">View user</button>
-                        </form>
+                        <div class="admin-action-row">
+                            <form th:action="@{/admin/admins/demote}" method="post" aria-label="Demote admin">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="email" th:value="${admin.email}">
+                                <button type="submit" class="admin-danger-button">
+                                    Demote
+                                </button>
+                            </form>
+
+                            <form th:action="@{/admin/users}" method="get">
+                                <input type="hidden" name="searchEmail" th:value="${admin.email}">
+                                <button type="submit" class="admin-secondary-button">
+                                    View user
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div th:if="${admins == null or admins.isEmpty()}" role="note">
+        <div th:if="${admins == null or admins.isEmpty()}"
+             class="admin-empty-state"
+             role="note">
+            <i class="fas fa-users-slash"></i>
             <p>No admins available to display.</p>
         </div>
     </section>
 
-    <section aria-labelledby="assign-heading">
-        <h2 id="assign-heading">Assign User as Admin</h2>
+    <section class="admin-panel admin-create-panel admin-inline-panel" aria-labelledby="assign-heading">
+        <div class="admin-section-heading">
+            <span class="admin-eyebrow">Assign</span>
+            <h2 id="assign-heading">Assign User as Admin</h2>
+        </div>
 
         <form th:action="@{/admin/admins/assign}"
               th:object="${adminEmailRequest}"
               method="post"
+              class="admin-create-form admin-inline-form"
               aria-label="Assign user as admin">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <label for="assignEmail">User Email:</label>
-            <input type="text"
-                   id="assignEmail"
-                   th:field="*{email}"
-                   placeholder="Enter user email to make admin">
-            <div th:if="${#fields.hasErrors('email')}"
-                 th:errors="*{email}">
+
+            <div class="admin-form-field admin-inline-field">
+                <label for="assignEmail"></label>
+                <input type="text"
+                       id="assignEmail"
+                       th:field="*{email}"
+                       placeholder="Enter user email to make admin"
+                       autocomplete="email">
+                <div th:if="${#fields.hasErrors('email')}"
+                     th:errors="*{email}"
+                     class="field-error">
+                </div>
             </div>
-            <button type="submit">Assign as Admin</button>
+
+            <div class="admin-form-actions">
+                <button type="submit" class="admin-primary-button">
+                    <i class="fas fa-plus"></i>
+                    Assign as Admin
+                </button>
+            </div>
         </form>
     </section>
-
-    <section aria-labelledby="back-link">
-        <h2 id="back-link">Navigation</h2>
-        <p><a href="/">Back to Home</a></p>
-    </section>
 </main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>

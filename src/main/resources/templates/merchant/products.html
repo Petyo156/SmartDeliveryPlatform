@@ -5,24 +5,41 @@
     <title>Products | Smart Delivery</title>
 
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="stylesheet" href="/css/merchant/products.css">
-
     <link rel="icon" href="/images/favicon.ico">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="merchant-products-page">
 
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
-<div class="products-container">
+<main class="products-container">
+    <section class="products-header">
+        <div>
+            <span class="products-eyebrow">
+                <i class="fas fa-box-open"></i>
+                Merchant catalog
+            </span>
+            <h1>My Products</h1>
+            <p>Manage products, prices, availability, and custom categories.</p>
+        </div>
 
-    <div class="products-header">
-        <h1>My Products</h1>
-        <p>Manage your products and categories.</p>
-    </div>
+        <div class="products-counts">
+            <span th:if="${products != null}">
+                <strong th:text="${#lists.size(products)}">0</strong>
+                products
+            </span>
+            <span th:if="${merchantCategories != null}">
+                <strong th:text="${#lists.size(merchantCategories)}">0</strong>
+                custom categories
+            </span>
+        </div>
+    </section>
 
     <div th:if="${successMessage}" class="alert alert-success">
         <span th:text="${successMessage}"></span>
@@ -32,164 +49,171 @@
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <section class="products-section">
-
-        <div class="section-header">
-            <h2 th:text="${editProductSlug != null} ? 'Edit Product' : 'Create Product'">Create Product</h2>
-        </div>
-
-        <form th:action="${editProductSlug != null} ? @{/products/{slug}/edit(slug=${editProductSlug})} : @{/products/create}"
-              th:object="${productRequest}"
-              method="post"
-              class="product-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="name">Product Name</label>
-                    <input type="text"
-                           id="name"
-                           th:field="*{name}"
-                           placeholder="Enter product name">
-                    <div th:if="${#fields.hasErrors('name')}"
-                         th:errors="*{name}"
-                         class="alert alert-danger">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="price">Price</label>
-                    <input type="number"
-                           id="price"
-                           th:field="*{price}"
-                           step="0.01"
-                           min="0"
-                           placeholder="0.00">
-                    <div th:if="${#fields.hasErrors('price')}"
-                         th:errors="*{price}"
-                         class="alert alert-danger">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="imageUrl">Image URL</label>
-                    <input type="text"
-                           id="imageUrl"
-                           th:field="*{imageUrl}"
-                           placeholder="https://example.com/image.jpg">
-                </div>
-                <div class="form-group full-width">
-                    <label for="description">Description</label>
-                    <textarea id="description"
-                              th:field="*{description}"
-                              placeholder="Enter product description"></textarea>
-                </div>
-                <div class="form-group full-width">
-                    <label for="categoryId">Category</label>
-
-                    <select id="categoryId"
-                            th:field="*{categoryId}">
-
-                        <option value="">-- Select Category --</option>
-
-                        <optgroup label="Global Categories">
-
-                            <option th:each="cat : ${globalCategories}"
-                                    th:value="${cat.id}"
-                                    th:text="${cat.name}">
-                            </option>
-                        </optgroup>
-                        <optgroup label="My Categories">
-                            <option th:each="cat : ${merchantCategories}"
-                                    th:value="${cat.id}"
-                                    th:text="${cat.name}">
-                            </option>
-                        </optgroup>
-                    </select>
-                    <div th:if="${#fields.hasErrors('categoryId')}"
-                         th:errors="*{categoryId}"
-                         class="alert alert-danger">
-                    </div>
-                </div>
+    <div class="products-workspace">
+        <section class="products-section product-editor-section">
+            <div class="section-header">
+                <span class="products-eyebrow">Product details</span>
+                <h2 th:text="${editProductSlug != null} ? 'Edit Product' : 'Create Product'">Create Product</h2>
             </div>
-            <button type="submit" class="btn btn-primary">
-                <i th:class="${editProductSlug != null} ? 'fas fa-save' : 'fas fa-plus'"></i>
-                <span th:text="${editProductSlug != null} ? 'Save Product' : 'Create Product'">Create Product</span>
-            </button>
-            <a th:if="${editProductSlug != null}" th:href="@{/products}" class="btn btn-secondary">
-                Cancel
-            </a>
-        </form>
-    </section>
 
-    <section class="products-section">
-        <div class="section-header">
-            <h2>Create Custom Category</h2>
-        </div>
-        <form th:action="@{/category/create}"
-              th:object="${categoryRequest}"
-              method="post"
-              class="category-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <div class="form-group">
-                <label for="categoryName">Category Name</label>
+            <form th:action="${editProductSlug != null} ? @{/products/{slug}/edit(slug=${editProductSlug})} : @{/products/create}"
+                  th:object="${productRequest}"
+                  method="post"
+                  class="product-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-                <input type="text"
-                       id="categoryName"
-                       th:field="*{categoryName}"
-                       placeholder="Enter category name">
-                <div th:if="${#fields.hasErrors('categoryName')}"
-                     th:errors="*{categoryName}"
-                     class="alert alert-danger">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Product Name</label>
+                        <input type="text"
+                               id="name"
+                               th:field="*{name}"
+                               placeholder="Enter product name">
+                        <div th:if="${#fields.hasErrors('name')}"
+                             th:errors="*{name}"
+                             class="alert alert-danger">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="number"
+                               id="price"
+                               th:field="*{price}"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00">
+                        <div th:if="${#fields.hasErrors('price')}"
+                             th:errors="*{price}"
+                             class="alert alert-danger">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryId">Category</label>
+                        <select id="categoryId"
+                                th:field="*{categoryId}">
+                            <option value="">-- Select Category --</option>
+                            <optgroup label="Global Categories">
+                                <option th:each="cat : ${globalCategories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}">
+                                </option>
+                            </optgroup>
+                            <optgroup label="My Categories">
+                                <option th:each="cat : ${merchantCategories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}">
+                                </option>
+                            </optgroup>
+                        </select>
+                        <div th:if="${#fields.hasErrors('categoryId')}"
+                             th:errors="*{categoryId}"
+                             class="alert alert-danger">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imageUrl">Image URL</label>
+                        <input type="text"
+                               id="imageUrl"
+                               th:field="*{imageUrl}"
+                               placeholder="https://example.com/image.jpg">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description"
+                                  th:field="*{description}"
+                                  placeholder="Enter product description"></textarea>
+                    </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-folder-plus"></i>
-                Create Category
-            </button>
-        </form>
-    </section>
 
-    <section class="products-section">
-        <div class="section-header">
-            <h2>My Categories</h2>
-        </div>
-
-        <div th:if="${#lists.isEmpty(merchantCategories)}"
-             class="empty-state">
-            <i class="fas fa-folder-open"></i>
-            <p>No custom categories created yet.</p>
-        </div>
-
-        <div th:unless="${#lists.isEmpty(merchantCategories)}"
-             class="categories-list">
-            <div th:each="cat : ${merchantCategories}"
-                 class="category-item">
-                <div class="category-info">
-                <span class="category-name"
-                      th:text="${cat.name}">
-                </span>
-                    <span class="category-badge">
-                    Custom
-                </span>
-                </div>
-                <form th:action="@{/category/{id}/delete(id=${cat.id})}"
-                      method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-                    <button type="submit"
-                            class="btn btn-danger btn-sm"
-                            onclick="return confirm('Delete this category?')">
-
-                        <i class="fas fa-trash"></i>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i th:class="${editProductSlug != null} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                        <span th:text="${editProductSlug != null} ? 'Save Product' : 'Create Product'">Create Product</span>
                     </button>
-                </form>
-            </div>
-        </div>
-    </section>
+                    <a th:if="${editProductSlug != null}" th:href="@{/products}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </section>
 
-    <section class="products-section">
-        <div class="section-header">
-            <h2>My Products</h2>
+        <aside class="products-section category-panel">
+            <div class="section-header">
+                <span class="products-eyebrow">Categories</span>
+                <h2>Custom Categories</h2>
+            </div>
+
+            <form th:action="@{/category/create}"
+                  th:object="${categoryRequest}"
+                  method="post"
+                  class="category-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text"
+                           id="categoryName"
+                           th:field="*{categoryName}"
+                           placeholder="Enter category name">
+                    <div th:if="${#fields.hasErrors('categoryName')}"
+                         th:errors="*{categoryName}"
+                         class="alert alert-danger">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-folder-plus"></i>
+                    Create
+                </button>
+            </form>
+
+            <div th:if="${#lists.isEmpty(merchantCategories)}"
+                 class="empty-state compact-empty">
+                <i class="fas fa-folder-open"></i>
+                <p>No custom categories yet.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(merchantCategories)}"
+                 class="categories-list">
+                <div th:each="cat : ${merchantCategories}"
+                     class="category-item">
+                    <div class="category-info">
+                        <span class="category-name"
+                              th:text="${cat.name}">
+                        </span>
+                        <span class="category-badge">
+                            Custom
+                        </span>
+                    </div>
+                    <form th:action="@{/category/{id}/delete(id=${cat.id})}"
+                          method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <button type="submit"
+                                class="btn btn-danger btn-icon"
+                                aria-label="Delete category">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <section class="products-section inventory-section">
+        <div class="section-header inventory-header">
+            <div>
+                <span class="products-eyebrow">Inventory</span>
+                <h2>My Products</h2>
+            </div>
+            <span th:if="${products != null}" class="inventory-count">
+                <strong th:text="${#lists.size(products)}">0</strong>
+                listed
+            </span>
         </div>
+
         <div th:if="${#lists.isEmpty(products)}" class="empty-state">
             <i class="fas fa-box-open"></i>
             <p>No products created yet.</p>
@@ -199,8 +223,7 @@
             <table>
                 <thead>
                 <tr>
-                    <th>Image</th>
-                    <th>Name</th>
+                    <th>Product</th>
                     <th>Category</th>
                     <th>Price</th>
                     <th>Status</th>
@@ -210,19 +233,25 @@
                 <tbody>
                 <tr th:each="product : ${products}">
                     <td>
-                        <img th:if="${product.imageUrl != null && !product.imageUrl.isBlank()}"
-                             th:src="${product.imageUrl}"
-                             alt="Product Image"
-                             class="product-image">
-
-                        <span th:unless="${product.imageUrl != null && !product.imageUrl.isBlank()}">
-                            No Image
-                        </span>
+                        <div class="product-cell">
+                            <img th:if="${product.imageUrl != null && !product.imageUrl.isBlank()}"
+                                 th:src="${product.imageUrl}"
+                                 alt="Product Image"
+                                 class="product-image">
+                            <div th:unless="${product.imageUrl != null && !product.imageUrl.isBlank()}"
+                                 class="product-image-placeholder">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <strong th:text="${product.name}">Product</strong>
+                        </div>
                     </td>
-
-                    <td th:text="${product.name}"></td>
-                    <td th:text="${product.categoryName}"></td>
-                    <td th:text="${product.price} + ' euro'"></td>
+                    <td th:text="${product.categoryName}">Category</td>
+                    <td>
+                        <strong>
+                            <span th:text="${product.price}">0.00</span>
+                            €
+                        </strong>
+                    </td>
                     <td>
                         <span th:if="${product.isAvailable}" class="badge badge-success">
                             Available
@@ -231,7 +260,6 @@
                             Disabled
                         </span>
                     </td>
-
                     <td class="actions">
                         <a th:href="@{/products/{slug}/edit(slug=${product.slug})}"
                            class="btn btn-primary btn-sm">
@@ -241,24 +269,15 @@
                         <form th:action="@{/products/{productSlug}/toggle(productSlug=${product.slug})}"
                               method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
                             <button type="submit" class="btn btn-warning btn-sm">
-
-                                <i class="fas fa-toggle-on"></i>
-
-                                <span th:text="${product.isAvailable} ? 'Disable' : 'Enable'">
-                                </span>
-
+                                <span th:text="${product.isAvailable} ? 'Disable' : 'Enable'"></span>
                             </button>
                         </form>
                         <form th:action="@{/products/{slug}/delete(slug=${product.slug})}"
                               method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
                             <button type="submit"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Delete this product?')">
-
+                                    class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i>
                                 Delete
                             </button>
@@ -269,7 +288,7 @@
             </table>
         </div>
     </section>
-</div>
+</main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 

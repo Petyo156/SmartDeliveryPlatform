@@ -4,63 +4,130 @@
     <meta charset="UTF-8">
     <title>My Shop | Smart Delivery</title>
 
-    <link rel="stylesheet" href="/css/auth/auth.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
+    <link rel="stylesheet" href="/css/merchant/merchant.css">
     <link rel="icon" href="/images/favicon.ico">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="auth-page">
+<body class="merchant-profile-page">
 
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
-<div class="auth-wrapper">
-    <div class="auth-container">
-        <h2>My Shop</h2>
+<main class="merchant-profile-shell">
+    <section class="merchant-profile-header">
+        <div>
+            <span class="merchant-profile-eyebrow">
+                <i class="fas fa-store"></i>
+                Merchant dashboard
+            </span>
+            <h1>My Shop</h1>
+            <p>Keep your storefront details accurate for customers browsing SmartDelivery.</p>
+        </div>
 
-        <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+    </section>
 
-        <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    <div th:if="${successMessage}" class="merchant-profile-message success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="merchant-profile-message error-message" th:text="${errorMessage}"></div>
 
-        <form th:action="@{/dashboard/merchant/my-shop}" method="post" th:object="${merchantProfileRequest}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <div class="input-group">
-                <label for="name">Shop Name</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="Enter shop name"/>
-                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></div>
+    <section class="merchant-profile-layout">
+        <aside class="merchant-profile-preview" aria-label="Current shop preview">
+            <div class="merchant-profile-image-card">
+                <img th:if="${merchantProfileRequest.imageUrl != null && !merchantProfileRequest.imageUrl.isBlank()}"
+                     th:src="${merchantProfileRequest.imageUrl}"
+                     th:alt="${merchantProfileRequest.name}"
+                     onerror="this.src='/images/default-merchant.jpg'">
+                <div th:unless="${merchantProfileRequest.imageUrl != null && !merchantProfileRequest.imageUrl.isBlank()}"
+                     class="merchant-profile-image-placeholder">
+                    <i class="fas fa-store"></i>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label for="description">Description</label>
-                <textarea id="description" th:field="*{description}" placeholder="Enter shop description" rows="4"></textarea>
-                <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error-message"></div>
+            <div class="merchant-profile-preview-body">
+                <div class="merchant-profile-title-row">
+                    <span class="merchant-status-chip"
+                          th:classappend="${merchantProfileRequest.isClosed != null && merchantProfileRequest.isClosed} ? ' closed' : ' open'">
+                        <i class="fas fa-circle"></i>
+                        <span th:text="${merchantProfileRequest.isClosed != null && merchantProfileRequest.isClosed} ? 'Closed' : 'Open'">Open</span>
+                    </span>
+                </div>
+
+                <h2 th:text="${merchantProfileRequest.name}">Shop name</h2>
+                <p th:text="${merchantProfileRequest.description != null && !merchantProfileRequest.description.isBlank() ? merchantProfileRequest.description : 'Add a short description so customers know what you offer.'}">
+                    Shop description
+                </p>
+
+            </div>
+        </aside>
+
+        <section class="merchant-profile-form-panel">
+            <div class="merchant-profile-form-header">
+                <span class="merchant-profile-eyebrow">Storefront details</span>
+                <h1>Edit shop profile</h1>
             </div>
 
-            <div class="input-group">
-                <label for="addressId">Address</label>
-                <select id="addressId" th:field="*{addressId}">
-                    <option value="">-- Select Address --</option>
-                    <option th:each="addr : ${merchantAddressResponses}"
-                            th:value="${addr.id}"
-                            th:text="${addr.city + ', ' + addr.street + ', ' + addr.building}">
-                    </option>
-                </select>
-                <div th:if="${#fields.hasErrors('addressId')}" th:errors="*{addressId}" class="error-message"></div>
-            </div>
+            <form th:action="@{/dashboard/merchant/my-shop}"
+                  method="post"
+                  th:object="${merchantProfileRequest}"
+                  class="merchant-profile-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <div class="input-group">
-                <label for="image-url">Image Url</label>
-                <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url"/>
-                <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error-message"></div>
-            </div>
+                <div class="merchant-form-grid">
+                    <div class="merchant-input-group">
+                        <label for="name">Shop Name</label>
+                        <div class="merchant-input-shell">
+                            <i class="fas fa-store"></i>
+                            <input type="text" id="name" th:field="*{name}" placeholder="Enter shop name"/>
+                        </div>
+                        <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></div>
+                    </div>
 
-            <button type="submit">Update Shop</button>
+                    <div class="merchant-input-group">
+                        <label for="addressId">Address</label>
+                        <div class="merchant-input-shell">
+                            <i class="fas fa-location-dot"></i>
+                            <select id="addressId" th:field="*{addressId}">
+                                <option value="">-- Select Address --</option>
+                                <option th:each="addr : ${merchantAddressResponses}"
+                                        th:value="${addr.id}"
+                                        th:text="${addr.city + ', ' + addr.street + ', ' + addr.building}">
+                                </option>
+                            </select>
+                        </div>
+                        <div th:if="${#fields.hasErrors('addressId')}" th:errors="*{addressId}" class="field-error"></div>
+                    </div>
 
-        </form>
-    </div>
-</div>
+                    <div class="merchant-input-group full-width">
+                        <label for="description">Description</label>
+                        <div class="merchant-input-shell textarea-shell">
+                            <i class="fas fa-align-left"></i>
+                            <textarea id="description" th:field="*{description}" placeholder="Enter shop description" rows="4"></textarea>
+                        </div>
+                        <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="field-error"></div>
+                    </div>
+
+                    <div class="merchant-input-group full-width">
+                        <label for="image-url">Image URL</label>
+                        <div class="merchant-input-shell">
+                            <i class="fas fa-image"></i>
+                            <input type="text" id="image-url" th:field="*{imageUrl}" placeholder="Enter image url"/>
+                        </div>
+                        <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="field-error"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="merchant-save-button">
+                    <i class="fas fa-save"></i>
+                    Update Shop
+                </button>
+            </form>
+        </section>
+    </section>
+</main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 

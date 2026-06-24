@@ -35,9 +35,13 @@ public class OrderDetailsResponse {
 
     private String clientName;
 
+    private String clientPhoneNumber;
+
     private String courierName;
 
     private String courierEmail;
+
+    private String courierPhoneNumber;
 
     private boolean courierAssigned;
 

@@ -253,28 +253,103 @@ img {
     }
 }
 
+.navbar-status-actions {
+    flex: 1;
+    min-width: 0;
+}
+
+.navbar-status-action {
+    display: flex;
+    align-items: center;
+}
+
 .toggle-status-form {
     margin: 0;
     padding: 0;
 }
 
 .toggle-status-btn {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    padding: 0.65rem 0.8rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    color: var(--dark);
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: background-color 0.2s ease, color 0.2s ease;
+    min-height: 38px;
+    max-width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    border-radius: 999px;
+    padding: 0.48rem 0.85rem;
+    color: white;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px rgba(15, 64, 123, 0.16);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toggle-status-btn i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 0.82rem;
 }
 
 .toggle-status-btn:hover {
-    background: var(--primary-soft);
-    color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(15, 64, 123, 0.22);
+}
+
+.status-toggle-start {
+    background: rgba(40, 199, 111, 0.28);
+}
+
+.status-toggle-start:hover {
+    background: rgba(40, 199, 111, 0.38);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.status-toggle-stop {
+    background: rgba(255, 157, 41, 0.28);
+}
+
+.status-toggle-stop:hover {
+    background: rgba(255, 157, 41, 0.42);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.merchant-status-toggle.status-toggle-stop {
+    background: rgba(40, 199, 111, 0.32);
+}
+
+.merchant-status-toggle.status-toggle-stop:hover {
+    background: rgba(40, 199, 111, 0.44);
+}
+
+@media (max-width: 992px) {
+    .toggle-status-btn span {
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-status-actions {
+        flex: 0 1 auto;
+    }
+
+    .toggle-status-btn {
+        min-width: 40px;
+        padding: 0.5rem;
+    }
+
+    .toggle-status-btn span {
+        display: none;
+    }
 }
