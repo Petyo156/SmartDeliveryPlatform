@@ -67,7 +67,11 @@ public class InitializeCategories implements CommandLineRunner {
                 DemoDataConstants.CATEGORY_GROCERIES,
                 DemoDataConstants.CATEGORY_FLOWERS,
                 DemoDataConstants.CATEGORY_PHARMACY,
-                DemoDataConstants.CATEGORY_PET_SUPPLIES
+                DemoDataConstants.CATEGORY_PET_SUPPLIES,
+                DemoDataConstants.CATEGORY_BOOKS,
+                DemoDataConstants.CATEGORY_SPORTS,
+                DemoDataConstants.CATEGORY_HOME_GOODS,
+                DemoDataConstants.CATEGORY_GARDENING
         );
     }
 
@@ -78,7 +82,11 @@ public class InitializeCategories implements CommandLineRunner {
                 DemoDataConstants.CATEGORY_SUSHI,
                 DemoDataConstants.CATEGORY_DRINKS,
                 DemoDataConstants.CATEGORY_DESSERTS,
-                DemoDataConstants.CATEGORY_SALADS
+                DemoDataConstants.CATEGORY_SALADS,
+                DemoDataConstants.CATEGORY_PASTA,
+                DemoDataConstants.CATEGORY_TACOS,
+                DemoDataConstants.CATEGORY_CURRY,
+                DemoDataConstants.CATEGORY_DONER
         );
     }
 }
