@@ -1,0 +1,297 @@
+@import "../main.css";
+
+.search-page {
+    background: var(--light-gray);
+}
+
+.search-hero {
+    background:
+            linear-gradient(90deg, rgba(17, 35, 54, 0.86) 0%, rgba(17, 35, 54, 0.64) 52%, rgba(17, 35, 54, 0.24) 100%),
+            url('../../images/food-banner.jpg') center/cover no-repeat;
+    color: white;
+}
+
+.search-hero-shops {
+    background:
+            linear-gradient(90deg, rgba(17, 35, 54, 0.86) 0%, rgba(17, 35, 54, 0.64) 52%, rgba(17, 35, 54, 0.24) 100%),
+            url('../../images/shop-banner.png') center/cover no-repeat;
+}
+
+.search-hero-inner {
+    width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
+    min-height: 360px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+    gap: clamp(1.5rem, 5vw, 4rem);
+    align-items: center;
+    padding: 3.5rem 0;
+}
+
+.search-copy h1 {
+    margin-top: 0.65rem;
+    color: white;
+    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    line-height: 0.98;
+    font-weight: 900;
+}
+
+.search-copy p {
+    max-width: 620px;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.12rem;
+}
+
+.search-copy strong {
+    color: var(--secondary);
+}
+
+.search-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--secondary);
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.search-panel {
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(14px);
+}
+
+.search-page-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 60px;
+    padding: 0.55rem;
+    background: white;
+    border-radius: 999px;
+}
+
+.search-page-form i {
+    color: var(--primary);
+    margin-left: 0.85rem;
+}
+
+.search-page-form .search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    color: var(--dark);
+    padding: 0.75rem 0;
+}
+
+.search-page-form .search-input:focus,
+.search-page-form .search-input:focus-visible {
+    outline: none;
+}
+
+.search-page-form .search-btn {
+    min-height: 46px;
+    padding: 0.75rem 1.15rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font-weight: 900;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.search-page-form .search-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.search-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.search-tabs a {
+    flex: 1 1 130px;
+    max-width: 170px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: white;
+    text-decoration: none;
+    font-weight: 900;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.search-tabs a:hover,
+.search-tabs a.active {
+    background: white;
+    color: var(--primary-dark);
+}
+
+.search-filter-pills {
+    width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 1.5rem 0 0;
+    text-align: center;
+}
+
+.search-filter-pills a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: white;
+    color: var(--dark);
+    text-decoration: none;
+    font-weight: 800;
+    box-shadow: var(--shadow-sm);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.search-filter-pills a:hover,
+.search-filter-pills a.active {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.search-filter-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: white;
+    color: var(--muted);
+    box-shadow: var(--shadow-sm);
+}
+
+.search-filter-note i,
+.search-filter-note strong {
+    color: var(--primary-dark);
+}
+
+.search-results-shell {
+    width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
+    margin: 0 auto;
+    padding: 3rem 0 4.5rem;
+}
+
+.search-result-section + .search-result-section {
+    margin-top: 3rem;
+}
+
+.search-section-heading {
+    margin-bottom: 1.25rem;
+}
+
+.search-section-heading h2 {
+    color: var(--dark);
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.08;
+    margin-top: 0.35rem;
+}
+
+.search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.search-empty-state {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-empty-state i {
+    color: var(--primary);
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+}
+
+.search-empty-state h2 {
+    color: var(--dark);
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.search-empty-state p {
+    color: var(--muted);
+    margin-top: 0.45rem;
+}
+
+@media (max-width: 900px) {
+    .search-hero-inner {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .search-results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .search-hero-inner {
+        padding: 2.5rem 0;
+    }
+
+    .search-panel {
+        padding: 0.75rem;
+    }
+
+    .search-page-form {
+        align-items: stretch;
+        flex-wrap: wrap;
+        border-radius: var(--radius-lg);
+        padding: 0.75rem;
+    }
+
+    .search-page-form i {
+        align-self: center;
+        margin-left: 0.35rem;
+    }
+
+    .search-page-form .search-input {
+        flex-basis: calc(100% - 2rem);
+    }
+
+    .search-page-form .search-btn,
+    .search-tabs {
+        width: 100%;
+    }
+
+    .search-results-grid {
+        grid-template-columns: 1fr;
+    }
+}

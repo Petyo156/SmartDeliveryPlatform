@@ -8,14 +8,39 @@
     <link rel="stylesheet" href="/css/fragments/navbar.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="stylesheet" href="/css/fragments/categories.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
-<main>
-    <h1 th:text="${errorTitle}">Something went wrong</h1>
-    <p th:text="${errorMessage}">There was an error with your last request. Please try again later.</p>
-    <a th:href="@{/}">Go Home</a>
+
+<main class="server-error-page">
+    <section class="server-error-content">
+        <span class="server-error-code">
+            <i class="fas fa-triangle-exclamation"></i>
+            500
+        </span>
+
+        <h1 th:text="${errorTitle}">Something went wrong</h1>
+        <p th:text="${errorMessage}">There was an error with your last request. Please try again later.</p>
+
+        <div class="server-error-actions">
+            <a th:href="@{/}" class="home-btn">
+                <i class="fas fa-house"></i>
+                Go Home
+            </a>
+            <a th:href="@{/restaurants}" class="browse-btn">
+                <i class="fas fa-utensils"></i>
+                Browse Restaurants
+            </a>
+            <a th:href="@{/shops}" class="browse-btn">
+                <i class="fas fa-shopping-basket"></i>
+                Browse Shops
+            </a>
+        </div>
+    </section>
 </main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

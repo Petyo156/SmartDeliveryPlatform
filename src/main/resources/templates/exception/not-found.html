@@ -19,13 +19,27 @@
 <main class="not-found-page">
     <section class="not-found-content">
         <div class="not-found-copy">
+            <span class="not-found-code">
+                <i class="fas fa-location-crosshairs"></i>
+                404
+            </span>
             <h1>Page not found</h1>
-            <p>The page you are looking for is unavailable or does not exist.</p>
+            <p>The page may have moved or no longer exists.</p>
 
-            <a th:href="@{/}" class="home-btn">
-                <i class="fas fa-house"></i>
-                Go Home
-            </a>
+            <div class="not-found-actions">
+                <a th:href="@{/}" class="home-btn">
+                    <i class="fas fa-house"></i>
+                    Go Home
+                </a>
+                <a th:href="@{/restaurants}" class="browse-btn">
+                    <i class="fas fa-utensils"></i>
+                    Browse Restaurants
+                </a>
+                <a th:href="@{/shops}" class="browse-btn">
+                    <i class="fas fa-shopping-basket"></i>
+                    Browse Shops
+                </a>
+            </div>
         </div>
 
         <div class="not-found-image">

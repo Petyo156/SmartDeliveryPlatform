@@ -12,32 +12,81 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="cart-page-body">
 
 <div th:replace="~{fragments/navbar :: header}"></div>
 <div th:replace="~{fragments/categories :: categories}"></div>
 
 <main class="cart-page">
-    <section class="cart-header">
-        <h1>My Cart</h1>
-        <p th:if="${cart.merchantName != null}">
-            Products from <strong th:text="${cart.merchantName}">Merchant</strong>
-        </p>
+    <section class="cart-hero">
+        <div class="cart-header">
+            <span class="cart-eyebrow">
+                <i class="fas fa-cart-shopping"></i>
+                Checkout
+            </span>
+            <h1>My Cart</h1>
+            <p th:if="${cart.empty}">Your next local delivery starts here.</p>
+            <p th:unless="${cart.empty}">Review your items and choose where this order should arrive.</p>
+        </div>
+
+        <a th:if="${!cart.empty && cart.merchantSlug != null}"
+           th:href="@{/merchant/{slug}(slug=${cart.merchantSlug})}"
+           class="cart-merchant-card"
+           aria-label="Open merchant page">
+            <div class="cart-merchant-image">
+                <img th:if="${cart.merchantImageUrl != null && !cart.merchantImageUrl.isBlank()}"
+                     th:src="${cart.merchantImageUrl}"
+                     th:alt="${cart.merchantName}"
+                     onerror="this.src='/images/default-merchant.jpg'">
+                <i th:unless="${cart.merchantImageUrl != null && !cart.merchantImageUrl.isBlank()}"
+                   class="fas fa-store"></i>
+            </div>
+            <div>
+                <span>Ordering from</span>
+                <strong th:text="${cart.merchantName}">Merchant</strong>
+                <small>
+                    View merchant page
+                    <i class="fas fa-arrow-right"></i>
+                </small>
+            </div>
+        </a>
+
+        <div th:if="${!cart.empty && cart.merchantSlug == null && cart.merchantName != null}"
+             class="cart-merchant-card">
+            <div class="cart-merchant-image">
+                <i class="fas fa-store"></i>
+            </div>
+            <div>
+                <span>Ordering from</span>
+                <strong th:text="${cart.merchantName}">Merchant</strong>
+            </div>
+        </div>
     </section>
 
-    <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    <div class="cart-message-stack" th:if="${successMessage != null || errorMessage != null}">
+        <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    </div>
 
     <section th:if="${cart.empty}" class="empty-cart">
         <i class="fas fa-cart-shopping"></i>
         <h2>Your cart is empty</h2>
         <p>Add products from an open merchant to see them here.</p>
-        <a th:href="@{/restaurants}">Browse restaurants</a>
-        <a th:href="@{/shops}">Browse shops</a>
+        <div class="empty-cart-actions">
+            <a th:href="@{/restaurants}">
+                <i class="fas fa-utensils"></i>
+                Browse restaurants
+            </a>
+            <a th:href="@{/shops}">
+                <i class="fas fa-shopping-basket"></i>
+                Browse shops
+            </a>
+        </div>
     </section>
 
     <section th:unless="${cart.empty}" class="cart-content">
-        <div class="cart-items">
+        <section class="cart-items-panel">
+            <div class="cart-items">
             <article th:each="item : ${cart.items}"
                      class="cart-item"
                      th:classappend="${!item.availableForCheckout} ? ' cart-item-unavailable' : ''">
@@ -106,14 +155,20 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit">
                         <i class="fas fa-trash"></i>
-                        Remove
                     </button>
                 </form>
             </article>
-        </div>
+            </div>
+        </section>
 
         <aside class="cart-summary">
-            <h2>Order Summary</h2>
+            <div class="cart-section-header compact">
+                <div>
+                    <span class="cart-eyebrow">Payment</span>
+                    <h2>Order Summary</h2>
+                </div>
+            </div>
+
             <div class="cart-summary-breakdown">
                 <div class="cart-summary-row">
                     <span>Subtotal</span>
@@ -130,7 +185,7 @@
                     </strong>
                 </div>
                 <div class="cart-summary-row cart-summary-total">
-                    <span>Final total</span>
+                    <span>Total</span>
                     <strong>
                         <span th:text="${cart.total}">0.00</span>
                         euro
@@ -143,59 +198,90 @@
                   th:object="${orderPlacementRequest}"
                   class="place-order-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                 <p th:if="${!cart.checkoutAvailable}" class="cart-address-limit"
                    th:text="${cart.checkoutUnavailableMessage}">
                     Checkout is currently unavailable.
                 </p>
 
-                <div th:if="${addresses != null && !addresses.isEmpty()}" class="checkout-address-section">
-                    <label class="checkout-address-mode">
-                        <input type="radio"
-                               th:field="*{addressMode}"
-                               value="EXISTING"/>
-                        Use saved address
-                    </label>
+                <div th:if="${addresses != null && !addresses.isEmpty()}"
+                     class="checkout-address-section"
+                     data-checkout-address>
+                    <div class="checkout-address-heading">
+                        <span class="cart-eyebrow">Delivery</span>
+                        <h3>Delivery address</h3>
+                    </div>
+
+                    <div class="checkout-address-toggle" aria-label="Delivery address options">
+                        <label class="checkout-address-mode">
+                            <input type="radio"
+                                   th:field="*{addressMode}"
+                                   value="EXISTING"/>
+                            <span>
+                                <i class="fas fa-location-dot"></i>
+                                Saved address
+                            </span>
+                        </label>
+
+                        <label th:if="${canAddMoreAddresses}" class="checkout-address-mode">
+                            <input type="radio"
+                                   th:field="*{addressMode}"
+                                   value="NEW"/>
+                            <span>
+                                <i class="fas fa-plus"></i>
+                                New address
+                            </span>
+                        </label>
+                    </div>
+
                     <div th:if="${#fields.hasErrors('addressMode')}"
                          th:errors="*{addressMode}"
                          class="error-message">
                     </div>
 
-                    <label for="addressId">Delivery address</label>
-                    <select id="addressId" th:field="*{addressId}">
-                        <option th:each="address : ${addresses}"
-                                th:value="${address.id}"
-                                th:text="${address.city + ', ' + address.street + ', ' + address.building + (address.default ? ' (Default)' : '')}">
-                            Address
-                        </option>
-                    </select>
-                    <div th:if="${#fields.hasErrors('addressId')}"
-                         th:errors="*{addressId}"
-                         class="error-message">
+                    <div class="checkout-address-panel" data-address-panel="EXISTING">
+                        <select id="addressId" th:field="*{addressId}">
+                            <option th:each="address : ${addresses}"
+                                    th:value="${address.id}"
+                                    th:text="${address.city + ', ' + address.street + ', ' + address.building + (address.default ? ' (Default)' : '')}">
+                                Address
+                            </option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('addressId')}"
+                             th:errors="*{addressId}"
+                             class="error-message">
+                        </div>
                     </div>
 
-                    <div th:if="${canAddMoreAddresses}" class="checkout-new-address">
-                        <label class="checkout-address-mode">
-                            <input type="radio"
-                                   th:field="*{addressMode}"
-                                   value="NEW"/>
-                            Use a new address
-                        </label>
-
+                    <div th:if="${canAddMoreAddresses}"
+                         class="checkout-address-panel checkout-new-address"
+                         data-address-panel="NEW">
                         <div class="checkout-address-fields">
-                            <input type="text" th:field="*{city}" placeholder="City"/>
-                            <div th:if="${#fields.hasErrors('city')}"
-                                 th:errors="*{city}"
-                                 class="error-message">
+                            <div class="checkout-field">
+                                <label for="city">City</label>
+                                <input type="text" th:field="*{city}" placeholder="City"/>
+                                <div th:if="${#fields.hasErrors('city')}"
+                                     th:errors="*{city}"
+                                     class="error-message">
+                                </div>
                             </div>
-                            <input type="text" th:field="*{street}" placeholder="Street"/>
-                            <div th:if="${#fields.hasErrors('street')}"
-                                 th:errors="*{street}"
-                                 class="error-message">
+
+                            <div class="checkout-field">
+                                <label for="street">Street</label>
+                                <input type="text" th:field="*{street}" placeholder="Street"/>
+                                <div th:if="${#fields.hasErrors('street')}"
+                                     th:errors="*{street}"
+                                     class="error-message">
+                                </div>
                             </div>
-                            <input type="text" th:field="*{building}" placeholder="Building"/>
-                            <div th:if="${#fields.hasErrors('building')}"
-                                 th:errors="*{building}"
-                                 class="error-message">
+
+                            <div class="checkout-field">
+                                <label for="building">Building</label>
+                                <input type="text" th:field="*{building}" placeholder="Building"/>
+                                <div th:if="${#fields.hasErrors('building')}"
+                                     th:errors="*{building}"
+                                     class="error-message">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -207,23 +293,37 @@
 
                 <div th:if="${addresses == null || addresses.isEmpty()}" class="checkout-address-section">
                     <input type="hidden" th:field="*{addressMode}" value="NEW"/>
-                    <p>Add a delivery address to place this order.</p>
+                    <div class="checkout-address-heading">
+                        <span class="cart-eyebrow">Delivery</span>
+                        <h3>Add delivery address</h3>
+                    </div>
 
                     <div class="checkout-address-fields">
-                        <input type="text" th:field="*{city}" placeholder="City"/>
-                        <div th:if="${#fields.hasErrors('city')}"
-                             th:errors="*{city}"
-                             class="error-message">
+                        <div class="checkout-field">
+                            <label for="city">City</label>
+                            <input type="text" th:field="*{city}" placeholder="City"/>
+                            <div th:if="${#fields.hasErrors('city')}"
+                                 th:errors="*{city}"
+                                 class="error-message">
+                            </div>
                         </div>
-                        <input type="text" th:field="*{street}" placeholder="Street"/>
-                        <div th:if="${#fields.hasErrors('street')}"
-                             th:errors="*{street}"
-                             class="error-message">
+
+                        <div class="checkout-field">
+                            <label for="street">Street</label>
+                            <input type="text" th:field="*{street}" placeholder="Street"/>
+                            <div th:if="${#fields.hasErrors('street')}"
+                                 th:errors="*{street}"
+                                 class="error-message">
+                            </div>
                         </div>
-                        <input type="text" th:field="*{building}" placeholder="Building"/>
-                        <div th:if="${#fields.hasErrors('building')}"
-                             th:errors="*{building}"
-                             class="error-message">
+
+                        <div class="checkout-field">
+                            <label for="building">Building</label>
+                            <input type="text" th:field="*{building}" placeholder="Building"/>
+                            <div th:if="${#fields.hasErrors('building')}"
+                                 th:errors="*{building}"
+                                 class="error-message">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -239,5 +339,6 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
+<script src="/js/cart.js"></script>
 </body>
 </html>

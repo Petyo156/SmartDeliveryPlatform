@@ -6,54 +6,89 @@
 
     <link rel="stylesheet" href="/css/auth/auth.css">
     <link rel="stylesheet" href="/css/fragments/navbar.css">
+    <link rel="stylesheet" href="/css/fragments/categories.css">
     <link rel="stylesheet" href="/css/fragments/footer.css">
     <link rel="icon" href="/images/favicon.ico">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
+<body class="auth-page login-page">
+
 <div th:replace="~{fragments/navbar :: header}"></div>
+<div th:replace="~{fragments/categories :: categories}"></div>
 
-<body class="auth-page">
-
-<div class="auth-wrapper">
-    <div class="auth-container">
-        <h2>Sign In</h2>
-
-        <div th:if="${param.error}" class="error-message">
-            Invalid email or password
+<main class="auth-wrapper">
+    <section class="auth-layout">
+        <div class="auth-visual" aria-label="SmartDelivery welcome">
+            <div class="auth-visual-content">
+                <span class="auth-eyebrow">
+                    <i class="fas fa-bolt"></i>
+                    SmartDelivery
+                </span>
+                <h1>Order from local favorites in a few clicks.</h1>
+                <p>Restaurants, shops, and daily essentials are ready when you are.</p>
+                <div class="auth-benefits">
+                    <span><i class="fas fa-utensils"></i> Restaurants</span>
+                    <span><i class="fas fa-shopping-basket"></i> Shops</span>
+                    <span><i class="fas fa-truck-fast"></i> Delivery</span>
+                </div>
+            </div>
         </div>
 
-        <div th:if="${param.inactive}" class="error-message">
-            Your account is inactive. Please contact support.
-        </div>
-
-        <div th:if="${param.registered}" class="success-message">
-            Registration successful. Please login.
-        </div>
-
-        <form th:action="@{/login}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <div class="input-group">
-                <input type="text" name="email" placeholder="Email"/>
+        <div class="auth-container">
+            <div class="auth-header">
+                <span class="auth-eyebrow">Welcome back</span>
+                <h2>Sign in</h2>
+                <p>Use your SmartDelivery account to continue.</p>
             </div>
 
-            <div class="input-group">
-                <input type="password" name="password" placeholder="Password"/>
+            <div th:if="${param.error}" class="error-message">
+                Invalid email or password
             </div>
 
-            <button type="submit">Sign In</button>
-        </form>
+            <div th:if="${param.inactive}" class="error-message">
+                Your account is inactive. Please contact support.
+            </div>
 
-        <p class="switch-link">
-            Don't have an account?
-            <a th:href="@{/register}">Sign up</a>
-        </p>
-    </div>
-</div>
+            <div th:if="${param.registered}" class="success-message">
+                Registration successful. Please login.
+            </div>
 
-</body>
+            <form th:action="@{/login}" method="post" class="auth-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-control">
+                        <i class="fas fa-envelope"></i>
+                        <input id="email" type="text" name="email" placeholder="you@example.com" autocomplete="email"/>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-control">
+                        <i class="fas fa-lock"></i>
+                        <input id="password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password"/>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    <i class="fas fa-arrow-right-to-bracket"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <p class="switch-link">
+                Don't have an account?
+                <a th:href="@{/register}">Sign up</a>
+            </p>
+        </div>
+    </section>
+</main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
+</body>
 </html>

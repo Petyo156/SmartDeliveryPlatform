@@ -1,23 +1,26 @@
 @import "../main.css";
 
 .categories-section {
-    min-height: 50px;
+    min-height: 52px;
     height: auto;
-    background: var(--dark-accent);
+    background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-top: 10vh;
+    margin-top: var(--navbar-height);
     width: 100%;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 10px 24px rgba(60, 66, 79, 0.06);
 }
 
 .mega-menu {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     height: 100%;
     max-width: var(--navbar-max-width);
-    width: 90%;
+    width: min(var(--navbar-max-width), calc(100% - (var(--page-gutter) * 2)));
     padding: 0 var(--navbar-padding);
 }
 
@@ -33,37 +36,42 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: white;
+    color: var(--dark);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
     white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .menu-title i {
-    font-size: 1.2rem;
-    color: white;
+    font-size: 1rem;
+    color: var(--primary);
 }
 
 .submenu {
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     background: white;
-    min-width: 600px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 4px;
+    min-width: 220px;
+    padding: 0.55rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     z-index: 1000;
 }
 
 .menu-item:hover .submenu {
-    display: flex;
-    gap: 2rem;
+    display: block;
 }
 
 .submenu-column {
-    flex: 1;
+    min-width: 0;
 }
 
 .submenu-column h6 {
@@ -76,35 +84,47 @@
 
 .submenu-column ul {
     list-style: none;
-    padding: 0;
+    padding: 0.45rem;
     margin: 0;
+    color: var(--dark);
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .submenu-column ul li {
-    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .submenu-column ul li a {
-    color: #666;
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
     text-decoration: none;
-    font-size: 14px;
-    transition: color 0.2s;
+    font-size: 0.9rem;
+    font-weight: 800;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .submenu-column ul li a:hover {
-    color: var(--accent);
-}
-
-.menu-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: var(--primary-soft);
+    color: var(--primary-dark);
 }
 
 .menu-item:hover .menu-title {
-    color: var(--light);
+    background-color: var(--primary-soft);
+    color: var(--primary-dark);
+    transform: translateY(-1px);
 }
 
 .menu-item:hover .menu-title i {
-    color: var(--light);
+    color: var(--primary-dark);
 }
 
 .categories-menu {
@@ -123,19 +143,25 @@
 
 @media (max-width: 1200px) {
     .mega-menu {
-        width: 95%;
+        width: calc(100% - 2rem);
     }
 }
 
 @media (max-width: 992px) {
     .mega-menu {
-        width: 98%;
+        width: calc(100% - 2rem);
     }
 }
 
 @media (max-width: 768px) {
     .mega-menu {
-        width: 100%;
-        padding: 0 1rem;
+        width: calc(100% - 1.5rem);
+        overflow-x: auto;
+    }
+
+    .submenu {
+        left: 0;
+        min-width: 220px;
+        transform: none;
     }
 }
