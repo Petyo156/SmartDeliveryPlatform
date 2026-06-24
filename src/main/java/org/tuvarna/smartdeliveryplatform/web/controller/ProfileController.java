@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.ProfileService;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
@@ -53,7 +54,7 @@ public class ProfileController {
         }
 
         profileService.updateUserProfile(authenticationMetadata.getUsername(), profileRequest);
-        redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PROFILE_UPDATED);
         return "redirect:/profile";
     }
 }

@@ -1,0 +1,46 @@
+package org.tuvarna.smartdeliveryplatform.shared.constants;
+
+public final class SuccessMessages {
+    public static final String PRODUCT_ADDED_TO_CART = "Product added to cart.";
+    public static final String CART_CLEARED_AND_PRODUCT_ADDED = "Cart cleared and product added.";
+    public static final String ORDER_PLACED = "Order placed successfully.";
+    public static final String USER_STATUS_UPDATED = "User status updated successfully for: ";
+    public static final String MERCHANT_CREATED = "Merchant created successfully for: ";
+    public static final String USER_ASSIGNED_AS_COURIER = "User assigned as courier successfully: ";
+    public static final String USER_ASSIGNED_AS_ADMIN = "User assigned as admin successfully: ";
+    public static final String ADMIN_DEMOTED = "Admin demoted successfully: ";
+    public static final String MERCHANT_STATUS_TOGGLED = "Merchant status toggled successfully: ";
+    public static final String COURIER_ACTIVE_STATUS_TOGGLED = "Courier active status toggled successfully: ";
+    public static final String ADDRESS_ADDED = "Address added successfully!";
+    public static final String ADDRESS_UPDATED = "Address updated successfully!";
+    public static final String ADDRESS_DELETED = "Address deleted!";
+    public static final String DEFAULT_ADDRESS_UPDATED = "Default address updated!";
+    public static final String CATEGORY_CREATED = "Category created successfully!";
+    public static final String CATEGORY_DELETED = "Category deleted successfully!";
+    public static final String DELIVERY_CONFIRMED = "Delivery confirmed.";
+    public static final String DELIVERY_DECLINED = "Delivery declined.";
+    public static final String ORDER_MARKED_ON_THE_WAY = "Order marked as on the way.";
+    public static final String ORDER_MARKED_DELIVERED = "Order marked as delivered.";
+    public static final String MERCHANT_PROFILE_UPDATED = "Merchant profile updated successfully!";
+    public static final String ORDER_ACCEPTED_AND_COURIER_ASSIGNED = "Order accepted and courier assigned.";
+    public static final String ORDER_CANCELLED = "Order cancelled.";
+    public static final String ORDER_MARKED_PREPARING = "Order marked as preparing.";
+    public static final String ORDER_MARKED_PREPARED = "Order marked as prepared.";
+    public static final String PRODUCT_UPDATED = "Product updated successfully!";
+    public static final String PRODUCT_CREATED = "Product created successfully!";
+    public static final String PRODUCT_DELETED = "Product deleted successfully!";
+    public static final String PRODUCT_AVAILABILITY_UPDATED = "Product availability updated!";
+    public static final String PROFILE_UPDATED = "Profile updated successfully!";
+    public static final String ORDER_PLACED_HISTORY_NOTE = "Order placed";
+    public static final String COURIER_ACCEPTED_HISTORY_NOTE = "Courier confirmed the delivery.";
+    public static final String MERCHANT_PREPARING_HISTORY_NOTE = "Merchant started preparing the order.";
+    public static final String MERCHANT_PREPARED_HISTORY_NOTE = "Merchant marked the order as prepared.";
+    public static final String COURIER_ON_THE_WAY_HISTORY_NOTE = "Courier picked up the order and is on the way.";
+    public static final String MERCHANT_ACCEPTED_HISTORY_TEMPLATE = "Order accepted by merchant. Courier assigned: %s.";
+    public static final String MERCHANT_CANCELLED_HISTORY_NOTE = "Order cancelled by merchant.";
+    public static final String COURIER_DECLINED_HISTORY_TEMPLATE = "Courier declined the delivery: %s.";
+    public static final String REPLACEMENT_COURIER_ASSIGNED_HISTORY_TEMPLATE = "Replacement courier assigned: %s.";
+    public static final String ORDER_DECLINED_NO_COURIER_HISTORY_NOTE = "Order declined automatically because no replacement courier is available.";
+    public static final String COURIER_DELIVERED_HISTORY_NOTE = "Courier delivered the order.";
+    public static final String COURIER_RELEASED_HISTORY_TEMPLATE = " Courier released: %s.";
+}

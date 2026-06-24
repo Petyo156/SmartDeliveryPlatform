@@ -13,6 +13,7 @@ import org.tuvarna.smartdeliveryplatform.courier.service.CourierService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.order.service.OrderWorkflowService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.user.model.User;
 import org.tuvarna.smartdeliveryplatform.user.service.UserService;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderDetailsResponse;
@@ -67,7 +68,7 @@ public class CourierController {
                                RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.confirmByCourier(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Delivery confirmed.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.DELIVERY_CONFIRMED);
 
         return "redirect:/courier/orders/" + orderNumber;
     }
@@ -78,7 +79,7 @@ public class CourierController {
                                RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.declineByCourier(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Delivery declined.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.DELIVERY_DECLINED);
 
         return "redirect:/courier/orders";
     }
@@ -89,7 +90,7 @@ public class CourierController {
                                     RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.markOnTheWayByCourier(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order marked as on the way.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_MARKED_ON_THE_WAY);
 
         return "redirect:/courier/orders/" + orderNumber;
     }
@@ -100,7 +101,7 @@ public class CourierController {
                                      RedirectAttributes redirectAttributes) {
         User user = userService.getAuthenticatedUser(authenticationMetadata);
         orderWorkflowService.markDeliveredByCourier(orderNumber, user);
-        redirectAttributes.addFlashAttribute("successMessage", "Order marked as delivered.");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.ORDER_MARKED_DELIVERED);
 
         return "redirect:/courier/orders/" + orderNumber;
     }

@@ -11,6 +11,7 @@ import org.tuvarna.smartdeliveryplatform.category.service.CategoryService;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
 import org.tuvarna.smartdeliveryplatform.product.service.ProductService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
+import org.tuvarna.smartdeliveryplatform.shared.constants.SuccessMessages;
 import org.tuvarna.smartdeliveryplatform.web.dto.admin.MerchantResponse;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryRequest;
 import org.tuvarna.smartdeliveryplatform.web.dto.category.CategoryResponse;
@@ -82,7 +83,7 @@ public class ProductController {
         }
 
         productService.updateProduct(authenticationMetadata.getUsername(), slug, request);
-        redirectAttributes.addFlashAttribute("successMessage", "Product updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PRODUCT_UPDATED);
         return "redirect:/products";
     }
 
@@ -97,7 +98,7 @@ public class ProductController {
         }
 
         productService.createProduct(authenticationMetadata.getUsername(), request);
-        redirectAttributes.addFlashAttribute("successMessage", "Product created successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PRODUCT_CREATED);
         return "redirect:/products";
     }
 
@@ -106,7 +107,7 @@ public class ProductController {
                                 @PathVariable String slug,
                                 RedirectAttributes redirectAttributes) {
         productService.deleteProduct(slug, authenticationMetadata);
-        redirectAttributes.addFlashAttribute("successMessage", "Product deleted successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PRODUCT_DELETED);
         return "redirect:/products";
     }
 
@@ -115,7 +116,7 @@ public class ProductController {
                                      @PathVariable String productSlug,
                                      RedirectAttributes redirectAttributes) {
         productService.toggleAvailability(productSlug, authenticationMetadata);
-        redirectAttributes.addFlashAttribute("successMessage", "Product availability updated!");
+        redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.PRODUCT_AVAILABILITY_UPDATED);
         return "redirect:/products";
     }
 }
