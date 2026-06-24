@@ -229,7 +229,7 @@ public class MerchantService {
     }
 
     private List<MerchantCardResponse> getTopActiveMerchants(MerchantType type) {
-        return merchantRepository.findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(type)
+        return merchantRepository.findTop5ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(type)
                 .stream()
                 .map(this::toMerchantCardResponse)
                 .toList();

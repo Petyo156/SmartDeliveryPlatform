@@ -22,7 +22,7 @@ public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
 
     List<Merchant> findAllByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
 
-    List<Merchant> findTop3ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
+    List<Merchant> findTop5ByIsActiveTrueAndTypeOrderByIsClosedAscCreatedAtDesc(MerchantType type);
 
     boolean existsMerchantBySlug(String slug);
 
