@@ -248,8 +248,7 @@
                     <td th:text="${product.categoryName}">Category</td>
                     <td>
                         <strong>
-                            <span th:text="${product.price}">0.00</span>
-                            €
+                            <span th:text="${product.price} + '€'">0.00</span>
                         </strong>
                     </td>
                     <td>

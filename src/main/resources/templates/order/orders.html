@@ -114,22 +114,19 @@
                     <div>
                         <span>Products</span>
                         <strong>
-                            <span th:text="${order.subtotal}">0.00</span>
-                            €
+                            <span th:text="${order.subtotal} + '€'">0.00</span>
                         </strong>
                     </div>
                     <div>
                         <span>Delivery fee</span>
                         <strong>
-                            <span th:text="${order.deliveryFee}">0.00</span>
-                            €
+                            <span th:text="${order.deliveryFee} + '€'">0.00</span>
                         </strong>
                     </div>
                     <div class="client-order-total-price">
                         <span>Total price</span>
                         <strong>
-                            <span th:text="${order.totalPrice}">0.00</span>
-                            €
+                            <span th:text="${order.totalPrice} + '€'">0.00</span>
                         </strong>
                     </div>
                 </div>

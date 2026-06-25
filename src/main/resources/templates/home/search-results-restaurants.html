@@ -89,7 +89,7 @@
             <i class="fas fa-search"></i>
             <h2 th:if="${searchResponse.hasQuery}">No restaurant results found for "<span th:text="${searchQuery}"></span>"</h2>
             <h2 th:unless="${searchResponse.hasQuery}">Please enter a restaurant search query</h2>
-            <p>Try searching by restaurant name, cuisine, or product.</p>
+            <p>Try searching by restaurant name or product.</p>
         </div>
     </section>
 </main>
