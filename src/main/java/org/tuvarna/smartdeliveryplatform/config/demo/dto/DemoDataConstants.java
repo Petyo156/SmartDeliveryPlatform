@@ -32,7 +32,6 @@ public class DemoDataConstants {
     public static final String SHOP_DAILY_GROCER_EMAIL = "daily-grocer@gmail.com";
 
     public static final String DEMO_PASSWORD = "admin";
-    public static final String DEMO_PHONE = "0000000000";
 
     public static final String CATEGORY_PIZZA = "Pizza";
     public static final String CATEGORY_BURGERS = "Burgers";

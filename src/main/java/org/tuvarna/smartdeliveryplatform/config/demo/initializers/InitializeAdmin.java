@@ -23,7 +23,7 @@ public class InitializeAdmin implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (adminService.adminAlreadyExists()){
             return;
         }
@@ -50,7 +50,7 @@ public class InitializeAdmin implements CommandLineRunner {
         return UserRegisterRequest.builder()
                 .firstName("Admin")
                 .lastName("Adminov")
-                .phoneNumber(DemoDataConstants.DEMO_PHONE)
+                .phoneNumber("0000000000")
                 .email(DemoDataConstants.ADMIN_EMAIL)
                 .password(DemoDataConstants.DEMO_PASSWORD)
                 .confirmPassword(DemoDataConstants.DEMO_PASSWORD)
