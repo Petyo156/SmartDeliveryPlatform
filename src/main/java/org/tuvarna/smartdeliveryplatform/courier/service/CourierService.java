@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tuvarna.smartdeliveryplatform.courier.model.Courier;
 import org.tuvarna.smartdeliveryplatform.courier.repository.CourierRepository;
+import org.tuvarna.smartdeliveryplatform.exception.CourierAvailabilityException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.shared.constants.ErrorMessages;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
@@ -19,9 +21,12 @@ import java.util.Optional;
 @Slf4j
 public class CourierService {
     private final CourierRepository courierRepository;
+    private final OrderService orderService;
 
-    public CourierService(CourierRepository courierRepository) {
+    public CourierService(CourierRepository courierRepository,
+                          OrderService orderService) {
         this.courierRepository = courierRepository;
+        this.orderService = orderService;
     }
 
     @Transactional
@@ -51,10 +56,14 @@ public class CourierService {
     @Transactional
     public void toggleCourierActiveStatus(String email) {
         Courier courier = getExistingCourierByUserEmail(email);
-        courier.setIsActive(!courier.getIsActive());
+        boolean newActiveStatus = !courier.getIsActive();
+        validateCourierCanBeDeactivated(email, newActiveStatus);
+
+        courier.setIsActive(newActiveStatus);
         updateLinkedUserStatusFromCourierStatus(courier);
         if (!courier.getIsActive()) {
             courier.setIsAvailable(false);
+            courier.setIsBusy(true);
         }
         courierRepository.save(courier);
         log.info("Toggled active status for courier {} to {}", email, courier.getIsActive());
@@ -63,9 +72,12 @@ public class CourierService {
     @Transactional
     public void setCourierActiveStatus(String email, boolean isActive) {
         Courier courier = getRequiredCourierByUserEmail(email);
+        validateCourierCanBeDeactivated(email, isActive);
+
         courier.setIsActive(isActive);
         if (!isActive) {
             courier.setIsAvailable(false);
+            courier.setIsBusy(true);
         }
         courierRepository.save(courier);
         log.info("Set active status for courier {} to {}", email, isActive);
@@ -74,7 +86,13 @@ public class CourierService {
     @Transactional
     public void toggleCourierAvailability(String email) {
         Courier courier = getExistingCourierByUserEmail(email);
+        boolean hasActiveAssignedOrders = courierHasActiveAssignedOrders(email);
+        if (Boolean.TRUE.equals(courier.getIsAvailable()) && hasActiveAssignedOrders) {
+            throw new CourierAvailabilityException(ErrorMessages.COURIER_CANNOT_STOP_RECEIVING_ACTIVE_ORDERS);
+        }
+
         courier.setIsAvailable(!courier.getIsAvailable());
+        courier.setIsBusy(hasActiveAssignedOrders || !courier.getIsAvailable());
         courierRepository.save(courier);
         log.info("Toggled availability for courier {} to {}", email, courier.getIsAvailable());
     }
@@ -117,6 +135,16 @@ public class CourierService {
                 .orElseThrow(() -> new SystemOperationException(ErrorMessages.COURIER_WITH_EMAIL_DOES_NOT_EXIST.formatted(email)));
     }
 
+    private boolean courierHasActiveAssignedOrders(String email) {
+        return orderService.courierHasActiveAssignedOrders(email);
+    }
+
+    private void validateCourierCanBeDeactivated(String email, boolean newActiveStatus) {
+        if (!newActiveStatus && courierHasActiveAssignedOrders(email)) {
+            throw new CourierOperationException(ErrorMessages.COURIER_CANNOT_BE_DEACTIVATED_ACTIVE_ORDERS);
+        }
+    }
+
     private void updateLinkedUserStatusFromCourierStatus(Courier courier) {
         UserStatus linkedUserStatus = courier.getIsActive() ? UserStatus.ACTIVE : UserStatus.INACTIVE;
         courier.getUser().setStatus(linkedUserStatus);
@@ -127,6 +155,7 @@ public class CourierService {
                 .user(user)
                 .isActive(true)
                 .isAvailable(false)
+                .isBusy(true)
                 .build();
     }
 }

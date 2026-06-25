@@ -73,6 +73,7 @@ public class AdminController {
 
     @PostMapping("/users/status")
     public String updateUserStatus(
+            @AuthenticationPrincipal AuthenticationMetadata authenticationMetadata,
             @Valid @ModelAttribute("userStatusRequest") UserStatusRequest userStatusRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -82,7 +83,7 @@ public class AdminController {
             return "redirect:/admin/users";
         }
 
-        adminService.updateUserStatus(userStatusRequest.getEmail(), userStatusRequest.getStatus());
+        adminService.updateUserStatus(userStatusRequest.getEmail(), userStatusRequest.getStatus(), authenticationMetadata.getUsername());
         redirectAttributes.addFlashAttribute("successMessage", SuccessMessages.USER_STATUS_UPDATED + userStatusRequest.getEmail());
 
         return "redirect:/admin/users";

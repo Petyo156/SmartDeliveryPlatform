@@ -11,6 +11,7 @@ import org.tuvarna.smartdeliveryplatform.exception.MerchantOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -36,11 +37,16 @@ public class MerchantService {
     private final MerchantRepository merchantRepository;
     private final AddressService addressService;
     private final UserService userService;
+    private final OrderService orderService;
 
-    public MerchantService(MerchantRepository merchantRepository, AddressService addressService, UserService userService) {
+    public MerchantService(MerchantRepository merchantRepository,
+                           AddressService addressService,
+                           UserService userService,
+                           OrderService orderService) {
         this.merchantRepository = merchantRepository;
         this.addressService = addressService;
         this.userService = userService;
+        this.orderService = orderService;
     }
 
     @Transactional(readOnly = true)
@@ -64,7 +70,10 @@ public class MerchantService {
     public void toggleMerchantActiveStatus(String email) {
         Merchant merchant = getMerchantOptionalByUserEmail(email)
                 .orElseThrow(() -> new MerchantOperationException(ErrorMessages.MERCHANT_WITH_EMAIL_DOES_NOT_EXIST));
-        merchant.setIsActive(!merchant.getIsActive());
+        boolean newActiveStatus = !merchant.getIsActive();
+        validateMerchantCanBeDeactivated(email, newActiveStatus);
+
+        merchant.setIsActive(newActiveStatus);
         updateLinkedUserStatusFromMerchantStatus(merchant);
         if (!merchant.getIsActive()) {
             merchant.setIsClosed(true);
@@ -76,6 +85,8 @@ public class MerchantService {
     @Transactional
     public void setMerchantActiveStatus(String email, boolean isActive) {
         Merchant merchant = getMerchantByUserEmail(email);
+        validateMerchantCanBeDeactivated(email, isActive);
+
         merchant.setIsActive(isActive);
         if (!isActive) {
             merchant.setIsClosed(true);
@@ -198,6 +209,12 @@ public class MerchantService {
     private void updateLinkedUserStatusFromMerchantStatus(Merchant merchant) {
         UserStatus linkedUserStatus = merchant.getIsActive() ? UserStatus.ACTIVE : UserStatus.INACTIVE;
         merchant.getUser().setStatus(linkedUserStatus);
+    }
+
+    private void validateMerchantCanBeDeactivated(String email, boolean newActiveStatus) {
+        if (!newActiveStatus && orderService.merchantHasActiveOrders(email)) {
+            throw new MerchantOperationException(ErrorMessages.MERCHANT_CANNOT_BE_DEACTIVATED_ACTIVE_ORDERS);
+        }
     }
 
     private MerchantResponse initializeMerchantResponse(String searchEmail, Merchant merchant) {

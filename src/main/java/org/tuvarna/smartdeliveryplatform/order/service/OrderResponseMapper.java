@@ -159,7 +159,7 @@ public class OrderResponseMapper {
 
     private String formatCourierName(Courier courier) {
         if (courier == null) {
-            return "Not assigned yet";
+            return "-";
         }
 
         return formatUserName(courier.getUser());

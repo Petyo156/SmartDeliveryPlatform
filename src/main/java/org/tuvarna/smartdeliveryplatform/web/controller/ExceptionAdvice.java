@@ -10,6 +10,7 @@ import org.tuvarna.smartdeliveryplatform.exception.AdminOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CartMerchantConflictException;
 import org.tuvarna.smartdeliveryplatform.exception.CartOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CategoryOperationException;
+import org.tuvarna.smartdeliveryplatform.exception.CourierAvailabilityException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierAssignmentException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOperationException;
 import org.tuvarna.smartdeliveryplatform.exception.CourierOrderWorkflowException;
@@ -113,6 +114,16 @@ public class ExceptionAdvice {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
         return "redirect:" + redirectUrlResolver.resolveRefererOrDefault(request, "/courier/orders");
+    }
+
+    @ExceptionHandler({
+            CourierAvailabilityException.class
+    })
+    public String courierAvailabilityFailed(RedirectAttributes redirectAttributes,
+                                            CourierAvailabilityException e) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:/courier/orders";
     }
 
     @ExceptionHandler({

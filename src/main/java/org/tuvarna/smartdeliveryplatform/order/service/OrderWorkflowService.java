@@ -66,6 +66,7 @@ public class OrderWorkflowService {
         Order order = getOrderForCourierWorkflow(orderNumber, courierUser);
         ensureCourierCanConfirm(order);
 
+        courierAssignmentService.markCourierBusy(order.getCourier());
         changeOrderStatus(order, OrderStatus.COURIER_ACCEPTED, courierUser, SuccessMessages.COURIER_ACCEPTED_HISTORY_NOTE);
 
         log.info("Courier {} confirmed order {}", courierUser.getEmail(), order.getOrderNumber());

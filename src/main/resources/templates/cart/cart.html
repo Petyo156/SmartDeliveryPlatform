@@ -111,8 +111,8 @@
                             Currently unavailable
                         </span>
                         <p>
-                            <span th:text="${item.unitPrice}">0.00</span>
-                            € each
+                            <span th:text="${item.unitPrice} + '€'">0.00</span>
+                             each
                         </p>
                     </div>
                 </div>
@@ -144,8 +144,7 @@
                 <div class="cart-line-total">
                     <span>Subtotal</span>
                     <strong>
-                        <span th:text="${item.lineSubtotal}">0.00</span>
-                        €
+                        <span th:text="${item.lineSubtotal} + '€'">0.00</span>
                     </strong>
                 </div>
 
@@ -173,22 +172,19 @@
                 <div class="cart-summary-row">
                     <span>Subtotal</span>
                     <strong>
-                        <span th:text="${cart.subtotal}">0.00</span>
-                        €
+                        <span th:text="${cart.subtotal} + '€'">0.00</span>
                     </strong>
                 </div>
                 <div class="cart-summary-row">
                     <span>Delivery fee</span>
                     <strong>
-                        <span th:text="${cart.deliveryFee}">0.00</span>
-                        €
+                        <span th:text="${cart.deliveryFee} + '€'">0.00</span>
                     </strong>
                 </div>
                 <div class="cart-summary-row cart-summary-total">
                     <span>Total</span>
                     <strong>
-                        <span th:text="${cart.total}">0.00</span>
-                        €
+                        <span th:text="${cart.total} + '€'">0.00</span>
                     </strong>
                 </div>
             </div>

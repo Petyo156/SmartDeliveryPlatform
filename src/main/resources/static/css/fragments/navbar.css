@@ -196,8 +196,6 @@ img {
     color: inherit;
 }
 
-/* Responsive */
-
 @media (max-width: 1200px) {
     .navbar {
         width: calc(100% - 2rem);
