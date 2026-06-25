@@ -39,9 +39,10 @@ public class AdminService {
     }
 
     @Transactional
-    public void updateUserStatus(String email, UserStatus status) {
+    public void updateUserStatus(String email, UserStatus status, String actingAdminEmail) {
         User user = getExistingUserByEmail(email);
         validateMainAdminStatusCanBeChanged(user);
+        validateAdminStatusCanBeChangedByActingAdmin(user, status, actingAdminEmail);
 
         user.setStatus(status);
         userRepository.save(user);
@@ -109,6 +110,7 @@ public class AdminService {
         }
 
         user.setRole(UserRole.ADMIN);
+        user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
         log.info("Made user {} an admin", email);
     }
@@ -161,6 +163,12 @@ public class AdminService {
     private void validateMainAdminStatusCanBeChanged(User user) {
         if (isMainAdmin(user)) {
             throw new AdminOperationException(ErrorMessages.MAIN_ADMIN_STATUS_CANNOT_BE_CHANGED);
+        }
+    }
+
+    private void validateAdminStatusCanBeChangedByActingAdmin(User user, UserStatus status, String actingAdminEmail) {
+        if (user.getEmail().equals(actingAdminEmail) && status != UserStatus.ACTIVE) {
+            throw new AdminOperationException(ErrorMessages.ADMIN_CANNOT_DEACTIVATE_SELF);
         }
     }
 

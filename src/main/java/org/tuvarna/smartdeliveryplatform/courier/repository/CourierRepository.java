@@ -19,6 +19,7 @@ public interface CourierRepository extends JpaRepository<Courier, UUID> {
             FROM couriers c
             WHERE c.is_active = true
               AND c.is_available = true
+              AND c.is_busy = false
               AND NOT EXISTS (
                   SELECT 1
                   FROM orders o
