@@ -149,6 +149,19 @@ public class OrderService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public boolean courierHasActiveAssignedOrders(String courierEmail) {
+        return orderRepository.existsByCourier_User_EmailAndStatusIn(
+                courierEmail,
+                OrderStatus.activeAssignedStatuses()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean merchantHasActiveOrders(String merchantEmail) {
+        return orderRepository.existsByMerchant_User_EmailAndStatusIn(merchantEmail, merchantActiveOrderStatuses());
+    }
+
     private Merchant getMerchantFromCartItems(List<CartItem> cartItems) {
         return cartItems.getFirst().getProduct().getMerchant();
     }
@@ -180,6 +193,17 @@ public class OrderService {
                     ErrorMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
             );
         }
+    }
+
+    private List<OrderStatus> merchantActiveOrderStatuses() {
+        return List.of(
+                OrderStatus.PENDING,
+                OrderStatus.ACCEPTED,
+                OrderStatus.COURIER_ACCEPTED,
+                OrderStatus.PREPARING,
+                OrderStatus.PREPARED,
+                OrderStatus.ON_THE_WAY
+        );
     }
 
     private Order createOrder(User user, Merchant merchant, Address address, BigDecimal subtotal, LocalDateTime localDateTime) {

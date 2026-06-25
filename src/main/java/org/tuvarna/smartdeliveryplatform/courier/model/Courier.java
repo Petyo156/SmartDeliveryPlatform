@@ -28,4 +28,7 @@ public class Courier {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 
+    @Column(name = "is_busy", nullable = false)
+    private Boolean isBusy;
+
 }

@@ -99,18 +99,18 @@ public class UserService {
                 .build();
     }
 
+    private void checkIfPasswordsMatch(String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)) {
+            throw new PasswordsDoNotMatchException(ErrorMessages.PASSWORDS_DO_NOT_MATCH);
+        }
+    }
+
     private void validateInput(String email, String password) {
         if (email == null || email.isBlank()) {
             throw new UserOperationException(ErrorMessages.EMAIL_MUST_NOT_BE_EMPTY);
         }
         if (password == null || password.isBlank()) {
             throw new UserOperationException(ErrorMessages.PASSWORD_MUST_NOT_BE_EMPTY);
-        }
-    }
-
-    private void checkIfPasswordsMatch(String password, String confirmPassword) {
-        if (!password.equals(confirmPassword)) {
-            throw new PasswordsDoNotMatchException(ErrorMessages.PASSWORDS_DO_NOT_MATCH);
         }
     }
 

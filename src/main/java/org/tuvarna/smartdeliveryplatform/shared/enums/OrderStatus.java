@@ -1,9 +1,12 @@
 package org.tuvarna.smartdeliveryplatform.shared.enums;
 
+import lombok.Getter;
+
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@Getter
 public enum OrderStatus {
     PENDING(false),
     ACCEPTED(true),
@@ -19,10 +22,6 @@ public enum OrderStatus {
 
     OrderStatus(boolean activeAssignedStatus) {
         this.activeAssignedStatus = activeAssignedStatus;
-    }
-
-    public boolean isActiveAssignedStatus() {
-        return activeAssignedStatus;
     }
 
     public static Set<OrderStatus> activeAssignedStatuses() {

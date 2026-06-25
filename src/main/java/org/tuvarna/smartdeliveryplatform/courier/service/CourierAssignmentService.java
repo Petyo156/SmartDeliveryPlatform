@@ -56,9 +56,17 @@ public class CourierAssignmentService {
 
     @Transactional
     public Courier releaseCourier(Courier courier) {
-        courier.setIsAvailable(Boolean.TRUE.equals(courier.getIsActive()));
+        courier.setIsBusy(false);
         Courier savedCourier = courierRepository.save(courier);
         log.info("Released courier {}", savedCourier.getUser().getEmail());
+        return savedCourier;
+    }
+
+    @Transactional
+    public Courier markCourierBusy(Courier courier) {
+        courier.setIsBusy(true);
+        Courier savedCourier = courierRepository.save(courier);
+        log.info("Marked courier {} as busy", savedCourier.getUser().getEmail());
         return savedCourier;
     }
 
@@ -70,8 +78,7 @@ public class CourierAssignmentService {
     }
 
     private Courier assignCourier(Courier courier) {
-        courier.setIsAvailable(false);
-        Courier savedCourier = courierRepository.save(courier);
+        Courier savedCourier = markCourierBusy(courier);
         log.info("Assigned courier {}", savedCourier.getUser().getEmail());
         return savedCourier;
     }
