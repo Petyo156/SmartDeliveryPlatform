@@ -13,6 +13,7 @@ import org.tuvarna.smartdeliveryplatform.exception.SystemOperationException;
 import org.tuvarna.smartdeliveryplatform.merchant.model.Merchant;
 import org.tuvarna.smartdeliveryplatform.merchant.repository.MerchantRepository;
 import org.tuvarna.smartdeliveryplatform.merchant.service.MerchantService;
+import org.tuvarna.smartdeliveryplatform.order.service.OrderService;
 import org.tuvarna.smartdeliveryplatform.security.AuthenticationMetadata;
 import org.tuvarna.smartdeliveryplatform.shared.enums.MerchantType;
 import org.tuvarna.smartdeliveryplatform.shared.enums.UserRole;
@@ -53,6 +54,9 @@ class MerchantServiceUTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private OrderService orderService;
 
     @InjectMocks
     private MerchantService merchantService;

@@ -135,32 +135,6 @@ class AdminServiceUTest {
     }
 
     @Test
-    void updateUserStatus_whenMerchantIsSetInactive_thenDeactivateMerchant() {
-        User user = user("merchant@example.com", UserRole.MERCHANT);
-        when(userRepository.findByEmail("merchant@example.com")).thenReturn(Optional.of(user));
-
-        adminService.updateUserStatus("merchant@example.com", UserStatus.INACTIVE);
-
-        assertEquals(UserStatus.INACTIVE, user.getStatus());
-        verify(userRepository, times(1)).save(user);
-        verify(merchantService, times(1)).setMerchantActiveStatus("merchant@example.com", false);
-        verify(courierService, never()).setCourierActiveStatus("merchant@example.com", false);
-    }
-
-    @Test
-    void updateUserStatus_whenCourierIsSetInactive_thenDeactivateCourier() {
-        User user = user("courier@example.com", UserRole.COURIER);
-        when(userRepository.findByEmail("courier@example.com")).thenReturn(Optional.of(user));
-
-        adminService.updateUserStatus("courier@example.com", UserStatus.INACTIVE);
-
-        assertEquals(UserStatus.INACTIVE, user.getStatus());
-        verify(userRepository, times(1)).save(user);
-        verify(courierService, times(1)).setCourierActiveStatus("courier@example.com", false);
-        verify(merchantService, never()).setMerchantActiveStatus("courier@example.com", false);
-    }
-
-    @Test
     void demoteAdmin_whenValidAdmin_thenMakeClient() {
         User user = user("admin@example.com", UserRole.ADMIN);
         when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(user));

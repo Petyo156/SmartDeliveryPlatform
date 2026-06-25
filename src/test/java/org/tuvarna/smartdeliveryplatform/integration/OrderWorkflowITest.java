@@ -93,8 +93,7 @@ class OrderWorkflowITest {
         User client = registerUser("workflow.client@example.com", "0888123421");
         User merchantOwner = createOpenMerchantWithProducts();
         ProductResponse pizza = productNamed(merchantOwner.getEmail());
-        User courierUser = createAvailableCourier("workflow.courier@example.com", "0888123423");
-        Courier courier = courierRepository.findCourierByUser_Email(courierUser.getEmail()).orElseThrow();
+        createAvailableCourier("workflow.courier@example.com", "0888123423");
 
         cartService.addProductToCart(client, cartRequest(pizza.getSlug()));
         orderService.placeOrder(client, newAddressOrderRequest());
@@ -108,19 +107,21 @@ class OrderWorkflowITest {
         orderWorkflowService.acceptByMerchant(orderNumber, merchantOwner);
 
         Order acceptedOrder = onlyOrderForClient();
+        Courier assignedCourier = acceptedOrder.getCourier();
+        User assignedCourierUser = assignedCourier.getUser();
         assertThat(acceptedOrder.getStatus()).isEqualTo(OrderStatus.ACCEPTED);
-        assertThat(acceptedOrder.getCourier().getUser().getEmail()).isEqualTo("workflow.courier@example.com");
-        assertThat(courierRepository.findById(courier.getId()).orElseThrow().getIsAvailable()).isFalse();
+        assertThat(assignedCourier).isNotNull();
+        assertThat(courierRepository.findById(assignedCourier.getId()).orElseThrow().getIsBusy()).isTrue();
 
         User otherCourier = createAvailableCourier("workflow.other.courier@example.com", "0888123425");
         assertThatThrownBy(() -> orderWorkflowService.confirmByCourier(orderNumber, otherCourier))
                 .isInstanceOf(OrderNotFoundException.class);
 
-        orderWorkflowService.confirmByCourier(orderNumber, courierUser);
+        orderWorkflowService.confirmByCourier(orderNumber, assignedCourierUser);
         orderWorkflowService.markPreparingByMerchant(orderNumber, merchantOwner);
         orderWorkflowService.markPreparedByMerchant(orderNumber, merchantOwner);
-        orderWorkflowService.markOnTheWayByCourier(orderNumber, courierUser);
-        orderWorkflowService.markDeliveredByCourier(orderNumber, courierUser);
+        orderWorkflowService.markOnTheWayByCourier(orderNumber, assignedCourierUser);
+        orderWorkflowService.markDeliveredByCourier(orderNumber, assignedCourierUser);
 
         Order deliveredOrder = onlyOrderForClient();
         assertThat(deliveredOrder.getStatus()).isEqualTo(OrderStatus.DELIVERED);
@@ -135,7 +136,9 @@ class OrderWorkflowITest {
                         OrderStatus.ON_THE_WAY,
                         OrderStatus.DELIVERED
                 );
-        assertThat(courierRepository.findById(courier.getId()).orElseThrow().getIsAvailable()).isTrue();
+        Courier releasedCourier = courierRepository.findById(assignedCourier.getId()).orElseThrow();
+        assertThat(releasedCourier.getIsAvailable()).isTrue();
+        assertThat(releasedCourier.getIsBusy()).isFalse();
     }
 
     private User createOpenMerchantWithProducts() {
