@@ -159,7 +159,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public boolean merchantHasActiveOrders(String merchantEmail) {
-        return orderRepository.existsByMerchant_User_EmailAndStatusIn(merchantEmail, merchantActiveOrderStatuses());
+        return orderRepository.existsByMerchant_User_EmailAndStatusIn(merchantEmail, OrderWorkflowRules.merchantActiveOrderStatuses());
     }
 
     private Merchant getMerchantFromCartItems(List<CartItem> cartItems) {
@@ -193,17 +193,6 @@ public class OrderService {
                     ErrorMessages.MINIMUM_ORDER_AMOUNT_REQUIRED.formatted(OrderPricingService.MINIMUM_ORDER_AMOUNT)
             );
         }
-    }
-
-    private List<OrderStatus> merchantActiveOrderStatuses() {
-        return List.of(
-                OrderStatus.PENDING,
-                OrderStatus.ACCEPTED,
-                OrderStatus.COURIER_ACCEPTED,
-                OrderStatus.PREPARING,
-                OrderStatus.PREPARED,
-                OrderStatus.ON_THE_WAY
-        );
     }
 
     private Order createOrder(User user, Merchant merchant, Address address, BigDecimal subtotal, LocalDateTime localDateTime) {

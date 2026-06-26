@@ -3,6 +3,7 @@ package org.tuvarna.smartdeliveryplatform.order.service;
 import org.tuvarna.smartdeliveryplatform.order.model.Order;
 import org.tuvarna.smartdeliveryplatform.shared.enums.OrderStatus;
 import org.tuvarna.smartdeliveryplatform.web.dto.order.OrderWorkflowActionsResponse;
+import java.util.List;
 
 public final class OrderWorkflowRules {
     static boolean isFinal(OrderStatus status) {
@@ -39,5 +40,16 @@ public final class OrderWorkflowRules {
                 .canMarkOnTheWayByCourier(order.getStatus() == OrderStatus.PREPARED)
                 .canMarkDeliveredByCourier(order.getStatus() == OrderStatus.ON_THE_WAY)
                 .build();
+    }
+
+    static List<OrderStatus> merchantActiveOrderStatuses() {
+        return List.of(
+                OrderStatus.PENDING,
+                OrderStatus.ACCEPTED,
+                OrderStatus.COURIER_ACCEPTED,
+                OrderStatus.PREPARING,
+                OrderStatus.PREPARED,
+                OrderStatus.ON_THE_WAY
+        );
     }
 }
